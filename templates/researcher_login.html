@@ -1,0 +1,49 @@
+{% extends 'index.html' %}
+
+{% block title %}user_projects{% endblock %}
+
+{% block content %}
+
+<!-- FORM RESEARCHER
+    justify-content-center for horizontal
+    align-items-center for vertical -->
+<div class="container d-flex justify-content-center align-items-center">
+
+ <form action="/" method="POST" class="mx-auto">
+     <!-- name -->
+<div class="row justify-content-center">
+
+
+    <!-- Force next columns to break to new line at md breakpoint and up -->
+    <div class="w-100 d-none d-md-block"></div>
+
+    <!-- Email -->
+    <div class="col-4">
+    <label for="inputEmailResearcher" class="col-form-label">Email</label>
+    <input type="email" name="emailResearcher" id="inputEmailResearcher" placeholder="name@example.com" class="form-control" aria-describedby="researcherEmailHelpInline">
+    <span id="researcherEmailHelpInline" class="form-text">
+      Must be 8-20 characters long.
+    </span>
+   </div>
+
+
+
+    <!-- Force next columns to break to new line at md breakpoint and up -->
+    <div class="w-100 d-none d-md-block"></div>
+
+    <!-- Password -->
+    <div class="col-4">
+    <label for="inputPasswordResearcher" class="col-form-label">Password</label>
+    <input type="password" name="passwordResearcher" id="inputPasswordResearcher" class="form-control" aria-describedby="researcherPasswordHelpInline">
+    <span id="researcherPasswordHelpInline" class="form-text">
+      Must be 8-20 characters long.
+    </span>
+   </div>
+
+
+</div>
+</form>
+</div>
+
+
+{% endblock %}

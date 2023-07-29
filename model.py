@@ -4,16 +4,8 @@ from flask import Flask
 from flask_migrate import Migrate
 import datetime
 from sqlalchemy import Column, Integer, DateTime, Enum
-
-basedir = os.path.abspath(os.path.dirname(__file__))
-# + os.path.join(basedir, 'data.pgdb')
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = \
-    'postgresql://Aesee8oonaich7:oojaiqu8peuTae@157.230.29.227:7794/postgres'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # needed for performance
-
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+from configuration import db, bcrypt, app
+from flask_bcrypt import Bcrypt
 
 
 class User(db.Model):
@@ -27,15 +19,6 @@ class User(db.Model):
 
     def __repr__(self):
         return f"<User(id={self.id}, username='{self.username}', email='{self.email}')>"
-
-    # @classmethod  # cls è esattamente come il self nei class methods
-    # def add_user(cls, username, email, password):
-    #     db.metadata.create_all(engine)  # crea la tabella se non esiste
-    #     session = Session(bind=engine)
-    #     user = cls(username=username, email=email, password=password)
-    #     session.add(user)
-    #     session.commit()
-    #     session.close()
 
 
 """Define one to many relationships 
@@ -64,14 +47,32 @@ class Researcher(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
-    username = db.Column(db.String(50), nullable=False)
-    email_researcher = db.Column(db.String(50), nullable=False)
-    password = db.Column(db.String(50), nullable=False)
+    surname = db.Column(db.String(50), nullable=False)
+    email = db.Column(db.String(50), nullable=False)
+    password = db.Column(db.String(100), nullable=False)
     # backref='researcher' add researcher attribute to Project model,
     # in that way I can use this attribute on any instance of Project
     # that create a list of projects that have one researcher
     projects = db.relationship('Project', backref='researcher')
     message = db.relationship('Message', backref='researcher')
+
+    # esiste anche quello personalizzato
+    # def __init__(self, name, surname, email, password):
+    #     self.name = name
+    #     self.surname = surname
+    #     self.email = email
+    #     self.password_hash = password
+
+    @classmethod
+    def add_researcher(cls, name, surname, email, password):
+        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+        researcher = cls(name=name, surname=surname, email=email, password=hashed_password)
+        db.session.add(researcher)
+        db.session.commit()
+
+    #  password from user passed on login
+    def check_password(self, password):
+        return bcrypt.check_password_hash(self.password_hash, password)
 
 
 """Define one to one relationships(partial) 
@@ -180,4 +181,5 @@ class EvaluationPeriod(db.Model):
 
 
 with app.app_context():
+    # db.drop_all()
     db.create_all()
