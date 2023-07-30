@@ -1,24 +1,69 @@
-from flask_sqlalchemy import SQLAlchemy
-import os
-from flask import Flask
-from flask_migrate import Migrate
 import datetime
-from sqlalchemy import Column, Integer, DateTime, Enum
+from enum import Enum
+
+from sqlalchemy import DateTime
 from configuration import db, bcrypt, app
-from flask_bcrypt import Bcrypt
+
+
+class UserType(Enum):
+    RESEARCHER = 'researcher'
+    EVALUATOR = 'evaluator'
 
 
 class User(db.Model):
     __tablename__ = 'users'
-    __table_args__ = {'schema': 'public'}
+    # __table_args__ = {'schema': 'public'}
 
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(50), nullable=False)
+    name = db.Column(db.String(50), nullable=False)
+    surname = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(50), nullable=False)
+    type_user = db.Column(db.Enum(UserType))  # discriminator attribute
+
+    researcher = db.relationship('Researcher', backref='user', uselist=False, cascade='all, delete-orphan')
+    evaluator = db.relationship('Evaluator', backref='user', uselist=False, cascade='all, delete-orphan')
 
     def __repr__(self):
         return f"<User(id={self.id}, username='{self.username}', email='{self.email}')>"
+
+
+class Researcher(db.Model):
+    __tablename__ = 'researchers'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), unique=True, nullable=False)
+    # backref='researcher' add researcher attribute to Project model,
+    # in that way I can use this attribute on any instance of Project
+    # that create a list of projects that have one researcher
+    projects = db.relationship('Project', backref='researcher')
+    message = db.relationship('Message', backref='researcher')
+
+    # esiste anche quello personalizzato
+    def __init__(self, name='', surname='', email='', password=''):
+        self.name = name
+        self.surname = surname
+        self.email = email
+        self.password_hash = password
+
+    @classmethod
+    def add_researcher(cls, name, surname, email, password):
+        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+        researcher = cls(name=name, surname=surname, email=email, password=hashed_password)
+        db.session.add(researcher)
+        db.session.commit()
+
+    #  password from user passed on login
+
+
+class Evaluator(db.Model):
+    __tablename__ = 'evaluators'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), unique=True, nullable=False)
+    projects = db.relationship('ProjectsToValue', backref='evaluator')
+    message = db.relationship('Message', backref='evaluator')
+    assessment_reports = db.relationship('AssessmentReport', backref='evaluator')
+    version_document = db.relationship('VersionDocument', backref='evaluator')
 
 
 """Define one to many relationships 
@@ -31,6 +76,8 @@ class Project(db.Model):
     # name='status_enum'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    data_creation = db.Column(db.Date, nullable=False)
     # status = db.Column(db.Enum('approved', 'submitted_for_evaluation', 'requires_changes',
     #                            'not_approved', name='status_enum'), nullable=False)
     # the 'researchers.id' that I created need to be just interpreted for developer.
@@ -41,38 +88,11 @@ class Project(db.Model):
     evaluation_period = db.relationship('EvaluationPeriod', backref='project')
     message = db.relationship('Message', backref='project')
 
-
-class Researcher(db.Model):
-    __tablename__ = 'researchers'
-
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), nullable=False)
-    surname = db.Column(db.String(50), nullable=False)
-    email = db.Column(db.String(50), nullable=False)
-    password = db.Column(db.String(100), nullable=False)
-    # backref='researcher' add researcher attribute to Project model,
-    # in that way I can use this attribute on any instance of Project
-    # that create a list of projects that have one researcher
-    projects = db.relationship('Project', backref='researcher')
-    message = db.relationship('Message', backref='researcher')
-
-    # esiste anche quello personalizzato
-    # def __init__(self, name, surname, email, password):
-    #     self.name = name
-    #     self.surname = surname
-    #     self.email = email
-    #     self.password_hash = password
-
     @classmethod
-    def add_researcher(cls, name, surname, email, password):
-        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-        researcher = cls(name=name, surname=surname, email=email, password=hashed_password)
-        db.session.add(researcher)
+    def add_project(cls, name, description, data_creation):
+        project = cls(name=name, description=description, data_creation=data_creation)
+        db.session.add(project)
         db.session.commit()
-
-    #  password from user passed on login
-    def check_password(self, password):
-        return bcrypt.check_password_hash(self.password_hash, password)
 
 
 """Define one to one relationships(partial) 
@@ -95,20 +115,6 @@ class ProjectsToValue(db.Model):
 """Define one to many relationships(partial) 
     between Evaluator and ProjectsToValue,
     one projects can be also not valued yet."""
-
-
-class Evaluator(db.Model):
-    __tablename__ = 'evaluators'
-
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), nullable=False)
-    surname = db.Column(db.String(50), nullable=False)
-    email = db.Column(db.String(50), nullable=False)
-    password = db.Column(db.String(50), nullable=False)
-    projects = db.relationship('ProjectsToValue', backref='evaluator')
-    message = db.relationship('Message', backref='evaluator')
-    assessment_reports = db.relationship('AssessmentReport', backref='evaluator')
-    version_document = db.relationship('VersionDocument', backref='evaluator')
 
 
 class Message(db.Model):
@@ -181,5 +187,5 @@ class EvaluationPeriod(db.Model):
 
 
 with app.app_context():
-    # db.drop_all()
+    db.drop_all()
     db.create_all()
