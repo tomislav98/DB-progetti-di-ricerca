@@ -1,6 +1,6 @@
+from config import app
 from flask import request, jsonify
-from configuration import app, bcrypt
-from model import Researcher, Evaluator, Project
+from model import Researcher, Evaluator, Project, User
 
 
 # Definizione della classe CustomError (se l'hai già definita altrove)
@@ -34,7 +34,7 @@ def get_all_password_hashes_from_db(type_user):
 
 def check_password(hashed_password, password):
     """ function that return True if password inserted by user is matching the hashcode."""
-    return bcrypt.check_password_hash(hashed_password, password)
+    return app.bcrypt.check_password_hash(hashed_password, password)
 
 
 # @app.route('/', methods=['GET', 'POST'])
@@ -45,19 +45,25 @@ def check_password(hashed_password, password):
 # this rout is needed for register the user(FORM)
 # TODO we need to understand in which way we are going to distinguish register from evaluator.
 @app.route('/register', methods=['POST'])
-def researcher_register():  # put application's code here
+def register_user():  # put application's code here
     """Function is going to register researcher or evaluator."""
+
     try:
         if request.method == 'POST':
             data = request.get_json()
             # primary key is the mail of the user
-            researcher = Researcher.query.filter_by(email=data['email']).first()
-            if researcher is None:  # if user is NOT found then save user in dataBase and render them to login page
-                Researcher.add_researcher(data['name'],
-                                          data['surname'],
-                                          data['email'],
-                                          data['password'])
-                return jsonify(data)
+            user = User.query.filter_by(email=data['email']).first()
+            if user is None:  # if user is NOT found then save user in dataBase and render them to login page
+                User.add_user(data['name'],
+                              data['surname'],
+                              data['email'],
+                              data['password'],
+                              data['type_user'])
+                response_data = {
+                    'message': 'User registered successfully',
+                    'data': data
+                }
+                return jsonify(response_data)
     except Exception:
         raise CustomError("Credential are not valid. try again.", 500)
     # the first time the client is sending the GET request

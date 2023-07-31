@@ -1,8 +1,7 @@
 import datetime
 from enum import Enum
-
 from sqlalchemy import DateTime
-from configuration import db, bcrypt, app
+from config import db, bcrypt
 
 
 class UserType(Enum):
@@ -18,14 +17,36 @@ class User(db.Model):
     name = db.Column(db.String(50), nullable=False)
     surname = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(50), nullable=False)
+    password = db.Column(db.String(100), nullable=False)
     type_user = db.Column(db.Enum(UserType))  # discriminator attribute
 
     researcher = db.relationship('Researcher', backref='user', uselist=False, cascade='all, delete-orphan')
     evaluator = db.relationship('Evaluator', backref='user', uselist=False, cascade='all, delete-orphan')
 
-    def __repr__(self):
-        return f"<User(id={self.id}, username='{self.username}', email='{self.email}')>"
+    @classmethod
+    def add_user(cls, name, surname, email, password, type_user):
+        try:
+            hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+            type_user_enum = UserType.RESEARCHER
+            if type_user == UserType.EVALUATOR:
+                type_user_enum = UserType.EVALUATOR
+            user = cls(name=name, surname=surname, email=email, password=hashed_password, type_user=type_user_enum)
+            db.session.add(user)
+
+            if type_user_enum == UserType.RESEARCHER:
+                Researcher.add_researcher(user_id=user.id)
+
+            elif type_user_enum == UserType.EVALUATOR:
+                Evaluator.add_evaluator(user_id=user.id)
+            else:
+                # Gestione del tipo di utente sconosciuto o non valido
+                raise ValueError("Unknown or invalid user type")
+            db.session.commit()
+        except Exception as e:
+            print(f"Errore: {type(e).__name__} - {e}")
+
+    # def __repr__(self):
+    #     return f"<User(id={self.id}, username='{self.username}', email='{self.email}')>"
 
 
 class Researcher(db.Model):
@@ -39,18 +60,16 @@ class Researcher(db.Model):
     message = db.relationship('Message', backref='researcher')
 
     # esiste anche quello personalizzato
-    def __init__(self, name='', surname='', email='', password=''):
-        self.name = name
-        self.surname = surname
-        self.email = email
-        self.password_hash = password
+    # def __init__(self, name='', surname='', email='', password=''):
+    #     self.name = name
+    #     self.surname = surname
+    #     self.email = email
+    #     self.password_hash = password
 
     @classmethod
-    def add_researcher(cls, name, surname, email, password):
-        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-        researcher = cls(name=name, surname=surname, email=email, password=hashed_password)
+    def add_researcher(cls, user_id):
+        researcher = cls(user_id=user_id)
         db.session.add(researcher)
-        db.session.commit()
 
     #  password from user passed on login
 
@@ -64,6 +83,11 @@ class Evaluator(db.Model):
     message = db.relationship('Message', backref='evaluator')
     assessment_reports = db.relationship('AssessmentReport', backref='evaluator')
     version_document = db.relationship('VersionDocument', backref='evaluator')
+
+    @classmethod
+    def add_evaluator(cls, user_id):
+        evaluator = cls(name=user_id)
+        db.session.add(evaluator)
 
 
 """Define one to many relationships 
@@ -184,8 +208,3 @@ class EvaluationPeriod(db.Model):
     data_start = db.Column(db.Date, nullable=False)
     data_end = db.Column(db.Date, nullable=False)
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
-
-
-with app.app_context():
-    db.drop_all()
-    db.create_all()
