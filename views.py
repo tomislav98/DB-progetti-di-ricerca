@@ -1,6 +1,69 @@
 from config import app
 from flask import request, jsonify
-from model import Researcher, Evaluator, Project, User
+from model import Researcher, Evaluator, Project, User, UserType
+
+
+# Metodo	Endpoint	Descrizione
+
+# GET	/utenti	Ottenere la lista degli utenti --> FATTO
+# POST	/utenti	Creare un nuovo utente (ricercatore o valutatore o blank) --> FATTO
+# GET	/utenti/{id}	Ottenere i dettagli di un utente --> FATTO
+# PUT	/utenti/{id}	Aggiornare i dettagli di un utente --> FATTO
+# DELETE	/utenti/{id}	Eliminare un utente  --> FATTO
+
+# GET	/ricercatori	Ottenere la lista dei ricercatori  --> FATTO
+# GET	/ricercatori/{id}	Ottenere i dettagli di un ricercatore  --> FATTO
+# PUT	/ricercatori/{id}	Aggiornare i dettagli di un ricercatore  --> FATTO
+# GET   /ricercatori/{id}/progetti  Ottenere la lista dei progetti di un ricercatore
+# POST  /ricercatori/{id}/progetti  Creare un nuovo progetto a nome del ricercatore {id}
+# GET   /ricercatori/{id}/progetti/{projectId}/messaggi Ottenere la lista dei messaggi del progetto {projectId} di uno specifico ricercatore {id}
+# POST  /ricercatori/{id}/progetti/{projectId}/valutatori/{valutatoreId}/messaggi Inviare un messaggio nella chat del progetto {projectId} di uno specifico ricercatore {id}
+
+# GET   /ricercatori/{id}/progetti/{projectId}/report Ottiene tutti i report di uno specifico progetto
+# GET   /ricercatori/{id}/progetti/{projectId}/valutatori Ottiene tutti i valutatori di uno specifico progetto
+
+# GET	/valutatori	Ottenere la lista dei valutatori
+# GET	/valutatori/{id}	Ottenere i dettagli di un valutatore
+# PUT	/valutatori/{id}	Aggiornare i dettagli di un valutatore
+# GET   /valutatori/{id}/report Ottenere la lista di report di un valutatore
+# POST  /valutatori/{id}/progetti/{projectId}/report Creare un nuovo report di un progetto {projectId} a nome del valutatore {id}
+# GET   /valutatori/{id}/progetti/{projectId}/report Ottenere tutti i report di uno specifico progetto {projectId} a nome del valutatore {id}
+# GET   /valutatori/{id}/report     Ottenere tutti i report del valutatore {id}
+
+#
+
+# -----------------------------------------------------
+
+# POST	/messaggi	Creare un nuovo messaggio
+# GET	/messaggi/{id}	Ottenere i dettagli di un messaggio
+# PUT	/messaggi/{id}	Aggiornare i dettagli di un messaggio
+# DELETE	/messaggi/{id}	Eliminare un messaggio
+
+# GET	/progetti	Ottenere la lista dei progetti
+# POST	/progetti	Creare un nuovo progetto
+# GET	/progetti/{id}	Ottenere i dettagli di un progetto
+# PUT	/progetti/{id}	Aggiornare i dettagli di un progetto
+# DELETE	/progetti/{id}	Eliminare un progetto
+
+# GET	/report-valutazioni	Ottenere la lista dei report di valutazione
+# POST	/report-valutazioni	Creare un nuovo report di valutazione
+# GET	/report-valutazioni/{id}	Ottenere i dettagli di un report di valutazione
+# PUT	/report-valutazioni/{id}	Aggiornare i dettagli di un report di valutazione
+# DELETE	/report-valutazioni/{id}	Eliminare un report di valutazione
+# GET	/versioni-progetto	Ottenere la lista delle versioni di un progetto
+# POST	/versioni-progetto	Creare una nuova versione di un progetto
+# GET	/versioni-progetto/{id}	Ottenere i dettagli di una versione di un progetto
+# PUT	/versioni-progetto/{id}	Aggiornare i dettagli di una versione di un progetto
+# DELETE	/versioni-progetto/{id}	Eliminare una versione di un progetto
+# GET	/documenti-progetto	Ottenere la lista dei documenti di un progetto
+# POST	/documenti-progetto	Caricare un nuovo documento per un progetto
+# GET	/documenti-progetto/{id}	Ottenere i dettagli di un documento di un progetto
+# DELETE	/documenti-progetto/{id}	Eliminare un documento di un progetto
+# GET	/finestre-valutazione	Ottenere la lista delle finestre di valutazione
+# POST	/finestre-valutazione	Creare una nuova finestra di valutazione
+# GET	/finestre-valutazione/{id}	Ottenere i dettagli di una finestra di valutazione
+# PUT	/finestre-valutazione/{id}	Aggiornare i dettagli di una finestra di valutazione
+# DELETE	/finestre-valutazione/{id}	Eliminare una finestra di valutazione
 
 
 # Definizione della classe CustomError (se l'hai già definita altrove)
@@ -42,12 +105,36 @@ def check_password(hashed_password, password):
 #     return render_template('index.html')
 
 
+@app.route('/users', methods=['GET'])
+def get_users():
+    """ Get all info of ALL users."""
+    try:
+        if request.method == 'GET':
+            users_json = []
+            users = User.query.all()
+            for user in users:
+                user_data = {
+                    'id': user.id,
+                    'name': user.name,
+                    'surname': user.surname,
+                    'email': user.email,
+                    'password': user.password,
+                    'type_user': str(user.type_user),  # Need to convert type_user in string because it's enum
+                }
+                users_json.append(user_data)
+            response_data = {
+                'message': 'Users GET successfully',
+                'data': users_json,
+            }
+            return jsonify(response_data)
+    except Exception:
+        raise CustomError("Can't got the data of researchers.", 500)
+
+
 # this rout is needed for register the user(FORM)
-# TODO we need to understand in which way we are going to distinguish register from evaluator.
-@app.route('/register', methods=['POST'])
+@app.route('/register/user', methods=['POST'])
 def register_user():  # put application's code here
     """Function is going to register researcher or evaluator."""
-
     try:
         if request.method == 'POST':
             data = request.get_json()
@@ -67,6 +154,57 @@ def register_user():  # put application's code here
     except Exception:
         raise CustomError("Credential are not valid. try again.", 500)
     # the first time the client is sending the GET request
+
+
+@app.route('/user/<int:user_id>/<attribute_name>', methods=['PUT'])
+def update_specific_user(user_id, attribute_name):
+    """ Update a specific info of SPECIFIF user."""
+    try:
+        if request.method == 'PUT':
+            user = User.query.get(user_id)
+            if user:
+                data = request.get_json()
+                new_value = data.get(attribute_name)
+                if new_value:
+                    User.update_researcher(user, attribute_name, new_value)
+                    return jsonify({'message': f'{attribute_name} updated successfully'})
+    except Exception:
+        raise CustomError("Can't UPDATE the data of researchers.", 500)
+
+
+@app.route('/user/<int:user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    try:
+        user = User.query.get(user_id)
+        if not user:
+            raise CustomError("User not found.", 404)
+
+        if request.method == 'DELETE':
+            User.delete_user(user)
+            return jsonify({'message': 'User deleted successfully'})
+
+    except Exception:
+        raise CustomError("Can't delete the user.", 500)
+
+
+@app.route('/user/<int:user_id>', methods=['GET'])
+def get_specific_researcher(user_id):
+    """ Get all info of SPECIFIC researcher."""
+    try:
+        if request.method == 'GET':
+            user = User.query.get(user_id)
+            if user:
+                researcher_data = {
+                    'id': user.id,
+                    'name': user.name,
+                    'surname': user.surname,
+                    'email': user.email,
+                    'type_user': str(user.type_user),
+                    # Aggiungi altri campi specifici del ricercatore se necessario
+                }
+                return jsonify(researcher_data)
+    except Exception:
+        raise CustomError("Can't got the data of user.", 500)
 
 
 def is_valid_researcher(data):
@@ -130,12 +268,60 @@ def get_projects():
 
 @app.route('/researchers', methods=['GET'])
 def get_researchers():
+    """ Get all info of researchers."""
     try:
         if request.method == 'GET':
-            data = request.get_json()
-            return jsonify(data)
+            researchers_json = []
+            researchers = Researcher.query.all()
+            for researcher in researchers:
+                researcher_data = {
+                    'id': researcher.id,
+                    'user_id': researcher.user_id,
+                    # Aggiungi altri campi specifici del ricercatore se necessario
+                }
+                researchers_json.append(researcher_data)
+            response_data = {
+                'message': 'Researchers GET successfully',
+                'data': researchers_json,
+            }
+            return jsonify(response_data)
     except Exception:
         raise CustomError("Can't got the data of researchers.", 500)
+
+
+@app.route('/researcher/<int:researcher_id>', methods=['GET'])
+def get_specific_researcher(researcher_id):
+    """ Get all info of SPECIFIC researcher."""
+    try:
+        if request.method == 'GET':
+            researcher = User.query.get(researcher_id)
+            if researcher and researcher.type_user == UserType.RESEARCHER:
+                researcher_data = {
+                    'id': researcher.id,
+                    'name': researcher.name,
+                    'surname': researcher.surname,
+                    'email': researcher.email,
+                    # Aggiungi altri campi specifici del ricercatore se necessario
+                }
+                return jsonify(researcher_data)
+    except Exception:
+        raise CustomError("Can't got the data of researchers.", 500)
+
+
+@app.route('/researcher/<int:researcher_id>/<attribute_name>', methods=['PUT'])
+def update_specific_researcher(researcher_id, attribute_name):
+    """ Update a specific info of SPECIFIC researcher."""
+    try:
+        if request.method == 'PUT':
+            researcher = User.query.get(researcher_id)
+            if researcher:
+                data = request.get_json()
+                new_value = data.get(attribute_name)
+                if new_value:
+                    User.update_researcher(researcher, attribute_name, new_value)
+                    return jsonify({'message': f'{attribute_name} updated successfully'})
+    except Exception:
+        raise CustomError("Can't UPDATE the data of researchers.", 500)
 
 
 # TODO need to verify

@@ -1,7 +1,7 @@
 import datetime
 from enum import Enum
 from sqlalchemy import DateTime
-from config import db, bcrypt
+from config import db, bcrypt, app
 
 
 class UserType(Enum):
@@ -16,7 +16,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
     surname = db.Column(db.String(50), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
+    email = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
     type_user = db.Column(db.Enum(UserType))  # discriminator attribute
 
@@ -32,6 +32,7 @@ class User(db.Model):
                 type_user_enum = UserType.EVALUATOR
             user = cls(name=name, surname=surname, email=email, password=hashed_password, type_user=type_user_enum)
             db.session.add(user)
+            db.session.commit()
 
             if type_user_enum == UserType.RESEARCHER:
                 Researcher.add_researcher(user_id=user.id)
@@ -41,9 +42,20 @@ class User(db.Model):
             else:
                 # Gestione del tipo di utente sconosciuto o non valido
                 raise ValueError("Unknown or invalid user type")
-            db.session.commit()
+
         except Exception as e:
             print(f"Errore: {type(e).__name__} - {e}")
+
+    @classmethod
+    def update_user(cls, user_object, attribute_name, new_value):
+        # Python function that accept object, attribute for change and new_value
+        setattr(user_object, attribute_name, new_value)
+        db.session.commit()
+
+    @classmethod
+    def delete_user(cls, user_object):
+        db.session.delete(user_object)
+        db.session.commit()
 
     # def __repr__(self):
     #     return f"<User(id={self.id}, username='{self.username}', email='{self.email}')>"
@@ -52,7 +64,7 @@ class User(db.Model):
 class Researcher(db.Model):
     __tablename__ = 'researchers'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), unique=True, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), ondelete='CASCADE', unique=True, nullable=False)
     # backref='researcher' add researcher attribute to Project model,
     # in that way I can use this attribute on any instance of Project
     # that create a list of projects that have one researcher
@@ -68,9 +80,15 @@ class Researcher(db.Model):
 
     @classmethod
     def add_researcher(cls, user_id):
-        researcher = cls(user_id=user_id)
+        researcher = Researcher(user_id=user_id)
         db.session.add(researcher)
+        db.session.commit()
 
+    # @classmethod
+    # def update_researcher(cls, researcher, attribute_name, new_value):
+    #     # Python function that accept object, attribute for change and new_value
+    #     setattr(researcher, attribute_name, new_value)
+    #     db.session.commit()
     #  password from user passed on login
 
 
@@ -78,7 +96,7 @@ class Evaluator(db.Model):
     __tablename__ = 'evaluators'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), unique=True, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), ondelete='CASCADE', unique=True, nullable=False)
     projects = db.relationship('ProjectsToValue', backref='evaluator')
     message = db.relationship('Message', backref='evaluator')
     assessment_reports = db.relationship('AssessmentReport', backref='evaluator')
@@ -86,8 +104,9 @@ class Evaluator(db.Model):
 
     @classmethod
     def add_evaluator(cls, user_id):
-        evaluator = cls(name=user_id)
+        evaluator = Evaluator(user_id=user_id)
         db.session.add(evaluator)
+        db.session.commit()
 
 
 """Define one to many relationships 
@@ -208,3 +227,8 @@ class EvaluationPeriod(db.Model):
     data_start = db.Column(db.Date, nullable=False)
     data_end = db.Column(db.Date, nullable=False)
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
+
+
+with app.app_context():
+    # db.drop_all()
+    db.create_all()
