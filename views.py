@@ -1,7 +1,8 @@
-from config import app
+from config import AppFactory
 from flask import request, jsonify
 from model import Researcher, Evaluator, Project, User, UserType
 
+app = AppFactory.get_app()
 
 # Metodo	Endpoint	Descrizione
 
@@ -13,18 +14,16 @@ from model import Researcher, Evaluator, Project, User, UserType
 
 # GET	/ricercatori	Ottenere la lista dei ricercatori  --> FATTO
 # GET	/ricercatori/{id}	Ottenere i dettagli di un ricercatore  --> FATTO
-# PUT	/ricercatori/{id}	Aggiornare i dettagli di un ricercatore  --> FATTO
-# GET   /ricercatori/{id}/progetti  Ottenere la lista dei progetti di un ricercatore
-# POST  /ricercatori/{id}/progetti  Creare un nuovo progetto a nome del ricercatore {id}
+# GET   /ricercatori/{id}/progetti  Ottenere la lista dei progetti di un ricercatore    OK
+# POST  /ricercatori/{id}/progetti  Creare un nuovo progetto a nome del ricercatore {id}    OK
 # GET   /ricercatori/{id}/progetti/{projectId}/messaggi Ottenere la lista dei messaggi del progetto {projectId} di uno specifico ricercatore {id}
 # POST  /ricercatori/{id}/progetti/{projectId}/valutatori/{valutatoreId}/messaggi Inviare un messaggio nella chat del progetto {projectId} di uno specifico ricercatore {id}
-
-# GET   /ricercatori/{id}/progetti/{projectId}/report Ottiene tutti i report di uno specifico progetto
-# GET   /ricercatori/{id}/progetti/{projectId}/valutatori Ottiene tutti i valutatori di uno specifico progetto
+# GET   /ricercatori/{id}/progetti/{projectId}/versioni     Ottenere tutte le versioni di un progetto OK
+# GET   /ricercatori/{id}/progetti/{projectId}/versione/{versionId}/report Ottenere tutti i report di uno specifico progetto    OK
+# GET   /ricercatori/{id}/progetti/{projectId}/valutatori Ottiene tutti i valutatori di uno specifico progetto  
 
 # GET	/valutatori	Ottenere la lista dei valutatori
 # GET	/valutatori/{id}	Ottenere i dettagli di un valutatore
-# PUT	/valutatori/{id}	Aggiornare i dettagli di un valutatore
 # GET   /valutatori/{id}/report Ottenere la lista di report di un valutatore
 # POST  /valutatori/{id}/progetti/{projectId}/report Creare un nuovo report di un progetto {projectId} a nome del valutatore {id}
 # GET   /valutatori/{id}/progetti/{projectId}/report Ottenere tutti i report di uno specifico progetto {projectId} a nome del valutatore {id}
@@ -99,11 +98,11 @@ def check_password(hashed_password, password):
     """ function that return True if password inserted by user is matching the hashcode."""
     return app.bcrypt.check_password_hash(hashed_password, password)
 
-
-# @app.route('/', methods=['GET', 'POST'])
-# def index():  # put application's code here
-#     return render_template('index.html')
-
+# Route that returns a list of every endpoint
+@app.route('/', methods=['GET'])
+def getAllEndpoints():
+    return jsonify({'/': 'Route that returns a list of every endpoint ',
+                    '/register': 'Route that registers a user'})
 
 @app.route('/users', methods=['GET'])
 def get_users():
@@ -188,7 +187,7 @@ def delete_user(user_id):
 
 
 @app.route('/user/<int:user_id>', methods=['GET'])
-def get_specific_researcher(user_id):
+def get_specific_user(user_id):
     """ Get all info of SPECIFIC researcher."""
     try:
         if request.method == 'GET':
@@ -205,7 +204,6 @@ def get_specific_researcher(user_id):
                 return jsonify(researcher_data)
     except Exception:
         raise CustomError("Can't got the data of user.", 500)
-
 
 def is_valid_researcher(data):
     """Function that verify if researcher that is loging is valid."""
@@ -367,3 +365,6 @@ def get_projects_researchers(researcher_id):
                 return jsonify(projects_researchers_dict)
     except Exception:
         raise CustomError("Can't GET the data of projects.", 500)
+    
+if __name__ == "__main__":
+    app.run()
