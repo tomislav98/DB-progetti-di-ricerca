@@ -3,11 +3,9 @@ from enum import Enum
 from sqlalchemy import DateTime
 from config import db, bcrypt, app
 
-
 class UserType(Enum):
     RESEARCHER = 'researcher'
     EVALUATOR = 'evaluator'
-
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -64,7 +62,7 @@ class User(db.Model):
 class Researcher(db.Model):
     __tablename__ = 'researchers'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), ondelete='CASCADE', unique=True, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), unique=True, nullable=False) # sistemare ondelete='CASCADE',
     # backref='researcher' add researcher attribute to Project model,
     # in that way I can use this attribute on any instance of Project
     # that create a list of projects that have one researcher
@@ -96,7 +94,7 @@ class Evaluator(db.Model):
     __tablename__ = 'evaluators'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), ondelete='CASCADE', unique=True, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), unique=True, nullable=False) # sistemare ondelete='CASCADE',
     projects = db.relationship('ProjectsToValue', backref='evaluator')
     message = db.relationship('Message', backref='evaluator')
     assessment_reports = db.relationship('AssessmentReport', backref='evaluator')
@@ -107,7 +105,6 @@ class Evaluator(db.Model):
         evaluator = Evaluator(user_id=user_id)
         db.session.add(evaluator)
         db.session.commit()
-
 
 """Define one to many relationships 
     between Project and researcher,
