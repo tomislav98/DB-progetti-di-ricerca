@@ -117,12 +117,11 @@ def get_users():
                     'name': user.name,
                     'surname': user.surname,
                     'email': user.email,
-                    'password': user.password,
                     'type_user': str(user.type_user),  # Need to convert type_user in string because it's enum
                 }
                 users_json.append(user_data)
             response_data = {
-                'message': 'Users GET successfully',
+                'message': 'Got Users successfully!',
                 'data': users_json,
             }
             return jsonify(response_data)
