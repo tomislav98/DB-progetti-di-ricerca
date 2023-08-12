@@ -35,9 +35,6 @@ class AppFactory:
         cls._bcrypt = Bcrypt(cls._app)
         return cls._bcrypt
 
-
 app = AppFactory.get_app()
 db = AppFactory.get_db()
 bcrypt = AppFactory.get_bcrypt()
-
-

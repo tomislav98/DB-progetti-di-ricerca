@@ -1,6 +1,6 @@
 from config import AppFactory
 from flask import request, jsonify
-from model import Researcher, Evaluator, Project, User, UserType
+from models import Researcher, Evaluator, Project, User, UserType
 
 app = AppFactory.get_app()
 
