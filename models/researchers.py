@@ -1,4 +1,4 @@
-from config import db, bcrypt, app
+from config import db
 
 class Researcher(db.Model):
     __tablename__ = 'researchers'

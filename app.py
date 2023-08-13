@@ -1,8 +1,8 @@
-from config import AppFactory
+from config import app, db
+from endpoints.user_routes import user_blueprint
+from utils.exceptions import CustomError
 from flask import request, jsonify
-from models import Researcher, Evaluator, Project, User, UserType
-
-app = AppFactory.get_app()
+from models.users import User, Researcher, Evaluator
 
 # Metodo	Endpoint	Descrizione
 
@@ -65,13 +65,7 @@ app = AppFactory.get_app()
 # DELETE	/finestre-valutazione/{id}	Eliminare una finestra di valutazione
 
 
-# Definizione della classe CustomError (se l'hai già definita altrove)
-class CustomError(Exception):
-    def __init__(self, message, status_code):
-        super().__init__()
-        self.message = message
-        self.status_code = status_code
-
+app.register_blueprint(user_blueprint, url_prefix='/user')
 
 # Definizione della funzione di gestione degli errori
 @app.errorhandler(CustomError)
@@ -80,162 +74,11 @@ def handle_custom_error(error):
     response.status_code = error.status_code
     return response
 
-
-def get_all_password_hashes_from_db(type_user):
-    """ its generic function that return all password of researcher or evaluator"""
-    # Recupera tutte le password hash dalla tabella User
-    if type_user == 'researcher':
-        researchers = Researcher.query.all()
-        return [researcher.password for researcher in researchers]
-    elif type_user == 'evaluator':
-        evaluators = Evaluator.query.all()
-        return [evaluator.password for evaluator in evaluators]
-    else:
-        print('Something is wrong in function get_all_password_hashes_from_db()!')
-
-
-def check_password(hashed_password, password):
-    """ function that return True if password inserted by user is matching the hashcode."""
-    return app.bcrypt.check_password_hash(hashed_password, password)
-
 # Route that returns a list of every endpoint
 @app.route('/', methods=['GET'])
 def getAllEndpoints():
     return jsonify({'/': 'Route that returns a list of every endpoint ',
                     '/register': 'Route that registers a user'})
-
-@app.route('/users', methods=['GET'])
-def get_users():
-    """ Get all info of ALL users."""
-    try:
-        if request.method == 'GET':
-            users_json = []
-            users = User.query.all()
-            for user in users:
-                user_data = {
-                    'id': user.id,
-                    'name': user.name,
-                    'surname': user.surname,
-                    'email': user.email,
-                    'type_user': str(user.type_user),  # Need to convert type_user in string because it's enum
-                }
-                users_json.append(user_data)
-            response_data = {
-                'message': 'Got Users successfully!',
-                'data': users_json,
-            }
-            return jsonify(response_data)
-    except Exception:
-        raise CustomError("Can't got the data of researchers.", 500)
-
-
-# this rout is needed for register the user(FORM)
-@app.route('/register/user', methods=['POST'])
-def register_user():  # put application's code here
-    """Function is going to register researcher or evaluator."""
-    try:
-        if request.method == 'POST':
-            data = request.get_json()
-            # primary key is the mail of the user
-            user = User.query.filter_by(email=data['email']).first()
-            if user is None:  # if user is NOT found then save user in dataBase and render them to login page
-                User.add_user(data['name'],
-                              data['surname'],
-                              data['email'],
-                              data['password'],
-                              data['type_user'])
-                response_data = {
-                    'message': 'User registered successfully',
-                    'data': data
-                }
-                return jsonify(response_data)
-    except Exception:
-        raise CustomError("Credential are not valid. try again.", 500)
-    # the first time the client is sending the GET request
-
-
-@app.route('/user/<int:user_id>/<attribute_name>', methods=['PUT'])
-def update_specific_user(user_id, attribute_name):
-    """ Update a specific info of SPECIFIF user."""
-    try:
-        if request.method == 'PUT':
-            user = User.query.get(user_id)
-            if user:
-                data = request.get_json()
-                new_value = data.get(attribute_name)
-                if new_value:
-                    User.update_researcher(user, attribute_name, new_value)
-                    return jsonify({'message': f'{attribute_name} updated successfully'})
-    except Exception:
-        raise CustomError("Can't UPDATE the data of researchers.", 500)
-
-
-@app.route('/user/<int:user_id>', methods=['DELETE'])
-def delete_user(user_id):
-    try:
-        user = User.query.get(user_id)
-        if not user:
-            raise CustomError("User not found.", 404)
-
-        if request.method == 'DELETE':
-            User.delete_user(user)
-            return jsonify({'message': 'User deleted successfully'})
-
-    except Exception:
-        raise CustomError("Can't delete the user.", 500)
-
-
-@app.route('/user/<int:user_id>', methods=['GET'])
-def get_specific_user(user_id):
-    """ Get all info of SPECIFIC researcher."""
-    try:
-        if request.method == 'GET':
-            user = User.query.get(user_id)
-            if user:
-                researcher_data = {
-                    'id': user.id,
-                    'name': user.name,
-                    'surname': user.surname,
-                    'email': user.email,
-                    'type_user': str(user.type_user),
-                    # Aggiungi altri campi specifici del ricercatore se necessario
-                }
-                return jsonify(researcher_data)
-    except Exception:
-        raise CustomError("Can't got the data of user.", 500)
-
-def is_valid_researcher(data):
-    """Function that verify if researcher that is loging is valid."""
-    # Need to verify that email could exist, and if mail NOT exist then rise an error
-    is_email_found = Researcher.query.filter_by(email=data['email']).first()
-    # Need to verify that hash password could exist, and if hash password NOT exist then rise an error
-    hash_list = get_all_password_hashes_from_db('researcher')
-    is_password_found = False
-    for password_hash in hash_list:
-        if check_password(password_hash, data['password']):
-            is_password_found = True
-            break
-
-    if is_email_found and is_password_found:
-        return True
-    return False
-
-
-def is_valid_evaluator(data):
-    """Function that verify if evaluator that is loging is valid."""
-    # Need to verify that email could exist, and if mail NOT exist then rise an error
-    is_email_found = Evaluator.query.filter_by(email=data['email']).first()
-    # Need to verify that hash password could exist, and if hash password NOT exist then rise an error
-    hash_list = get_all_password_hashes_from_db('evaluator')
-    is_password_found = False
-    for password_hash in hash_list:
-        if check_password(password_hash, data['password']):
-            is_password_found = True
-            break
-
-    if is_email_found and is_password_found:
-        return True
-    return False
 
 
 @app.route('/login', methods=['POST'])
@@ -247,7 +90,7 @@ def login():
     try:
         if request.method == 'POST':
             data = request.get_json()
-            if is_valid_evaluator(data) or is_valid_researcher(data):
+            if Evaluator.is_valid_evaluator(data) or Researcher.is_valid_researcher(data):
                 return jsonify(data)
     except Exception:
         raise CustomError("Credential are not valid. try again.", 401)
@@ -365,5 +208,5 @@ def get_projects_researchers(researcher_id):
     except Exception:
         raise CustomError("Can't GET the data of projects.", 500)
     
-if __name__ == "__main__":
-    app.run()
+if __name__ == '__main__':
+    app.run(debug=True)

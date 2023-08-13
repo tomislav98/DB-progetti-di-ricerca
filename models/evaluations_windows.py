@@ -1,5 +1,6 @@
 from config import db
 
+
 class EvaluationPeriod(db.Model):
     __tablename__ = 'evaluation_period'
 
