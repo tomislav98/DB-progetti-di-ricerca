@@ -8,4 +8,3 @@ class DocumentProject(db.Model):
     type_document = db.Column(db.String(50), nullable=False)
     version = db.Column(db.String(50), nullable=False)
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
-    version_document = db.relationship('VersionDocument', backref='documents_project')

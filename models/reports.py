@@ -1,6 +1,6 @@
 import datetime
+from config import db, bcrypt, app
 from sqlalchemy import DateTime 
-from config import db
 
 class AssessmentReport(db.Model):
     __tablename__ = 'assessment_reports'

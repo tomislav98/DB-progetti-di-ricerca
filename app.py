@@ -1,5 +1,5 @@
 from config import app, db
-from endpoints.user_routes import user_blueprint
+from api.user_routes import user_blueprint
 from utils.exceptions import CustomError
 from flask import request, jsonify
 from models.users import User, Researcher, Evaluator
