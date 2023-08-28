@@ -103,7 +103,7 @@ class Researcher(db.Model):
     def is_valid_researcher(data):
         """Function that verify if researcher that is loging is valid."""
         # Need to verify that email could exist, and if mail NOT exist then rise an error
-        is_email_found = Researcher.query.filter_by(email=data['email']).first()
+        is_email_found = User.query.filter_by(email=data['email']).first()
         # Need to verify that hash password could exist, and if hash password NOT exist then rise an error
         hash_list = User.get_all_password_hashes_from_db('researcher')
         is_password_found = False
@@ -141,7 +141,7 @@ class Evaluator(db.Model):
     def is_valid_evaluator(data):
         """Function that verify if evaluator that is loging is valid."""
         # Need to verify that email could exist, and if mail NOT exist then rise an error
-        is_email_found = Evaluator.query.filter_by(email=data['email']).first()
+        is_email_found = User.query.filter_by(email=data['email']).first()
         # Need to verify that hash password could exist, and if hash password NOT exist then rise an error
         hash_list = User.get_all_password_hashes_from_db('evaluator')
         is_password_found = False

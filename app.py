@@ -3,14 +3,15 @@ from api.user_routes import user_blueprint
 from utils.exceptions import CustomError
 from flask import request, jsonify
 from models.users import User, Researcher, Evaluator
+import jwt
 
 # Metodo	Endpoint	Descrizione
 
-# GET	/utenti	Ottenere la lista degli utenti --> FATTO
-# POST	/utenti	Creare un nuovo utente (ricercatore o valutatore o blank) --> FATTO
-# GET	/utenti/{id}	Ottenere i dettagli di un utente --> FATTO
-# PUT	/utenti/{id}	Aggiornare i dettagli di un utente --> FATTO
-# DELETE	/utenti/{id}	Eliminare un utente  --> FATTO
+# GET	/user	Ottenere la lista degli user --> FATTO
+# POST	/user/register	Creare un nuovo utente (ricercatore o valutatore o blank) --> FATTO
+# GET	/user/{id}	Ottenere i dettagli di un utente --> FATTO
+# PUT	/user/{id}	Aggiornare i dettagli di un utente --> FATTO
+# DELETE	/user/{id}	Eliminare un utente  --> FATTO
 
 # GET	/ricercatori	Ottenere la lista dei ricercatori  --> FATTO
 # GET	/ricercatori/{id}	Ottenere i dettagli di un ricercatore  --> FATTO
@@ -79,21 +80,6 @@ def handle_custom_error(error):
 def getAllEndpoints():
     return jsonify({'/': 'Route that returns a list of every endpoint ',
                     '/register': 'Route that registers a user'})
-
-
-@app.route('/login', methods=['POST'])
-def login():
-    """Function that log user.
-    I separated the validation into
-    two function so in that way in the
-     future I can change just that part of code."""
-    try:
-        if request.method == 'POST':
-            data = request.get_json()
-            if Evaluator.is_valid_evaluator(data) or Researcher.is_valid_researcher(data):
-                return jsonify(data)
-    except Exception:
-        raise CustomError("Credential are not valid. try again.", 401)
 
 
 @app.route('/projects', methods=['GET'])
