@@ -3,8 +3,8 @@ from sqlalchemy import DateTime
 from config import db, bcrypt
 
 class UserType(Enum):
-    RESEARCHER = 'researcher'
-    EVALUATOR = 'evaluator'
+    RESEARCHER = 0
+    EVALUATOR = 1
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -24,7 +24,7 @@ class User(db.Model):
         try:
             hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
             type_user_enum = UserType.RESEARCHER
-            if type_user == UserType.EVALUATOR:
+            if type_user == UserType.EVALUATOR.value:
                 type_user_enum = UserType.EVALUATOR
             user = cls(name=name, surname=surname, email=email, password=hashed_password, type_user=type_user_enum)
             db.session.add(user)
