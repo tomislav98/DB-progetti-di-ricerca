@@ -24,7 +24,7 @@ def get_users():
             if "user_type" in query_parameters:
                 user_type = UserType.get_enum_by_int(int(query_parameters.get("user_type")))
 
-                if user_type is not None and User.control_user(user_type.value):
+                if user_type is not None and User.check_user_role(user_type.value):
                     users_query = users_query.filter_by(type_user=user_type)
                 else:
                     raise ValueError("Unknown or invalid user type")

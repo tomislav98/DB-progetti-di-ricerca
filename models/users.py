@@ -18,7 +18,6 @@ class UserType(Enum):
             case _:
                 print("Errore")
 
-
 class User(db.Model):
     __tablename__ = 'users'
 
@@ -33,7 +32,7 @@ class User(db.Model):
     evaluator = db.relationship('Evaluator', backref='user', uselist=False, cascade='all, delete-orphan')
 
     @classmethod
-    def control_user(cls, type_user):
+    def check_user_role(cls, type_user):
         for user in UserType:
             if user.value == type_user:
                 return True
