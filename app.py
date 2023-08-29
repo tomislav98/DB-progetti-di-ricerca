@@ -68,12 +68,14 @@ import jwt
 
 app.register_blueprint(user_blueprint, url_prefix='/user')
 
+
 # Definizione della funzione di gestione degli errori
 @app.errorhandler(CustomError)
 def handle_custom_error(error):
     response = jsonify({"error": error.message})
     response.status_code = error.status_code
     return response
+
 
 # Route that returns a list of every endpoint
 @app.route('/', methods=['GET'])
@@ -193,6 +195,7 @@ def get_projects_researchers(researcher_id):
                 return jsonify(projects_researchers_dict)
     except Exception:
         raise CustomError("Can't GET the data of projects.", 500)
-    
+
+
 if __name__ == '__main__':
     app.run(debug=True)

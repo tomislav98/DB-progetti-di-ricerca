@@ -1,13 +1,14 @@
 from flask import Blueprint
 from config import bcrypt
 from flask import request, jsonify, Response, json
-from models.users import User, Evaluator, Researcher
+from models.users import User, Evaluator, Researcher, UserType
 from utils.exceptions import CustomError
 from datetime import datetime
 import jwt
 import os
 
 user_blueprint = Blueprint("user", __name__)
+
 
 # DONE
 @user_blueprint.route("/", methods=["GET"])
@@ -16,8 +17,19 @@ def get_users():
     try:
         if request.method == "GET":
             users_json = []
-            users = User.query.all()
+            users_query = User.query  # Take all the user researchers and evaluators
+            # codice added now
+            query_parameters = request.args
 
+            if "user_type" in query_parameters:
+                user_type = UserType.get_enum_by_int(int(query_parameters.get("user_type")))
+
+                if user_type is not None and User.control_user(user_type.value):
+                    users_query = users_query.filter_by(type_user=user_type)
+                else:
+                    raise ValueError("Unknown or invalid user type")
+
+            users = users_query.all()
             for user in users:
                 user_data = {
                     "id": user.id,
@@ -34,8 +46,9 @@ def get_users():
                 "data": users_json,
             }
             return jsonify(response_data)
-    except Exception as err:
-        raise CustomError(err.args, 500)
+    except Exception as e:
+        raise CustomError(f"Errore: {type(e).__name__} - {e}", 500)
+
 
 # DONE
 @user_blueprint.route("/register", methods=["POST"])
@@ -48,7 +61,7 @@ def register_user():  # put application's code here
             user = User.query.filter_by(email=data["email"]).first()
 
             if (
-                user is None
+                    user is None
             ):  # if user is NOT found then save user in dataBase and render them to login page
                 User.add_user(
                     data["name"],
@@ -62,7 +75,7 @@ def register_user():  # put application's code here
                     "data": data,
                 }
 
-                return Response(json.dumps(response_data), status=201, mimetype="application/json" )
+                return Response(json.dumps(response_data), status=201, mimetype="application/json")
             else:
                 raise CustomError("Email already in use", 409)
     except Exception as err:
@@ -73,6 +86,7 @@ def register_user():  # put application's code here
 
     # the first time the client is sending the GET request
 
+
 # TO DEBUG
 @user_blueprint.route("/login", methods=["GET"])
 def login():
@@ -81,7 +95,7 @@ def login():
             data = request.get_json()
             isEvaluator = Evaluator.is_valid_evaluator(data)
             isResearcher = Researcher.is_valid_researcher(data)
-            
+
             if isEvaluator or isResearcher:
                 # Generate a JWT token
                 payload = {
@@ -89,7 +103,7 @@ def login():
                         "username"
                     ],  # Subject (usually the user's ID or username)
                     "exp": datetime.datetime.utcnow()
-                    + datetime.timedelta(days=1),  # Token expiration
+                           + datetime.timedelta(days=1),  # Token expiration
                     "isEvaluator": isEvaluator,
                     "isResearcher": isResearcher,
                 }
@@ -124,7 +138,8 @@ def update_specific_user(user_id, attribute_name):
     except Exception:
         raise CustomError("Can't UPDATE the data of researchers.", 500)
 
-# NOT DONE 
+
+# NOT DONE
 
 @user_blueprint.route("/<int:user_id>", methods=["DELETE"])
 def delete_user(user_id):
@@ -140,7 +155,8 @@ def delete_user(user_id):
     except Exception:
         raise CustomError("Can't delete the user.", 500)
 
-# NOT DONE 
+
+# NOT DONE
 
 # Get all info of SPECIFIC researcher.
 @user_blueprint.route("/<int:user_id>", methods=["GET"])

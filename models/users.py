@@ -1,10 +1,23 @@
 from enum import Enum
 from sqlalchemy import DateTime
 from config import db, bcrypt
+from utils.exceptions import CustomError
+
 
 class UserType(Enum):
     RESEARCHER = 0
     EVALUATOR = 1
+
+    @staticmethod
+    def get_enum_by_int(type_user):
+        match type_user:
+            case 0:
+                return UserType.RESEARCHER
+            case 1:
+                return UserType.EVALUATOR
+            case _:
+                print("Errore")
+
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -20,27 +33,35 @@ class User(db.Model):
     evaluator = db.relationship('Evaluator', backref='user', uselist=False, cascade='all, delete-orphan')
 
     @classmethod
+    def control_user(cls, type_user):
+        for user in UserType:
+            if user.value == type_user:
+                return True
+        return False
+
+    @classmethod
     def add_user(cls, name, surname, email, password, type_user):
         try:
             hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-            type_user_enum = UserType.RESEARCHER
-            if type_user == UserType.EVALUATOR.value:
-                type_user_enum = UserType.EVALUATOR
-            user = cls(name=name, surname=surname, email=email, password=hashed_password, type_user=type_user_enum)
-            db.session.add(user)
-            db.session.commit()
+            if cls.control_user(type_user):
+                type_user_enum = UserType.RESEARCHER
+                if type_user == UserType.EVALUATOR.value:
+                    type_user_enum = UserType.EVALUATOR
+                user = cls(name=name, surname=surname, email=email, password=hashed_password, type_user=type_user_enum)
+                db.session.add(user)
+                db.session.commit()
 
-            if type_user_enum == UserType.RESEARCHER:
-                Researcher.add_researcher(user_id=user.id)
+                if type_user_enum == UserType.RESEARCHER:
+                    Researcher.add_researcher(user_id=user.id)
 
-            elif type_user_enum == UserType.EVALUATOR:
-                Evaluator.add_evaluator(user_id=user.id)
+                elif type_user_enum == UserType.EVALUATOR:
+                    Evaluator.add_evaluator(user_id=user.id)
             else:
                 # Gestione del tipo di utente sconosciuto o non valido
                 raise ValueError("Unknown or invalid user type")
 
         except Exception as e:
-            print(f"Errore: {type(e).__name__} - {e}")
+            raise CustomError(f"Errore: {type(e).__name__} - {e}", 500)
 
     @classmethod
     def update_user(cls, user_object, attribute_name, new_value):
@@ -79,7 +100,8 @@ class User(db.Model):
 class Researcher(db.Model):
     __tablename__ = 'researchers'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), unique=True, nullable=False) # sistemare ondelete='CASCADE',
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), unique=True,
+                        nullable=False)  # sistemare ondelete='CASCADE',
     # backref='researcher' add researcher attribute to Project model,
     # in that way I can use this attribute on any instance of Project
     # that create a list of projects that have one researcher
@@ -123,11 +145,13 @@ class Researcher(db.Model):
     #     db.session.commit()
     #  password from user passed on login
 
+
 class Evaluator(db.Model):
     __tablename__ = 'evaluators'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), unique=True, nullable=False) # sistemare ondelete='CASCADE',
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), unique=True,
+                        nullable=False)  # sistemare ondelete='CASCADE',
     message = db.relationship('Message', backref='evaluator')
     assessment_reports = db.relationship('AssessmentReport', backref='evaluator')
 
@@ -153,7 +177,3 @@ class Evaluator(db.Model):
         if is_email_found and is_password_found:
             return True
         return False
-
-
-
-
