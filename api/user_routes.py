@@ -116,7 +116,38 @@ def login():
                 raise CustomError("Credentials are not valid. Try again.", 401)
 
     except Exception as e:
-        raise CustomError("An error occurred: " + str(e), 500)
+        raise CustomError(e.message, e.status_code)
+
+
+# Retrieves data of a specific user.
+@user_blueprint.route("/<int:user_id>", methods=["GET"])
+def get_specific_user(user_id):
+    try:
+        token = request.headers.get('Authorization').split()[1]
+
+        decoded = jwt.decode(
+                    token, os.environ.get("JWT_SECRET"), algorithm="HS256"
+                )
+
+        print(decoded)
+
+        if request.method == "GET":
+            user = User.query.get(user_id)
+            if user:
+                researcher_data = {
+                    "id": user.id,
+                    "name": user.name,
+                    "surname": user.surname,
+                    "email": user.email,
+                    "type_user": str(user.type_user),
+                    # Aggiungi altri campi specifici del ricercatore se necessario
+                }
+                return jsonify(researcher_data)
+    except Exception as err:
+        if err:
+            raise CustomError(err.message, err.status_code)
+        else:
+            raise CustomError("Internal server error", 500)
 
 
 # NOT DONE 
@@ -155,23 +186,3 @@ def delete_user(user_id):
         raise CustomError("Can't delete the user.", 500)
 
 
-# NOT DONE
-
-# Get all info of SPECIFIC researcher.
-@user_blueprint.route("/<int:user_id>", methods=["GET"])
-def get_specific_user(user_id):
-    try:
-        if request.method == "GET":
-            user = User.query.get(user_id)
-            if user:
-                researcher_data = {
-                    "id": user.id,
-                    "name": user.name,
-                    "surname": user.surname,
-                    "email": user.email,
-                    "type_user": str(user.type_user),
-                    # Aggiungi altri campi specifici del ricercatore se necessario
-                }
-                return jsonify(researcher_data)
-    except Exception:
-        raise CustomError("Can't got the data of user.", 500)
