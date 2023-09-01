@@ -4,4 +4,4 @@ Flask-SQLAlchemy
 python-dotenv
 Flask-Bcrypt
 psycopg2
-jwt
+pyjwt
