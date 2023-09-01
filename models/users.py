@@ -3,6 +3,7 @@ from sqlalchemy import DateTime
 from config import db, bcrypt
 from utils.exceptions import CustomError
 
+# TODO: Cambiare i "@classmethod" che non utilizzano il cls in "@staticmethod", non vengono usati  
 
 class UserType(Enum):
     RESEARCHER = 0
@@ -42,7 +43,7 @@ class User(db.Model):
     def add_user(cls, name, surname, email, password, type_user):
         try:
             hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-            if cls.control_user(type_user):
+            if cls.check_user_role(type_user):
                 type_user_enum = UserType.RESEARCHER
                 if type_user == UserType.EVALUATOR.value:
                     type_user_enum = UserType.EVALUATOR
@@ -62,6 +63,16 @@ class User(db.Model):
         except Exception as e:
             raise CustomError(f"Errore: {type(e).__name__} - {e}", 500)
 
+    @staticmethod
+    def is_valid_user(data):
+        # Need to verify that email could exist, and if mail NOT exist then rise an error
+        user = User.query.filter_by(email=data['email']).first()
+        if user:
+            is_password_valid = bcrypt.check_password_hash(user.password, data["password"])
+
+            return is_password_valid
+        return False
+
     @classmethod
     def update_user(cls, user_object, attribute_name, new_value):
         # Python function that accept object, attribute for change and new_value
@@ -72,25 +83,6 @@ class User(db.Model):
     def delete_user(cls, user_object):
         db.session.delete(user_object)
         db.session.commit()
-
-    @staticmethod
-    def get_all_password_hashes_from_db(type_user):
-        """ its generic function that return all password of researcher or evaluator"""
-        # Recupera tutte le password hash dalla tabella User
-        if type_user == 'researcher':
-            researchers = Researcher.query.all()
-            return [researcher.password for researcher in researchers]
-        elif type_user == 'evaluator':
-            evaluators = Evaluator.query.all()
-            return [evaluator.password for evaluator in evaluators]
-        else:
-            print('Something is wrong in function get_all_password_hashes_from_db()!')
-
-    @staticmethod
-    def check_password(hashed_password, password):
-        """ function that return True if password inserted by user is matching the hashcode."""
-        # return app.bcrypt.check_password_hash(hashed_password, password)
-        return bcrypt.check_password_hash(hashed_password, password)
 
     # def __repr__(self):
     #     return f"<User(id={self.id}, username='{self.username}', email='{self.email}')>"

@@ -3,12 +3,11 @@ from config import bcrypt
 from flask import request, jsonify, Response, json
 from models.users import User, Evaluator, Researcher, UserType
 from utils.exceptions import CustomError
-from datetime import datetime
+from datetime import datetime, timedelta
 import jwt
 import os
 
 user_blueprint = Blueprint("user", __name__)
-
 
 # DONE
 @user_blueprint.route("/", methods=["GET"])
@@ -93,19 +92,19 @@ def login():
     try:
         if request.method == "GET":
             data = request.get_json()
-            isEvaluator = Evaluator.is_valid_evaluator(data)
-            isResearcher = Researcher.is_valid_researcher(data)
+            isValidUser = User.is_valid_user(data)
 
-            if isEvaluator or isResearcher:
+            if isValidUser:
+
+                role = UserType.get_enum_by_int(int(data["type_user"]))
                 # Generate a JWT token
                 payload = {
                     "sub": data[
-                        "username"
+                        "name"
                     ],  # Subject (usually the user's ID or username)
-                    "exp": datetime.datetime.utcnow()
-                           + datetime.timedelta(days=1),  # Token expiration
-                    "isEvaluator": isEvaluator,
-                    "isResearcher": isResearcher,
+                    "exp": datetime.utcnow()
+                           + timedelta(days=1),  # Token expiration
+                    "role": role.__str__()
                 }
 
                 token = jwt.encode(
