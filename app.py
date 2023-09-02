@@ -7,14 +7,15 @@ import jwt
 
 # Metodo	Endpoint	Descrizione
 
+# --------- USERS ---------------
 # GET	/user	Ottenere la lista degli user --> FATTO
 # POST	/user/register	Creare un nuovo utente (ricercatore o valutatore o blank) --> FATTO
+# GET   /user/login Ottenere l'autorizzazione --> FATTO 
 # GET	/user/{id}	Ottenere i dettagli di un utente --> FATTO
 # PUT	/user/{id}	Aggiornare i dettagli di un utente --> FATTO
 # DELETE	/user/{id}	Eliminare un utente  --> FATTO
 
-# GET	/ricercatori	Ottenere la lista dei ricercatori  --> FATTO
-# GET	/ricercatori/{id}	Ottenere i dettagli di un ricercatore  --> FATTO
+# --------- RESEARCHERS ---------------
 # GET   /ricercatori/{id}/progetti  Ottenere la lista dei progetti di un ricercatore    OK
 # POST  /ricercatori/{id}/progetti  Creare un nuovo progetto a nome del ricercatore {id}    OK
 # GET   /ricercatori/{id}/progetti/{projectId}/messaggi Ottenere la lista dei messaggi del progetto {projectId} di uno specifico ricercatore {id}
@@ -23,6 +24,7 @@ import jwt
 # GET   /ricercatori/{id}/progetti/{projectId}/versione/{versionId}/report Ottenere tutti i report di uno specifico progetto    OK
 # GET   /ricercatori/{id}/progetti/{projectId}/valutatori Ottiene tutti i valutatori di uno specifico progetto  
 
+# --------- EVALUATORS ---------------
 # GET	/valutatori	Ottenere la lista dei valutatori
 # GET	/valutatori/{id}	Ottenere i dettagli di un valutatore
 # GET   /valutatori/{id}/report Ottenere la lista di report di un valutatore
@@ -30,21 +32,20 @@ import jwt
 # GET   /valutatori/{id}/progetti/{projectId}/report Ottenere tutti i report di uno specifico progetto {projectId} a nome del valutatore {id}
 # GET   /valutatori/{id}/report     Ottenere tutti i report del valutatore {id}
 
-#
-
-# -----------------------------------------------------
-
+# --------- MESSAGES ---------------
 # POST	/messaggi	Creare un nuovo messaggio
 # GET	/messaggi/{id}	Ottenere i dettagli di un messaggio
 # PUT	/messaggi/{id}	Aggiornare i dettagli di un messaggio
 # DELETE	/messaggi/{id}	Eliminare un messaggio
 
+# --------- PROJECTS ---------------
 # GET	/progetti	Ottenere la lista dei progetti
 # POST	/progetti	Creare un nuovo progetto
 # GET	/progetti/{id}	Ottenere i dettagli di un progetto
 # PUT	/progetti/{id}	Aggiornare i dettagli di un progetto
 # DELETE	/progetti/{id}	Eliminare un progetto
 
+# --------- TODO: planning ---------------
 # GET	/report-valutazioni	Ottenere la lista dei report di valutazione
 # POST	/report-valutazioni	Creare un nuovo report di valutazione
 # GET	/report-valutazioni/{id}	Ottenere i dettagli di un report di valutazione
@@ -65,9 +66,7 @@ import jwt
 # PUT	/finestre-valutazione/{id}	Aggiornare i dettagli di una finestra di valutazione
 # DELETE	/finestre-valutazione/{id}	Eliminare una finestra di valutazione
 
-
 app.register_blueprint(user_blueprint, url_prefix='/user')
-
 
 # Definizione della funzione di gestione degli errori
 @app.errorhandler(CustomError)
