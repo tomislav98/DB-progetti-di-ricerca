@@ -63,15 +63,16 @@ class User(db.Model):
         except Exception as e:
             raise CustomError(f"Errore: {type(e).__name__} - {e}", 500)
 
+    # If credentials are valid, this returns a User instance, None otherwise
     @staticmethod
     def is_valid_user(data):
-        # Need to verify that email could exist, and if mail NOT exist then rise an error
         user = User.query.filter_by(email=data['email']).first()
         if user:
             is_password_valid = bcrypt.check_password_hash(user.password, data["password"])
 
-            return is_password_valid
-        return False
+            if is_password_valid:
+                return user
+        return None
 
     @classmethod
     def update_user(cls, user_object, attribute_name, new_value):

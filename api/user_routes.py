@@ -6,12 +6,14 @@ from utils.exceptions import CustomError
 from datetime import datetime, timedelta
 import jwt
 import os
+from utils.middleware import token_required
 
 user_blueprint = Blueprint("user", __name__)
 
-# DONE
+# Example of a route using token_required middleware, notice that the get_users function now need an additional argument - current_user -
 @user_blueprint.route("/", methods=["GET"])
-def get_users():
+@token_required
+def get_users(current_user):
     """Get all info of ALL users."""
     try:
         if request.method == "GET":
@@ -92,9 +94,9 @@ def login():
     try:
         if request.method == "GET":
             data = request.get_json()
-            isValidUser = User.is_valid_user(data)
+            validUser = User.is_valid_user(data)
 
-            if isValidUser:
+            if validUser:
 
                 role = UserType.get_enum_by_int(int(data["type_user"]))
                 # Generate a JWT token
@@ -104,7 +106,8 @@ def login():
                     ],  # Subject (usually the user's ID or username)
                     "exp": datetime.utcnow()
                            + timedelta(days=1),  # Token expiration
-                    "role": role.__str__()
+                    "role": role.__str__(),
+                    "user_id": validUser.id
                 }
 
                 token = jwt.encode(
@@ -121,16 +124,9 @@ def login():
 
 # Retrieves data of a specific user.
 @user_blueprint.route("/<int:user_id>", methods=["GET"])
-def get_specific_user(user_id):
+@token_required
+def get_specific_user(current_user,user_id):
     try:
-        token = request.headers.get('Authorization').split()[1]
-
-        decoded = jwt.decode(
-                    token, os.environ.get("JWT_SECRET"), algorithm="HS256"
-                )
-
-        print(decoded)
-
         if request.method == "GET":
             user = User.query.get(user_id)
             if user:
@@ -140,21 +136,20 @@ def get_specific_user(user_id):
                     "surname": user.surname,
                     "email": user.email,
                     "type_user": str(user.type_user),
-                    # Aggiungi altri campi specifici del ricercatore se necessario
                 }
                 return jsonify(researcher_data)
-    except Exception as err:
-        if err:
-            raise CustomError(err.message, err.status_code)
-        else:
-            raise CustomError("Internal server error", 500)
+    except jwt.DecodeError as err:
+        error_message = str(err)
+        raise CustomError(error_message, 401)
 
 
 # NOT DONE 
 # Update a specific info of SPECIFIF user.
 @user_blueprint.route("/<int:user_id>/<attribute_name>", methods=["PUT"])
-def update_specific_user(user_id, attribute_name):
+@token_required
+def update_specific_user(current_user,user_id, attribute_name):
     try:
+        print(current_user)
         if request.method == "PUT":
             user = User.query.get(user_id)
             if user:
