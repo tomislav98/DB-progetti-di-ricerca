@@ -87,8 +87,8 @@ def register_user():  # put application's code here
 
     # the first time the client is sending the GET request
 
-
-# TO DEBUG
+# DONE
+# Authenticates a user and returns a JWT in response
 @user_blueprint.route("/login", methods=["GET"])
 def login():
     try:
@@ -121,7 +121,7 @@ def login():
     except Exception as e:
         raise CustomError(e.message, e.status_code)
 
-
+# TODO: Error handling and status codes
 # Retrieves data of a specific user.
 @user_blueprint.route("/<int:user_id>", methods=["GET"])
 @token_required
@@ -138,37 +138,36 @@ def get_specific_user(current_user,user_id):
                     "type_user": str(user.type_user),
                 }
                 return jsonify(researcher_data)
-    except jwt.DecodeError as err:
-        error_message = str(err)
-        raise CustomError(error_message, 401)
+    except Exception as e:
+        raise CustomError(e.message, e.status_code)
 
 
-# NOT DONE 
-# Update a specific info of SPECIFIF user.
+# TODO: Error handling and status codes
+# Update the specified field of the selected user.
 @user_blueprint.route("/<int:user_id>/<attribute_name>", methods=["PUT"])
 @token_required
 def update_specific_user(current_user,user_id, attribute_name):
     try:
-        print(current_user)
         if request.method == "PUT":
             user = User.query.get(user_id)
             if user:
                 data = request.get_json()
                 new_value = data.get(attribute_name)
                 if new_value:
-                    User.update_researcher(user, attribute_name, new_value)
+                    user.update_user(user, attribute_name, new_value)
                     return jsonify(
                         {"message": f"{attribute_name} updated successfully"}
                     )
-    except Exception:
-        raise CustomError("Can't UPDATE the data of researchers.", 500)
+    except Exception as e:
+        raise CustomError(e.message, e.status_code)
 
-
-# NOT DONE
-
+# DONE 
 @user_blueprint.route("/<int:user_id>", methods=["DELETE"])
-def delete_user(user_id):
+@token_required
+def delete_user(current_user,user_id):
     try:
+        if current_user.id != user_id: # and current_user.role != "Admin"
+            raise CustomError("Unauthorized to delete other users", 401)
         user = User.query.get(user_id)
         if not user:
             raise CustomError("User not found.", 404)
@@ -177,7 +176,5 @@ def delete_user(user_id):
             User.delete_user(user)
             return jsonify({"message": "User deleted successfully"})
 
-    except Exception:
-        raise CustomError("Can't delete the user.", 500)
-
-
+    except Exception as e:
+        raise CustomError(e.message, e.status_code)
