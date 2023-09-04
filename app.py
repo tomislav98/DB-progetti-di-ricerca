@@ -1,6 +1,7 @@
 from config import app, db
 from api.user_routes import user_blueprint
 from api.project_routes import proj_blueprint
+from api.researchers_routes import researcher_blueprint
 from utils.exceptions import CustomError
 from flask import request, jsonify
 from models.users import User, Researcher, Evaluator
@@ -17,7 +18,7 @@ import jwt
 # DELETE	/user/{id}	Eliminare un utente  --> FATTO
 
 # --------- RESEARCHERS ---------------
-# GET   /ricercatori/{id}/progetti  Ottenere la lista dei progetti di un ricercatore    OK
+# GET   /ricercatori/{id}/progetti  Ottenere la lista dei progetti di un ricercatore (solo i suoi?)   OK
 # POST  /ricercatori/{id}/progetti  Creare un nuovo progetto a nome del ricercatore {id}    OK
 # GET   /ricercatori/{id}/progetti/{projectId}/messaggi Ottenere la lista dei messaggi del progetto {projectId} di uno specifico ricercatore {id}
 # POST  /ricercatori/{id}/progetti/{projectId}/valutatori/{valutatoreId}/messaggi Inviare un messaggio nella chat del progetto {projectId} di uno specifico ricercatore {id}
@@ -69,6 +70,7 @@ import jwt
 
 app.register_blueprint(user_blueprint, url_prefix='/user')
 app.register_blueprint(proj_blueprint, url_prefix='/projects')
+app.register_blueprint(researcher_blueprint, url_prefix='/researchers')
 
 # Definizione della funzione di gestione degli errori
 @app.errorhandler(CustomError)
@@ -95,62 +97,62 @@ def get_projects():
         raise CustomError("Can't got the data of projects.", 500)
 
 
-@app.route('/researchers', methods=['GET'])
-def get_researchers():
-    """ Get all info of researchers."""
-    try:
-        if request.method == 'GET':
-            researchers_json = []
-            researchers = Researcher.query.all()
-            for researcher in researchers:
-                researcher_data = {
-                    'id': researcher.id,
-                    'user_id': researcher.user_id,
-                    # Aggiungi altri campi specifici del ricercatore se necessario
-                }
-                researchers_json.append(researcher_data)
-            response_data = {
-                'message': 'Researchers GET successfully',
-                'data': researchers_json,
-            }
-            return jsonify(response_data)
-    except Exception:
-        raise CustomError("Can't got the data of researchers.", 500)
+# @app.route('/researchers', methods=['GET'])
+# def get_researchers():
+#     """ Get all info of researchers."""
+#     try:
+#         if request.method == 'GET':
+#             researchers_json = []
+#             researchers = Researcher.query.all()
+#             for researcher in researchers:
+#                 researcher_data = {
+#                     'id': researcher.id,
+#                     'user_id': researcher.user_id,
+#                     # Aggiungi altri campi specifici del ricercatore se necessario
+#                 }
+#                 researchers_json.append(researcher_data)
+#             response_data = {
+#                 'message': 'Researchers GET successfully',
+#                 'data': researchers_json,
+#             }
+#             return jsonify(response_data)
+#     except Exception:
+#         raise CustomError("Can't got the data of researchers.", 500)
 
 
-@app.route('/researcher/<int:researcher_id>', methods=['GET'])
-def get_specific_researcher(researcher_id):
-    """ Get all info of SPECIFIC researcher."""
-    try:
-        if request.method == 'GET':
-            researcher = User.query.get(researcher_id)
-            if researcher and researcher.type_user == UserType.RESEARCHER:
-                researcher_data = {
-                    'id': researcher.id,
-                    'name': researcher.name,
-                    'surname': researcher.surname,
-                    'email': researcher.email,
-                    # Aggiungi altri campi specifici del ricercatore se necessario
-                }
-                return jsonify(researcher_data)
-    except Exception:
-        raise CustomError("Can't got the data of researchers.", 500)
+# @app.route('/researcher/<int:researcher_id>', methods=['GET'])
+# def get_specific_researcher(researcher_id):
+#     """ Get all info of SPECIFIC researcher."""
+#     try:
+#         if request.method == 'GET':
+#             researcher = User.query.get(researcher_id)
+#             if researcher and researcher.type_user == UserType.RESEARCHER:
+#                 researcher_data = {
+#                     'id': researcher.id,
+#                     'name': researcher.name,
+#                     'surname': researcher.surname,
+#                     'email': researcher.email,
+#                     # Aggiungi altri campi specifici del ricercatore se necessario
+#                 }
+#                 return jsonify(researcher_data)
+#     except Exception:
+#         raise CustomError("Can't got the data of researchers.", 500)
 
 
-@app.route('/researcher/<int:researcher_id>/<attribute_name>', methods=['PUT'])
-def update_specific_researcher(researcher_id, attribute_name):
-    """ Update a specific info of SPECIFIC researcher."""
-    try:
-        if request.method == 'PUT':
-            researcher = User.query.get(researcher_id)
-            if researcher:
-                data = request.get_json()
-                new_value = data.get(attribute_name)
-                if new_value:
-                    User.update_researcher(researcher, attribute_name, new_value)
-                    return jsonify({'message': f'{attribute_name} updated successfully'})
-    except Exception:
-        raise CustomError("Can't UPDATE the data of researchers.", 500)
+# @app.route('/researcher/<int:researcher_id>/<attribute_name>', methods=['PUT'])
+# def update_specific_researcher(researcher_id, attribute_name):
+#     """ Update a specific info of SPECIFIC researcher."""
+#     try:
+#         if request.method == 'PUT':
+#             researcher = User.query.get(researcher_id)
+#             if researcher:
+#                 data = request.get_json()
+#                 new_value = data.get(attribute_name)
+#                 if new_value:
+#                     User.update_researcher(researcher, attribute_name, new_value)
+#                     return jsonify({'message': f'{attribute_name} updated successfully'})
+#     except Exception:
+#         raise CustomError("Can't UPDATE the data of researchers.", 500)
 
 
 # TODO need to verify
@@ -173,29 +175,29 @@ def create_project(ricercatore_id):
         raise CustomError("Can't POST the data of projects.", 500)
 
 
-# TODO need to verify
-@app.route('/researchers/<int:researcher_id>/projects', methods=['GET'])
-def get_projects_researchers(researcher_id):
-    """Function that search for all projects of specific researcher."""
-    try:
-        if request.method == 'GET':
-            researcher = Researcher.query.get(researcher_id)  # take researcher with that id
-            projects_researchers_dict = []
-            if researcher:
-                projects_researchers = researcher.projects
-                for project in projects_researchers:
-                    researcher_data = {
-                        "id": project.id,
-                        "name": project.name,
-                        "description": project.description,  # need to make status also(enum)
-                        "Data_creation": project.data_creation,
-                        "name_researcher": project.researcher.name  # I can do that because I have defined in models
-                        # projects = db.relationship('Project', backref='researcher')
-                    }
-                    projects_researchers_dict.append(researcher_data)
-                return jsonify(projects_researchers_dict)
-    except Exception:
-        raise CustomError("Can't GET the data of projects.", 500)
+# # TODO need to verify
+# @app.route('/researchers/<int:researcher_id>/projects', methods=['GET'])
+# def get_projects_researchers(researcher_id):
+#     """Function that search for all projects of specific researcher."""
+#     try:
+#         if request.method == 'GET':
+#             researcher = Researcher.query.get(researcher_id)  # take researcher with that id
+#             projects_researchers_dict = []
+#             if researcher:
+#                 projects_researchers = researcher.projects
+#                 for project in projects_researchers:
+#                     researcher_data = {
+#                         "id": project.id,
+#                         "name": project.name,
+#                         "description": project.description,  # need to make status also(enum)
+#                         "Data_creation": project.data_creation,
+#                         "name_researcher": project.researcher.name  # I can do that because I have defined in models
+#                         # projects = db.relationship('Project', backref='researcher')
+#                     }
+#                     projects_researchers_dict.append(researcher_data)
+#                 return jsonify(projects_researchers_dict)
+#     except Exception:
+#         raise CustomError("Can't GET the data of projects.", 500)
 
 
 if __name__ == '__main__':
