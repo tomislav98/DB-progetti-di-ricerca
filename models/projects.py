@@ -11,10 +11,10 @@ class Project(db.Model):
     #                            'not_approved', name='status_enum'), nullable=False)
     # the 'researchers.id' that I created need to be just interpreted for developer.
     researcher_id = db.Column(db.Integer, db.ForeignKey('researchers.id'))
+    evaluation_window_id = db.Column(db.Integer, db.ForeignKey('evaluation_windows.id'))
     assessment_reports = db.relationship('AssessmentReport', backref='project')
     document_project = db.relationship('DocumentProject', backref='project')
     version_project = db.relationship('VersionProject', backref='project')
-    evaluation_period = db.relationship('EvaluationPeriod', backref='project')
     message = db.relationship('Message', backref='project')
 
     @classmethod
@@ -22,3 +22,4 @@ class Project(db.Model):
         project = cls(name=name, description=description, data_creation=data_creation)
         db.session.add(project)
         db.session.commit()
+    
