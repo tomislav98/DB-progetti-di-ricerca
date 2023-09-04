@@ -1,5 +1,6 @@
 from config import app, db
 from api.user_routes import user_blueprint
+from api.project_routes import proj_blueprint
 from utils.exceptions import CustomError
 from flask import request, jsonify
 from models.users import User, Researcher, Evaluator
@@ -67,6 +68,7 @@ import jwt
 # DELETE	/finestre-valutazione/{id}	Eliminare una finestra di valutazione
 
 app.register_blueprint(user_blueprint, url_prefix='/user')
+app.register_blueprint(proj_blueprint, url_prefix='/projects')
 
 # Definizione della funzione di gestione degli errori
 @app.errorhandler(CustomError)
