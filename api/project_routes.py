@@ -20,7 +20,10 @@ def get_projects(current_user):
             if current_user.type_user == UserType.RESEARCHER:
                 raise CustomError("Only evalu ", 401)
             projects = Project.query.all()
-            return Response(json.dumps(projects), status=201, mimetype="application/json") 
+
+            projects_list = [{"id": project.id, "name": project.name, "description": project.description } for project in projects]
+
+            return Response(json.dumps(projects_list), status=201, mimetype="application/json") 
     except Exception as err:
         raise CustomError(err.message, err.status_code)
 

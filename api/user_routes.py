@@ -58,11 +58,14 @@ def register_user():  # put application's code here
     try:
         if request.method == "POST":
             data = request.get_json()
-            # primary key is the mail of the user
+
+            if data["type_user"] < 0 or data["type_user"] >= 2:
+                raise CustomError("Invalid user type", 400)
+
             user = User.query.filter_by(email=data["email"]).first()
 
             if (
-                    user is None
+                    user is None  
             ):  # if user is NOT found then save user in dataBase and render them to login page
                 User.add_user(
                     data["name"],
@@ -89,25 +92,23 @@ def register_user():  # put application's code here
 
 # DONE
 # Authenticates a user and returns a JWT in response
-@user_blueprint.route("/login", methods=["GET"])
+@user_blueprint.route("/login", methods=["POST"])
 def login():
     try:
-        if request.method == "GET":
+        if request.method == "POST":
             data = request.get_json()
-            validUser = User.is_valid_user(data)
 
-            if validUser:
+            if "email" not in data or "password" not in data:
+                raise CustomError("Email and password are required fields.", 400)
 
-                role = UserType.get_enum_by_int(int(data["type_user"]))
-                # Generate a JWT token
+            valid_user = User.is_valid_user(data)
+
+            if valid_user:
                 payload = {
-                    "sub": data[
-                        "name"
-                    ],  # Subject (usually the user's ID or username)
-                    "exp": datetime.utcnow()
-                           + timedelta(days=1),  # Token expiration
-                    "role": role.__str__(),
-                    "user_id": validUser.id
+                    "sub": valid_user.name,
+                    "exp": datetime.utcnow() + timedelta(days=1),
+                    "role": valid_user.type_user.__str__(),
+                    "user_id": valid_user.id
                 }
 
                 token = jwt.encode(
@@ -118,8 +119,10 @@ def login():
             else:
                 raise CustomError("Credentials are not valid. Try again.", 401)
 
+    except CustomError as err:
+        return jsonify({"error": err.message}), err.status_code
     except Exception as e:
-        raise CustomError(e.message, e.status_code)
+        return jsonify({"error": "Internal server error", "message": e.args}), 500
 
 # TODO: Error handling and status codes
 # Retrieves data of a specific user.
