@@ -8,6 +8,7 @@ from utils.exceptions import CustomError
 class UserType(Enum):
     RESEARCHER = 0
     EVALUATOR = 1
+    ADMIN = 2
 
     @staticmethod
     def get_enum_by_int(type_user):
