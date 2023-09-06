@@ -7,17 +7,15 @@ from utils.exceptions import CustomError
 from datetime import datetime, timedelta
 import jwt
 import os
-from utils.middleware import token_required
+from utils.middleware import token_required, researcher_required
 
 researcher_blueprint = Blueprint("researcher", __name__)
 
 @researcher_blueprint.route("/<int:user_id>/projects", methods=["GET"])
-@token_required
+@researcher_required
 def get_researcher_projects(current_user, user_id):
     try:
         if request.method == 'GET':
-            if current_user.type_user == UserType.EVALUATOR :
-                raise CustomError("Unauthorized, only researchers can access this endpoint", 401)
             if current_user.id != user_id and current_user.type_user != UserType.ADMIN:
                 raise CustomError("Unauthorized, you can't retrieve antoher researcher's projects", 401)
             projects = Project.query.filter_by(researcher_id=current_user.id).all()
@@ -29,3 +27,18 @@ def get_researcher_projects(current_user, user_id):
             raise CustomError(err.message, err.status_code)
         raise CustomError("Internal server error", 500)
 
+@researcher_blueprint.route("/<int:user_id>/projects", methods=["POST"])
+@researcher_required
+def add_researcher_project(current_user, user_id):
+    try:
+        if request.method == 'POST':
+            if current_user.id != user_id:
+                raise CustomError("Unauthorized, you can't retrieve antoher researcher's projects", 401)
+    
+            body = request.get_json()
+            Project.add_project(body["name"], body["description"], datetime.now())
+
+    except Exception as err:
+        if err: 
+            raise CustomError(err.message, err.status_code)
+        raise CustomError("Internal server error", 500)

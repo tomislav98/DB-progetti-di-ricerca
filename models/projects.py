@@ -10,7 +10,7 @@ class Project(db.Model):
     # status = db.Column(db.Enum('approved', 'submitted_for_evaluation', 'requires_changes',
     #                            'not_approved', name='status_enum'), nullable=False)
     # the 'researchers.id' that I created need to be just interpreted for developer.
-    researcher_id = db.Column(db.Integer, db.ForeignKey('researchers.id'))
+    researcher_id = db.Column(db.Integer, db.ForeignKey('researchers.id'), nullable=False)
     evaluation_window_id = db.Column(db.Integer, db.ForeignKey('evaluation_windows.id'))
     assessment_reports = db.relationship('AssessmentReport', backref='project')
     document_project = db.relationship('DocumentProject', backref='project')
