@@ -26,7 +26,22 @@ class Project(db.Model):
     message = db.relationship('Message', backref='project')
 
     @classmethod
-    def add_project(cls, name, description, data_creation, creator_user_id):
-        project = cls(name=name, description=description, data_creation=data_creation, researcher_id=creator_user_id, status=ProjectStatus.TO_BE_SUBMITTED)
+    def add_project(cls, name, description, data_creation, creator_user_id ):
+        project = cls(name=name, description=description, data_creation=data_creation, researcher_id=creator_user_id)
+        project.status = ProjectStatus.TO_BE_SUBMITTED
         db.session.add(project)
         db.session.commit()
+
+    @staticmethod
+    def get_project_by_id(cls, project_id):
+        project = Project.query.filter_by(id=project_id)
+        if project: 
+            return project
+        return None
+    
+    @classmethod 
+    def submit_project(cls):
+        cls.status = ProjectStatus.SUBMITTED
+
+        #TODO associare il progetto alla prima finestra di valutazione
+        # evaluation_window_id = 

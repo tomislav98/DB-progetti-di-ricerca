@@ -46,3 +46,21 @@ def add_researcher_project(current_user, user_id):
         if err:
             raise CustomError(err.message, err.status_code)
         raise CustomError("Internal server error", 500)
+
+@researcher_blueprint.route("<int:user_id>/projects/<int:project_id>/submit", methods=["POST"])
+@researcher_required
+def submit_project(current_user,user_id,project_id):
+    try:
+        if request.method == 'POST':
+            if current_user.id != user_id:
+                raise CustomError("Unauthorized, you can't submit another researcher's projects", 401)
+            
+            proj = Project.get_project_by_id(project_id)
+
+            if proj:
+                proj.submit_project()
+            
+    except Exception as err:
+        if err: 
+            raise CustomError(err.message, err.status_code)
+        raise CustomError("Internal server error", 500)        
