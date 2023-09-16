@@ -3,7 +3,8 @@ from sqlalchemy import DateTime
 from config import db, bcrypt
 from utils.exceptions import CustomError
 
-# TODO: Cambiare i "@classmethod" che non utilizzano il cls in "@staticmethod", non vengono usati  
+
+# TODO: Cambiare i "@classmethod" che non utilizzano il cls in "@staticmethod", non vengono usati
 
 class UserType(Enum):
     RESEARCHER = 0
@@ -19,6 +20,7 @@ class UserType(Enum):
                 return UserType.EVALUATOR
             case _:
                 print("Errore")
+
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -86,12 +88,13 @@ class User(db.Model):
         db.session.delete(user_object)
         db.session.commit()
 
+
 class Researcher(db.Model):
     __tablename__ = 'researchers'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), unique=True,
                         nullable=False)  # sistemare ondelete='CASCADE',
-    
+
     projects = db.relationship('Project', backref='researcher')
     message = db.relationship('Message', backref='researcher')
 
@@ -117,6 +120,7 @@ class Researcher(db.Model):
         if is_email_found and is_password_found:
             return True
         return False
+
 
 class Evaluator(db.Model):
     __tablename__ = 'evaluators'

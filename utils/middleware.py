@@ -4,6 +4,7 @@ from flask import abort, request
 import jwt
 from models.users import User, UserType
 
+
 def role_required(role):
     def decorator(f):
         @wraps(f)
@@ -26,7 +27,7 @@ def role_required(role):
                         "message": f"Invalid Authentication token!",
                         "data": None,
                         "error": "Unauthorized",
-                    }, 401                
+                    }, 401
 
                 if current_user.type_user != UserType.ADMIN:
                     if current_user.type_user != role and role is not None:
@@ -47,6 +48,7 @@ def role_required(role):
         return decorated
 
     return decorator
+
 
 admin_required = role_required(UserType.ADMIN)
 researcher_required = role_required(UserType.RESEARCHER)

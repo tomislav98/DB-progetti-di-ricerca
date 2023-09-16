@@ -1,5 +1,6 @@
 from config import db
 
+
 class VersionProject(db.Model):
     __tablename__ = 'version_projects'
 
