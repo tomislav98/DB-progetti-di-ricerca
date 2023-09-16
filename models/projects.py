@@ -4,9 +4,10 @@ from enum import Enum
 
 class ProjectStatus(Enum):
     APPROVED = 0
-    SUBMITTED_FOR_EVALUATION = 1
+    SUBMITTED = 1
     REQUIRES_CHANGES = 2
     NOT_APPROVED = 3
+    TO_BE_SUBMITTED = 4
 
 
 class Project(db.Model):
@@ -27,5 +28,8 @@ class Project(db.Model):
     @classmethod
     def add_project(cls, name, description, data_creation):
         project = cls(name=name, description=description, data_creation=data_creation)
+        project.status = ProjectStatus.TO_BE_SUBMITTED
         db.session.add(project)
         db.session.commit()
+
+    

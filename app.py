@@ -10,6 +10,10 @@ import jwt
 
 # Metodo	Endpoint	Descrizione
 
+# --------- ADMIN ---------------
+# POST	/admin/evaluation-windows	Ottenere la lista degli user --> FATTO
+
+
 # --------- USERS ---------------
 # GET	/user	Ottenere la lista degli user --> FATTO
 # POST	/user/register	Creare un nuovo utente (ricercatore o valutatore o blank) --> FATTO

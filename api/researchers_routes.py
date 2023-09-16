@@ -37,7 +37,8 @@ def add_researcher_project(current_user, user_id):
     
             body = request.get_json()
             Project.add_project(body["name"], body["description"], datetime.now())
-
+            
+            return Response({"message": "Project created successfully"},200)
     except Exception as err:
         if err: 
             raise CustomError(err.message, err.status_code)
