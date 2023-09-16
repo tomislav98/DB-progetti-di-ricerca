@@ -26,10 +26,7 @@ class Project(db.Model):
     message = db.relationship('Message', backref='project')
 
     @classmethod
-    def add_project(cls, name, description, data_creation):
-        project = cls(name=name, description=description, data_creation=data_creation)
-        project.status = ProjectStatus.TO_BE_SUBMITTED
+    def add_project(cls, name, description, data_creation, creator_user_id):
+        project = cls(name=name, description=description, data_creation=data_creation, researcher_id=creator_user_id, status=ProjectStatus.TO_BE_SUBMITTED)
         db.session.add(project)
         db.session.commit()
-
-    

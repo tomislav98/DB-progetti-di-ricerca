@@ -1,6 +1,7 @@
 from config import db
 from utils.exceptions import CustomError
 
+
 class EvaluationWindow(db.Model):
     __tablename__ = 'evaluation_windows'
 
@@ -12,7 +13,7 @@ class EvaluationWindow(db.Model):
     @staticmethod
     def add_window(data_start, data_end):
         try:
-            window = EvaluationWindow(data_start= data_start, data_end=data_end)
+            window = EvaluationWindow(data_start=data_start, data_end=data_end)
             db.session.add(window)
             db.session.commit()
         except Exception as e:
