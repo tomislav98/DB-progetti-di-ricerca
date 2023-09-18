@@ -1,5 +1,7 @@
 from config import db
+from sqlalchemy import CheckConstraint
 from utils.exceptions import CustomError
+from datetime import datetime
 
 
 class EvaluationWindow(db.Model):
@@ -7,8 +9,9 @@ class EvaluationWindow(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     data_start = db.Column(db.Date, nullable=False)
-    data_end = db.Column(db.Date, nullable=False)
+    data_end = db.Column(db.Date, CheckConstraint("data_end > data_start"), nullable=False)
     project = db.relationship('Project', backref='evaluation_window')
+    
 
     @staticmethod
     def add_window(data_start, data_end):
