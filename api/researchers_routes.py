@@ -54,13 +54,15 @@ def submit_project(current_user,user_id,project_id):
         if request.method == 'POST':
             if current_user.id != user_id:
                 raise CustomError("Unauthorized, you can't submit another researcher's projects", 401)
-            
             proj = Project.get_project_by_id(project_id)
 
             if proj:
-                proj.submit_project()
-            
+                response = proj.submit()
+
+            if response:
+                return Response(json.dumps({"message": "project created successfully"}), 200)
+            return Response(json.dumps({"message": "There are no evaluation windows available, try later"}),200)
     except Exception as err:
-        if err: 
+        if err and err.message: 
             raise CustomError(err.message, err.status_code)
         raise CustomError("Internal server error", 500)        

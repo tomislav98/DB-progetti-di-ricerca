@@ -12,20 +12,20 @@ from utils.middleware import admin_required
 
 admin_blueprint = Blueprint("admin", __name__)
 
-@admin_blueprint.route("/evaluation-window", methods=["POST"])
-@admin_required
-def add_window(current_user):
-    try:
-        if request.method == 'POST':
-            body = request.get_json()
-            d_start = body.get("date_start")
-            d_end = body.get("date_end")
+# @admin_blueprint.route("/evaluation-window", methods=["POST"])
+# @admin_required
+# def add_window(current_user):
+#     try:
+#         if request.method == 'POST':
+#             body = request.get_json()
+#             d_start = body.get("date_start")
+#             d_end = body.get("date_end")
 
-            EvaluationWindow.add_window(d_start, d_end)
+#             EvaluationWindow.add_window(d_start, d_end)
 
-            return jsonify({"message":"Evaluation window created"}), 201 
-    except Exception as err:
-        if err:
-            raise CustomError(err.message, err.status_code)
-        raise CustomError("Internal server error", 500)
+#             return jsonify({"message":"Evaluation window created"}), 201 
+#     except Exception as err:
+#         if err:
+#             raise CustomError(err.message, err.status_code)
+#         raise CustomError("Internal server error", 500)
 

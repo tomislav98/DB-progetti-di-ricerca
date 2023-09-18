@@ -1,6 +1,6 @@
 from config import db
 from enum import Enum
-
+from models import EvaluationWindow
 
 class ProjectStatus(Enum):
     APPROVED = 0
@@ -33,15 +33,15 @@ class Project(db.Model):
         db.session.commit()
 
     @staticmethod
-    def get_project_by_id(cls, project_id):
-        project = Project.query.filter_by(id=project_id)
+    def get_project_by_id(project_id):
+        project = Project.query.filter_by(id=project_id).first()
         if project: 
             return project
         return None
     
     @classmethod 
-    def submit_project(cls):
-        cls.status = ProjectStatus.SUBMITTED
-
-        #TODO associare il progetto alla prima finestra di valutazione
-        # evaluation_window_id = 
+    def submit(cls):
+        window = EvaluationWindow.get_first_window().id
+        setattr(cls, 'evaluation_window_id', window)
+        setattr(cls, 'status', ProjectStatus.SUBMITTED )
+        db.session.commit()
