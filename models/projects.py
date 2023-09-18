@@ -1,14 +1,14 @@
 from config import db
 from enum import Enum
 from models import EvaluationWindow
+from utils.exceptions import CustomError
 
 class ProjectStatus(Enum):
-    APPROVED = 0
+    APPROVED = 0    
     SUBMITTED = 1
     REQUIRES_CHANGES = 2
     NOT_APPROVED = 3
-    TO_BE_SUBMITTED = 4
-
+    TO_BE_SUBMITTED = 4  
 
 class Project(db.Model):
     __tablename__ = 'projects'
@@ -25,13 +25,36 @@ class Project(db.Model):
     version_project = db.relationship('VersionProject', backref='project')
     message = db.relationship('Message', backref='project')
 
+
+    # TODO Fare error handling, try catch ecc !!!!!
+
+    def submit(self):
+        window = EvaluationWindow.get_first_window().id
+        self.status = ProjectStatus.SUBMITTED
+        self.evaluation_window_id = window
+        # db.session.add(self)
+        db.session.commit()  
+        return self  
+
+    def delete(self):
+        try:
+            db.session.delete(self)
+            db.session.commit()
+            return self
+        except Exception as e:
+            raise CustomError(f"Errore: {type(e).__name__} - {e}", 500)
+    
     @classmethod
     def add_project(cls, name, description, data_creation, creator_user_id ):
-        project = cls(name=name, description=description, data_creation=data_creation, researcher_id=creator_user_id)
-        project.status = ProjectStatus.TO_BE_SUBMITTED
-        db.session.add(project)
-        db.session.commit()
+        try:
+            project = cls(name=name, description=description, data_creation=data_creation, researcher_id=creator_user_id)
+            project.status = ProjectStatus.TO_BE_SUBMITTED
+            db.session.add(project)
+            db.session.commit()
 
+        except Exception as e:
+            raise CustomError(f"Errore: {type(e).__name__} - {e}", 500)
+        
     @staticmethod
     def get_project_by_id(project_id):
         project = Project.query.filter_by(id=project_id).first()
@@ -46,10 +69,8 @@ class Project(db.Model):
             return project
         return None
     
-    
-    @classmethod 
-    def submit(cls):
-        window = EvaluationWindow.get_first_window().id
-        setattr(cls, 'evaluation_window_id', window)
-        setattr(cls, 'status', ProjectStatus.SUBMITTED )
-        db.session.commit()
+    def delete_project(self,project_id):
+        project = Project.query.filter_by(id=project_id).first()
+        if project:
+            return project
+        return None

@@ -31,17 +31,31 @@ def get_users(current_user):
                     raise ValueError("Unknown or invalid user type")
 
             users = users_query.all()
+            
             for user in users:
-                user_data = {
-                    "id": user.id,
-                    "name": user.name,
-                    "surname": user.surname,
-                    "email": user.email,
-                    "type_user": str(
-                        user.type_user
-                    ),  # Need to convert type_user in string because it's enum
-                }
-                users_json.append(user_data)
+                if user.id != current_user.id:
+                    user_data = {
+                        "id": user.id,
+                        "name": user.name,
+                        "surname": user.surname,
+                        "email": user.email,
+                        "type_user": str(
+                            user.type_user
+                        ),  # Need to convert type_user in string because it's enum
+                    }
+                    users_json.append(user_data)
+                else:
+                    me = {
+                        "me": "That's me! \N{grinning face with smiling eyes}",
+                        "id": user.id,
+                        "name": user.name,
+                        "surname": user.surname,
+                        "email": user.email,
+                        "type_user": str(
+                            user.type_user
+                        ),  # Need to convert type_user in string because it's enum
+                    }
+                    users_json.insert(0,me)
             response_data = {
                 "message": "Got Users successfully!",
                 "data": users_json,
@@ -54,7 +68,6 @@ def get_users(current_user):
 # DONE
 @user_blueprint.route("/register", methods=["POST"])
 def register_user():  # put application's code here
-    """Function is going to register researcher or evaluator."""
     try:
         if request.method == "POST":
             data = request.get_json()

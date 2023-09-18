@@ -29,3 +29,21 @@ admin_blueprint = Blueprint("admin", __name__)
 #             raise CustomError(err.message, err.status_code)
 #         raise CustomError("Internal server error", 500)
 
+# TODO capire, se dopo che un utente è stato promosso ad es. da RESEARCHER a ADMIN, se l'utente resta dentro alla tabella researchers 
+
+@admin_blueprint.route("/op/<int:user_id>", methods=["POST"])
+@admin_required
+def op_user(current_user, user_id):
+    try:
+        usr = User.query.filter_by(id=user_id).first()
+        if usr is None:
+            raise CustomError("User does not exist", 400)
+        usr.op_user()
+
+        usr_data = {"message": "Made user an operator","opped-user":{"name": usr.name, "id": usr.id,}}
+
+        return Response(json.dumps(usr_data), 200)
+    except Exception as e:
+        if e.message is not None:
+            raise CustomError(e.message, e.status) 
+        raise CustomError("Internal server error", 500) 

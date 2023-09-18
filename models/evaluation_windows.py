@@ -3,6 +3,11 @@ from sqlalchemy import CheckConstraint
 from utils.exceptions import CustomError
 from datetime import datetime
 
+
+# TODO controllare (con un check forse?) prima di creare un evaluation window che la data non sia precedente alla data di oggi
+# controllare anche alla creazione che non ci siano finestre di valutazione sovrapposte
+# btw il check data_end > data_start non sembra funzionare 
+
 class EvaluationWindow(db.Model):
     __tablename__ = 'evaluation_windows'
 
@@ -11,6 +16,15 @@ class EvaluationWindow(db.Model):
     data_end = db.Column(db.Date, CheckConstraint("data_end > data_start"), nullable=False)
     project = db.relationship('Project', backref='evaluation_window')
     
+    @staticmethod
+    def get_by_id(window_id):
+        try:
+            window = EvaluationWindow.query.filter_by(id=window_id).first()
+            if window:
+                return window
+            return None   
+        except Exception as e:
+            raise CustomError(f"Errore: {type(e).__name__} - {e}", 500)
 
     @staticmethod
     def add_window(data_start, data_end):
