@@ -39,6 +39,14 @@ class Project(db.Model):
             return project
         return None
     
+    @staticmethod
+    def get_project_by_window_id(evaluation_window_id):
+        project = db.session.query(Project).filter_by(evaluation_window_id=evaluation_window_id).all()
+        if project: 
+            return project
+        return None
+    
+    
     @classmethod 
     def submit(cls):
         window = EvaluationWindow.get_first_window().id

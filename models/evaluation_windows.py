@@ -24,14 +24,7 @@ class EvaluationWindow(db.Model):
     @staticmethod
     def get_first_window():
         try:
-            windows = EvaluationWindow.query.all()
-            if windows:
-                closest_window = windows[0]
-                for window in windows:
-                    if window.data_start < window.data_end:
-                        closest_window = window
-
-                return closest_window
-            return None
+            windows = EvaluationWindow.query.order_by(EvaluationWindow.data_start).first()
+            return windows
         except Exception as e:
             raise CustomError(f"Errore: {type(e).__name__} - {e}", 500)
