@@ -42,7 +42,7 @@ class EvaluationWindow(db.Model):
     @staticmethod
     def get_first_window():
         try:
-            windows = EvaluationWindow.query.order_by(EvaluationWindow.data_end).first()
+            windows = EvaluationWindow.query.order_by(EvaluationWindow.data_end.desc()).first()
             return windows
         except Exception as e:
             raise CustomError(f"Errore: {type(e).__name__} - {e}", 500)
