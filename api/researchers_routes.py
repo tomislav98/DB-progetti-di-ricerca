@@ -38,13 +38,16 @@ def add_researcher_project(current_user, user_id):
             if current_user.id != user_id:
                 raise CustomError("Unauthorized, you can't create a project for another researcher", 401)
 
+            researcher = Researcher.get_researcher_from_user_id(current_user.id)
             body = request.get_json()
-            Project.add_project(body["name"], body["description"], datetime.now(), current_user.id)
+            Project.add_project(body["name"], body["description"], datetime.now(), researcher.id)
 
             return Response(json.dumps({"message": "project created successfully"}), 200)
+    except CustomError as err:
+        print(err.message)
+        raise err
     except Exception as err:
-        if err:
-            raise CustomError(err.message, err.status_code)
+        print(err)
         raise CustomError("Internal server error", 500)
 
 @researcher_blueprint.route("<int:user_id>/projects/<int:project_id>/submit", methods=["PUT"])

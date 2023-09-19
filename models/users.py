@@ -112,7 +112,14 @@ class Researcher(db.Model):
         researcher = Researcher(user_id=user_id)
         db.session.add(researcher)
         db.session.commit()
-
+    
+    @staticmethod
+    def get_researcher_from_user_id(user_id):
+        researcher = Researcher.query.filter_by(user_id=user_id).first()
+        if researcher :
+            return researcher
+        else:
+            raise CustomError("Not Found",404)
     @staticmethod
     def is_valid_researcher(data):
         """Function that verify if researcher that is loging is valid."""
@@ -162,3 +169,4 @@ class Evaluator(db.Model):
         if is_email_found and is_password_found:
             return True
         return False
+
