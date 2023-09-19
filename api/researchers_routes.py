@@ -55,9 +55,10 @@ def add_researcher_project(current_user, user_id):
 def submit_project(current_user,user_id,project_id):
     try:
         if request.method == 'PUT':
-            if current_user.id != user_id:
-                raise CustomError("Unauthorized, you can't submit another researcher's project", 401)
             proj = Project.get_project_by_id(project_id)
+            researcher = Researcher.get_researcher_from_user_id(user_id)
+            if current_user.id != researcher.user_id and proj.researcher_id != researcher.id and current_user.type_user != UserType.ADMIN:
+                raise CustomError("Unauthorized, you can't submit another researcher's project", 401)
 
             print(proj.status)
 
@@ -77,7 +78,11 @@ def submit_project(current_user,user_id,project_id):
                 return Response(json.dumps(response_json), 200)
 
             return Response(json.dumps({"message":"Error submitting the project"}), 200)
+    except CustomError as err:
+        print(err.message, err.status_code)
+        raise err
     except Exception as err:
+        print(err)
         raise CustomError("Internal server error", 500)        
     
 @researcher_blueprint.route("<int:user_id>/projects/<int:project_id>", methods=["DELETE"])
