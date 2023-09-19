@@ -115,7 +115,6 @@ def login():
                 raise CustomError("Email and password are required fields.", 400)
 
             valid_user = User.is_valid_user(data)
-
             if valid_user:
                 payload = {
                     "sub": valid_user.name,
@@ -123,11 +122,11 @@ def login():
                     "role": valid_user.type_user.__str__(),
                     "user_id": valid_user.id
                 }
-
+                print(payload)
                 token = jwt.encode(
                     payload, os.environ.get("JWT_SECRET"), algorithm="HS256"
                 )
-
+                
                 return jsonify({"token": token})
             else:
                 raise CustomError("Credentials are not valid. Try again.", 401)

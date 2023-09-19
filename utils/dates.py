@@ -1,6 +1,6 @@
 from datetime import datetime
 
-def str2datetime(date):
+def str2date(date):
     # Supponiamo che d_end sia una stringa nel formato "01/01/01", "01-01-01", o "01/1/1"
     date_formats = ["%d/%m/%y", "%d-%m-%y", "%d/%-m/%y"]
 
@@ -15,4 +15,4 @@ def str2datetime(date):
         # Nessun formato valido trovato
         raise ValueError("Formato data non valido")
     
-    return datetime_parsed
+    return datetime_parsed.date()
