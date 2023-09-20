@@ -11,6 +11,7 @@ from utils.middleware import token_required
 
 proj_blueprint = Blueprint("proj", __name__)
 
+
 @proj_blueprint.route("/", methods=["GET"])
 @token_required
 def get_projects(current_user):
@@ -18,12 +19,12 @@ def get_projects(current_user):
         if request.method == 'GET':
 
             if current_user.type_user == UserType.RESEARCHER:
-                raise CustomError("Only evalu ", 401)
+                raise CustomError("Only evalue ", 401)
             projects = Project.query.all()
 
-            projects_list = [{"id": project.id, "name": project.name, "description": project.description } for project in projects]
+            projects_list = [{"id": project.id, "name": project.name, "description": project.description} for project in
+                             projects]
 
-            return Response(json.dumps(projects_list), status=201, mimetype="application/json") 
+            return Response(json.dumps(projects_list), status=201, mimetype="application/json")
     except Exception as err:
         raise CustomError(err.message, err.status_code)
-

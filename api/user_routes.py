@@ -10,7 +10,9 @@ from utils.middleware import token_required
 
 user_blueprint = Blueprint("user", __name__)
 
-# Example of a route using token_required middleware, notice that the get_users function now need an additional argument - current_user -
+
+# Example of a route using token_required middleware, notice that the get_users function now need an additional
+# argument - current_user -
 @user_blueprint.route("/", methods=["GET"])
 @token_required
 def get_users(current_user):
@@ -31,7 +33,7 @@ def get_users(current_user):
                     raise ValueError("Unknown or invalid user type")
 
             users = users_query.all()
-            
+
             for user in users:
                 if user.id != current_user.id:
                     user_data = {
@@ -55,7 +57,7 @@ def get_users(current_user):
                             user.type_user
                         ),  # Need to convert type_user in string because it's enum
                     }
-                    users_json.insert(0,me)
+                    users_json.insert(0, me)
             response_data = {
                 "message": "Got Users successfully!",
                 "data": users_json,
@@ -78,7 +80,7 @@ def register_user():  # put application's code here
             user = User.query.filter_by(email=data["email"]).first()
 
             if (
-                    user is None  
+                    user is None
             ):  # if user is NOT found then save user in dataBase and render them to login page
                 User.add_user(
                     data["name"],
@@ -103,6 +105,7 @@ def register_user():  # put application's code here
 
     # the first time the client is sending the GET request
 
+
 # DONE
 # Authenticates a user and returns a JWT in response
 @user_blueprint.route("/login", methods=["POST"])
@@ -126,7 +129,7 @@ def login():
                 token = jwt.encode(
                     payload, os.environ.get("JWT_SECRET"), algorithm="HS256"
                 )
-                
+
                 return jsonify({"token": token})
             else:
                 raise CustomError("Credentials are not valid. Try again.", 401)
@@ -136,11 +139,12 @@ def login():
     except Exception as e:
         return jsonify({"error": "Internal server error", "message": e.args}), 500
 
+
 # TODO: Error handling and status codes
 # Retrieves data of a specific user.
 @user_blueprint.route("/<int:user_id>", methods=["GET"])
 @token_required
-def get_specific_user(current_user,user_id):
+def get_specific_user(current_user, user_id):
     try:
         if request.method == "GET":
             user = User.query.get(user_id)
@@ -161,7 +165,7 @@ def get_specific_user(current_user,user_id):
 # Update the specified field of the selected user.
 @user_blueprint.route("/<int:user_id>/<attribute_name>", methods=["PUT"])
 @token_required
-def update_specific_user(current_user,user_id, attribute_name):
+def update_specific_user(current_user, user_id, attribute_name):
     try:
         if request.method == "PUT":
             user = User.query.get(user_id)
@@ -176,12 +180,13 @@ def update_specific_user(current_user,user_id, attribute_name):
     except Exception as e:
         raise CustomError(e.message, e.status_code)
 
-# DONE 
+
+# DONE
 @user_blueprint.route("/<int:user_id>", methods=["DELETE"])
 @token_required
-def delete_user(current_user,user_id):
+def delete_user(current_user, user_id):
     try:
-        if current_user.id != user_id: # and current_user.role != "Admin"
+        if current_user.id != user_id:  # and current_user.role != "Admin"
             raise CustomError("Unauthorized to delete other users", 401)
         user = User.query.get(user_id)
         if not user:

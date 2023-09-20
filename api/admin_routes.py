@@ -12,6 +12,7 @@ from utils.middleware import admin_required
 
 admin_blueprint = Blueprint("admin", __name__)
 
+
 # @admin_blueprint.route("/evaluation-window", methods=["POST"])
 # @admin_required
 # def add_window(current_user):
@@ -29,7 +30,8 @@ admin_blueprint = Blueprint("admin", __name__)
 #             raise CustomError(err.message, err.status_code)
 #         raise CustomError("Internal server error", 500)
 
-# TODO capire, se dopo che un utente è stato promosso ad es. da RESEARCHER a ADMIN, se l'utente resta dentro alla tabella researchers 
+# TODO capire, se dopo che un utente è stato promosso ad es. da RESEARCHER a ADMIN, se l'utente resta dentro alla
+#  tabella researchers
 
 @admin_blueprint.route("/op/<int:user_id>", methods=["POST"])
 @admin_required
@@ -40,10 +42,10 @@ def op_user(current_user, user_id):
             raise CustomError("User does not exist", 400)
         usr.op_user()
 
-        usr_data = {"message": "Made user an operator","opped-user":{"name": usr.name, "id": usr.id,}}
+        usr_data = {"message": "Made user an operator", "opped-user": {"name": usr.name, "id": usr.id, }}
 
         return Response(json.dumps(usr_data), 200)
     except Exception as e:
         if e.message is not None:
-            raise CustomError(e.message, e.status) 
-        raise CustomError("Internal server error", 500) 
+            raise CustomError(e.message, e.status)
+        raise CustomError("Internal server error", 500)

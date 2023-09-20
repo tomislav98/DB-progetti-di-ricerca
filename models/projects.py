@@ -3,12 +3,14 @@ from enum import Enum
 from models import EvaluationWindow
 from utils.exceptions import CustomError
 
+
 class ProjectStatus(Enum):
-    APPROVED = 0    
+    APPROVED = 0
     SUBMITTED = 1
     REQUIRES_CHANGES = 2
     NOT_APPROVED = 3
-    TO_BE_SUBMITTED = 4  
+    TO_BE_SUBMITTED = 4
+
 
 class Project(db.Model):
     __tablename__ = 'projects'
@@ -25,7 +27,6 @@ class Project(db.Model):
     version_project = db.relationship('VersionProject', backref='project')
     message = db.relationship('Message', backref='project')
 
-
     # TODO Fare error handling, try catch ecc !!!!!
 
     def submit(self):
@@ -33,8 +34,8 @@ class Project(db.Model):
         self.status = ProjectStatus.SUBMITTED
         self.evaluation_window_id = window
         # db.session.add(self)
-        db.session.commit()  
-        return self  
+        db.session.commit()
+        return self
 
     def delete(self):
         try:
@@ -43,33 +44,34 @@ class Project(db.Model):
             return self
         except Exception as e:
             raise CustomError(f"Errore: {type(e).__name__} - {e}", 500)
-    
+
     @classmethod
-    def add_project(cls, name, description, data_creation, creator_user_id ):
+    def add_project(cls, name, description, data_creation, creator_user_id):
         try:
-            project = cls(name=name, description=description, data_creation=data_creation, researcher_id=creator_user_id)
+            project = cls(name=name, description=description, data_creation=data_creation,
+                          researcher_id=creator_user_id)
             project.status = ProjectStatus.TO_BE_SUBMITTED
             db.session.add(project)
             db.session.commit()
 
         except Exception as e:
             raise CustomError(f"Errore: {type(e).__name__} - {e}", 500)
-        
+
     @staticmethod
     def get_project_by_id(project_id):
         project = Project.query.filter_by(id=project_id).first()
-        if project: 
+        if project:
             return project
         return None
-    
+
     @staticmethod
     def get_project_by_window_id(evaluation_window_id):
         project = db.session.query(Project).filter_by(evaluation_window_id=evaluation_window_id).all()
-        if project: 
+        if project:
             return project
         return None
-    
-    def delete_project(self,project_id):
+
+    def delete_project(self, project_id):
         project = Project.query.filter_by(id=project_id).first()
         if project:
             return project

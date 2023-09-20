@@ -5,6 +5,8 @@ from api.researchers_routes import researcher_blueprint
 from api.admin_routes import admin_blueprint
 from api.evaluation_window_routes import window_blueprint
 from api.evaluators_routes import evaluators_blueprint
+from api.report_routes import report_blueprint
+from api.project_version_routes import project_version_blueprint
 from utils.exceptions import CustomError
 from flask import request, jsonify
 from models.users import User, Researcher, Evaluator
@@ -57,14 +59,14 @@ import jwt
 # --------- TODO: planning ---------------
 # GET	/report-valutazioni	Ottenere la lista dei report di valutazione
 # POST	/report-valutazioni	Creare un nuovo report di valutazione
-# GET	/report-valutazioni/{id}	Ottenere i dettagli di un report di valutazione
-# PUT	/report-valutazioni/{id}	Aggiornare i dettagli di un report di valutazione
-# DELETE	/report-valutazioni/{id}	Eliminare un report di valutazione
+# GET	/report-valutazioni/{id}	Ottenere i dettagli di un report di valutazione OK
+# PUT	/report-valutazioni/{id}	Aggiornare i dettagli di un report di valutazione OK
+# DELETE	/report-valutazioni/{id}	Eliminare un report di valutazione OK
 # GET	/versioni-progetto	Ottenere la lista delle versioni di un progetto
 # POST	/versioni-progetto	Creare una nuova versione di un progetto
-# GET	/versioni-progetto/{id}	Ottenere i dettagli di una versione di un progetto
-# PUT	/versioni-progetto/{id}	Aggiornare i dettagli di una versione di un progetto
-# DELETE	/versioni-progetto/{id}	Eliminare una versione di un progetto
+# GET	/versioni-progetto/{id}	Ottenere i dettagli di una versione di un progetto OK
+# PUT	/versioni-progetto/{id}	Aggiornare i dettagli di una versione di un progetto OK
+# DELETE	/versioni-progetto/{id}	Eliminare una versione di un progetto OK
 # GET	/documenti-progetto	Ottenere la lista dei documenti di un progetto
 # POST	/documenti-progetto	Caricare un nuovo documento per un progetto
 # GET	/documenti-progetto/{id}	Ottenere i dettagli di un documento di un progetto
@@ -81,6 +83,9 @@ app.register_blueprint(researcher_blueprint, url_prefix='/researchers')
 app.register_blueprint(evaluators_blueprint, url_prefix='/evaluators')
 app.register_blueprint(window_blueprint, url_prefix='/evaluation-window')
 app.register_blueprint(admin_blueprint, url_prefix='/admin')
+app.register_blueprint(report_blueprint, url_prefix='/report')
+app.register_blueprint(project_version_blueprint, url_prefix='/version_project')
+
 
 # Definizione della funzione di gestione degli errori
 @app.errorhandler(CustomError)
@@ -95,6 +100,7 @@ def handle_custom_error(error):
 def getAllEndpoints():
     return jsonify({'/': 'Route that returns a list of every endpoint ',
                     '/register': 'Route that registers a user'})
+
 
 if __name__ == '__main__':
     app.run(debug=True)

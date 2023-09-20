@@ -12,6 +12,7 @@ from utils.middleware import token_required, researcher_required
 
 researcher_blueprint = Blueprint("researcher", __name__)
 
+
 @researcher_blueprint.route("/<int:user_id>/projects", methods=["GET"])
 @researcher_required
 def get_researcher_projects(current_user, user_id):
@@ -20,7 +21,8 @@ def get_researcher_projects(current_user, user_id):
             if current_user.id != user_id and current_user.type_user != UserType.ADMIN:
                 raise CustomError("Unauthorized, you can't retrieve another researcher's projects", 401)
             projects = Project.query.filter_by(researcher_id=user_id).all()
-            projects_list = [{"id": project.id, "name": project.name, "description": project.description, "status": str(project.status)} for project in
+            projects_list = [{"id": project.id, "name": project.name, "description": project.description,
+                              "status": str(project.status)} for project in
                              projects]
 
             return Response(json.dumps(projects_list), status=201, mimetype="application/json")
@@ -50,9 +52,10 @@ def add_researcher_project(current_user, user_id):
         print(err)
         raise CustomError("Internal server error", 500)
 
+
 @researcher_blueprint.route("<int:user_id>/projects/<int:project_id>/submit", methods=["PUT"])
 @researcher_required
-def submit_project(current_user,user_id,project_id):
+def submit_project(current_user, user_id, project_id):
     try:
         if request.method == 'PUT':
             proj = Project.get_project_by_id(project_id)
@@ -63,31 +66,32 @@ def submit_project(current_user,user_id,project_id):
             print(proj.status)
 
             if proj.status != ProjectStatus.TO_BE_SUBMITTED:
-                return Response(json.dumps({"message": "Project cannot be submitted"}),409)
-            
+                return Response(json.dumps({"message": "Project cannot be submitted"}), 409)
+
             if proj:
                 response = proj.submit()
 
                 response_json = {
-                    "id": project_id,  
-                    "status": str(response.status), 
-                    "evaluation_window": response.evaluation_window_id 
+                    "id": project_id,
+                    "status": str(response.status),
+                    "evaluation_window": response.evaluation_window_id
                 }
 
             if response is not None:
                 return Response(json.dumps(response_json), 200)
 
-            return Response(json.dumps({"message":"Error submitting the project"}), 200)
+            return Response(json.dumps({"message": "Error submitting the project"}), 200)
     except CustomError as err:
         print(err.message, err.status_code)
         raise err
     except Exception as err:
         print(err)
-        raise CustomError("Internal server error", 500)        
-    
+        raise CustomError("Internal server error", 500)
+
+
 @researcher_blueprint.route("<int:user_id>/projects/<int:project_id>", methods=["DELETE"])
 @researcher_required
-def delete_project(current_user,user_id,project_id):
+def delete_project(current_user, user_id, project_id):
     try:
         if request.method == 'DELETE':
             if current_user.id != user_id:
@@ -98,15 +102,15 @@ def delete_project(current_user,user_id,project_id):
                 print(proj)
                 proj.delete()
                 print(proj)
-                return Response(json.dumps({"message":"Project deleted successfully"}), 200)
-            
+                return Response(json.dumps({"message": "Project deleted successfully"}), 200)
+
             if proj.status == ProjectStatus.SUBMITTED:
                 window = EvaluationWindow.get_by_id(proj.evaluation_window_id)
                 if datetime.combine(window.data_start, datetime.min.time()) < datetime.now():
-                    return Response(json.dumps({"message":"Sorry, the evaluation period has already started"}), 200)
+                    return Response(json.dumps({"message": "Sorry, the evaluation period has already started"}), 200)
                 proj.delete()
-                return Response(json.dumps({"message":"Project deleted successfully"}), 200)
- 
+                return Response(json.dumps({"message": "Project deleted successfully"}), 200)
+
     except Exception as err:
         print(err)
         raise CustomError("Internal server error", 500)
