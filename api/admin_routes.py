@@ -4,7 +4,7 @@ from flask import request, jsonify, Response, json
 from models.users import User, Evaluator, Researcher, UserType
 from models.projects import Project
 from models.evaluation_windows import EvaluationWindow
-from utils.exceptions import CustomError
+from utils.exceptions import CustomError, error_handler
 from datetime import datetime, timedelta
 import jwt
 import os
@@ -33,17 +33,13 @@ admin_blueprint = Blueprint("admin", __name__)
 
 @admin_blueprint.route("/op/<int:user_id>", methods=["POST"])
 @admin_required
+@error_handler
 def op_user(current_user, user_id):
-    try:
-        usr = User.query.filter_by(id=user_id).first()
-        if usr is None:
-            raise CustomError("User does not exist", 400)
-        usr.op_user()
+    usr = User.query.filter_by(id=user_id).first()
+    if usr is None:
+        raise CustomError("User does not exist", 400)
+    usr.op_user()
 
-        usr_data = {"message": "Made user an operator","opped-user":{"name": usr.name, "id": usr.id,}}
+    usr_data = {"message": "Made user an operator","opped-user":{"name": usr.name, "id": usr.id,}}
 
-        return Response(json.dumps(usr_data), 200)
-    except Exception as e:
-        if e.message is not None:
-            raise CustomError(e.message, e.status) 
-        raise CustomError("Internal server error", 500) 
+    return Response(json.dumps(usr_data), 200)
