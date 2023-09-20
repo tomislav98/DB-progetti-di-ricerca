@@ -1,6 +1,5 @@
 from config import db
-from models.projects import ProjectStatus
-
+from utils.enums import ProjectStatus
 
 class VersionProject(db.Model):
     __tablename__ = 'version_projects'

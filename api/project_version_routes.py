@@ -6,7 +6,6 @@ from utils.exceptions import CustomError
 from datetime import datetime, timedelta
 import jwt
 import os
-from app import db
 from utils.middleware import token_required
 from models.project_versions import VersionProject
 

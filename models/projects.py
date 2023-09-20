@@ -1,17 +1,8 @@
 from config import db
-from enum import Enum
 from models import EvaluationWindow
 from models.project_versions import VersionProject
 from utils.exceptions import CustomError
-
-
-class ProjectStatus(Enum):
-    APPROVED = 0
-    SUBMITTED = 1
-    REQUIRES_CHANGES = 2
-    NOT_APPROVED = 3
-    TO_BE_SUBMITTED = 4
-
+from utils.enums import ProjectStatus
 
 class Project(db.Model):
     __tablename__ = 'projects'

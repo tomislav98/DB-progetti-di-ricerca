@@ -18,7 +18,7 @@ proj_blueprint = Blueprint("proj", __name__)
 @proj_blueprint.route("/<int:project_id>/versions", methods=["GET"])
 @token_required
 @error_handler
-def get_project_versions_by_id(current_user,project_id ):
+def get_project_versions_by_id(current_user, project_id):
     if request.method == 'GET':
         project_versions = Project.get_project_versions_list(project_id)
         if current_user == UserType.RESEARCHER or current_user == UserType.ADMIN:

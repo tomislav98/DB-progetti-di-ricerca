@@ -6,7 +6,6 @@ from utils.exceptions import CustomError
 from datetime import datetime, timedelta
 import jwt
 import os
-from app import db
 from utils.middleware import token_required
 
 report_blueprint = Blueprint("report", __name__)
