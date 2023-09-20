@@ -13,7 +13,8 @@ from utils.middleware import admin_required, token_required
 window_blueprint = Blueprint("evaluation-window", __name__)
 
 
-#La prima finestra che creiamo non è vincolata dalle altre, in caso vuoi testarne di più creane una con una data scaduta e poi altre con date maggiori
+# La prima finestra che creiamo non è vincolata dalle altre, in caso vuoi testarne di più creane una con una data
+# scaduta e poi altre con date maggiori
 @window_blueprint.route("/", methods=["POST"])
 @admin_required
 @error_handler
@@ -24,6 +25,7 @@ def add_window(current_user):
             d_end = body.get("date_end")
             EvaluationWindow.add_window(d_start, d_end)
             return jsonify({"message":"Evaluation window created"}), 201 
+
 
 @window_blueprint.route("/", methods=["GET"])
 @token_required

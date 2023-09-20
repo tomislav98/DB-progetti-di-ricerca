@@ -1,5 +1,6 @@
 from config import db
 
+
 class Message(db.Model):
     __tablename__ = 'messages'
 

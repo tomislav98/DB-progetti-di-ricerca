@@ -35,7 +35,8 @@ class User(db.Model):
     researcher = db.relationship('Researcher', backref='user', uselist=False, cascade='all, delete-orphan')
     evaluator = db.relationship('Evaluator', backref='user', uselist=False, cascade='all, delete-orphan')
 
-    # TODO Capire se si deve togliere manualmente l'utente dalla tabella researchers o evaluators (ha la chiave esterna li) prima di metterlo admin o se fa tutto automaticamente 🧐
+    # TODO Capire se si deve togliere manualmente l'utente dalla tabella researchers o evaluators (ha la chiave
+    #  esterna li) prima di metterlo admin o se fa tutto automaticamente 🧐
     def op_user(self):
         try:
             self.type_user = UserType.ADMIN

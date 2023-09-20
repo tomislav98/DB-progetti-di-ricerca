@@ -10,7 +10,9 @@ from utils.middleware import token_required
 
 user_blueprint = Blueprint("user", __name__)
 
-# Example of a route using token_required middleware, notice that the get_users function now need an additional argument - current_user -
+
+# Example of a route using token_required middleware, notice that the get_users function now need an additional
+# argument - current_user -
 @user_blueprint.route("/", methods=["GET"])
 @token_required
 @error_handler
@@ -95,6 +97,7 @@ def register_user():  # put application's code here
             raise CustomError("Email already in use", 409)
 
     # the first time the client is sending the GET request
+
 
 # DONE
 # Authenticates a user and returns a JWT in response

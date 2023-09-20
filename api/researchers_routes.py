@@ -12,6 +12,7 @@ from utils.middleware import token_required, researcher_required
 
 researcher_blueprint = Blueprint("researcher", __name__)
 
+
 @researcher_blueprint.route("/<int:user_id>/projects", methods=["GET"])
 @researcher_required
 @error_handler
