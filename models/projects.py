@@ -1,6 +1,7 @@
 from config import db
 from enum import Enum
 from models import EvaluationWindow
+from models.project_versions import VersionProject
 from utils.exceptions import CustomError
 
 
@@ -76,3 +77,17 @@ class Project(db.Model):
         if project:
             return project
         return None
+
+    @staticmethod
+    def get_project_versions_list(id):
+        try:
+            
+            projects = VersionProject.query.filter_by(project_id=id).all()
+
+            if projects:
+                return projects
+            raise CustomError("There are no projects with that id", 404) 
+
+        except Exception as e:
+            raise CustomError(f"Errore: {type(e).__name__} - {e}", 500)
+        
