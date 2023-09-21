@@ -39,15 +39,20 @@ class Project(db.Model):
 
     @classmethod
     def add_project(cls, name, description, data_creation, creator_user_id):
-        try:
-            project = cls(name=name, description=description, data_creation=data_creation,
-                          researcher_id=creator_user_id)
-            project.status = ProjectStatus.TO_BE_SUBMITTED
-            db.session.add(project)
-            db.session.commit()
+        project = cls(name=name, description=description, data_creation=data_creation,
+                        researcher_id=creator_user_id)
+        project.status = ProjectStatus.TO_BE_SUBMITTED
 
-        except Exception as e:
-            raise CustomError(f"Errore: {type(e).__name__} - {e}", 500)
+
+        db.session.add(project)
+        db.session.commit()
+
+        print(project.status, project.id)
+        version = VersionProject.create_version(project.status,project.id,"v0.0.0")
+
+        db.session.add(version)
+        db.session.commit()
+
 
     @staticmethod
     def get_project_by_id(project_id):
