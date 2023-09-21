@@ -22,12 +22,11 @@ class VersionProject(db.Model):
                 for v in otherversions:
                     if v.version > version:
                         raise CustomError("You can't create a version lower than the latest",400)
-                project = cls(status=status,project_id=project_id, version=version)
+                project_version = cls(status=status,project_id=project_id, version=version)
             else:
-                project = cls(status=ProjectStatus.TO_BE_SUBMITTED ,project_id=project_id,version="v0.0.0" )    
+                project_version = cls(status=ProjectStatus.TO_BE_SUBMITTED ,project_id=project_id,version="v0.0.0" )    
 
-            db.session.add(project)
+            db.session.add(project_version)
             db.session.commit()
-            
         except Exception as e:
             raise CustomError(f"Errore: {type(e).__name__} - {e}", 500)

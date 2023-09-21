@@ -42,16 +42,9 @@ class Project(db.Model):
         project = cls(name=name, description=description, data_creation=data_creation,
                         researcher_id=creator_user_id)
         project.status = ProjectStatus.TO_BE_SUBMITTED
-
-
         db.session.add(project)
         db.session.commit()
-
-        print(project.status, project.id)
-        version = VersionProject.create_version(project.status,project.id,"v0.0.0")
-
-        db.session.add(version)
-        db.session.commit()
+        VersionProject.create_version(project.status,project.id,"v0.0.0")
 
 
     @staticmethod
