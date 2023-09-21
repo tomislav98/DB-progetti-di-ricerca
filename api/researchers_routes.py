@@ -18,9 +18,10 @@ researcher_blueprint = Blueprint("researcher", __name__)
 @error_handler
 def get_researcher_projects(current_user, user_id):
     if request.method == 'GET':
+        researcher = Researcher.get_researcher_from_user_id(user_id)
         if current_user.id != user_id and current_user.type_user != UserType.ADMIN:
             raise CustomError("Unauthorized, you can't retrieve another researcher's projects", 401)
-        projects = Project.query.filter_by(researcher_id=user_id).all()
+        projects = Project.query.filter_by(researcher_id=researcher.id).all()
         projects_list = [{"id": project.id, "name": project.name, "description": project.description, "status": str(project.status)} for project in
                             projects]
 
@@ -42,7 +43,9 @@ def add_researcher_project(current_user, user_id):
 
         return Response(json.dumps({"message": "project created successfully"}), 200)
     
-
+# TODO: usare le join per unire Users, Researchers, Projects 
+# anche per vedere se ce un user associato a quel progetto, senno uno puo cheattare e 
+# submittare qualsiasi progetto 
 @researcher_blueprint.route("<int:user_id>/projects/<int:project_id>/submit", methods=["PUT"])
 @researcher_required
 @error_handler
@@ -52,8 +55,6 @@ def submit_project(current_user,user_id,project_id):
         researcher = Researcher.get_researcher_from_user_id(user_id)
         if current_user.id != researcher.user_id and proj.researcher_id != researcher.id and current_user.type_user != UserType.ADMIN:
             raise CustomError("Unauthorized, you can't submit another researcher's project", 401)
-
-        print(proj.status)
 
         if proj.status != ProjectStatus.TO_BE_SUBMITTED:
             return Response(json.dumps({"message": "Project cannot be submitted"}),409)
@@ -83,9 +84,7 @@ def delete_project(current_user,user_id,project_id):
         proj = Project.get_project_by_id(project_id)
 
         if proj.status == ProjectStatus.TO_BE_SUBMITTED:
-            print(proj)
             proj.delete()
-            print(proj)
             return Response(json.dumps({"message":"Project deleted successfully"}), 200)
         
         if proj.status == ProjectStatus.SUBMITTED:
@@ -94,3 +93,22 @@ def delete_project(current_user,user_id,project_id):
                 return Response(json.dumps({"message":"Sorry, the evaluation period has already started"}), 200)
             proj.delete()
             return Response(json.dumps({"message":"Project deleted successfully"}), 200)
+
+# Per adesso, puo modificare la versione di un progetto, aggiungendo una nuova versione con vX.X.X maggiore di quella piu recente
+@researcher_blueprint.route("<int:user_id>/projects/<int:project_id>", methods=["PUT"])
+@researcher_required
+@error_handler
+def update_project_version(current_user, user_id, project_id):
+    if request.method == "PUT":
+        if current_user.id == user_id:
+            body = request.get_json()
+            project = Project.get_user_projects(user_id,project_id)
+            if project is None:
+                raise CustomError("There are no projects with such parameters", 404)
+            updated = project[0].update_project_version(body["version"])
+
+            response_json = {
+                "message": "Project updated correctly to version "+ updated.version
+            }
+            return Response(json.dumps(response_json),200)
+        raise CustomError("You cannot update somebody else's project")

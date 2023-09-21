@@ -1,6 +1,7 @@
 from config import db
 from models import EvaluationWindow
 from models.project_versions import VersionProject
+from models.users import Researcher, User
 from utils.exceptions import CustomError
 from utils.enums import ProjectStatus
 
@@ -22,10 +23,11 @@ class Project(db.Model):
     # TODO Fare error handling, try catch ecc !!!!!
 
     def submit(self):
-        window = EvaluationWindow.get_first_window().id
+        window = EvaluationWindow.get_first_window()
+        if window is None:
+            raise CustomError("There are no evaluation windows at the moment, try again later",500) 
         self.status = ProjectStatus.SUBMITTED
-        self.evaluation_window_id = window
-        # db.session.add(self)
+        self.evaluation_window_id = window.id
         db.session.commit()
         return self
 
@@ -36,6 +38,10 @@ class Project(db.Model):
             return self
         except Exception as e:
             raise CustomError(f"Errore: {type(e).__name__} - {e}", 500)
+
+    def update_project_version(self, version):
+        version = VersionProject.create_version(self.status, self.id, version)
+        return version
 
     @classmethod
     def add_project(cls, name, description, data_creation, creator_user_id):
@@ -79,4 +85,21 @@ class Project(db.Model):
 
         except Exception as e:
             raise CustomError(f"Errore: {type(e).__name__} - {e}", 500)
-        
+    
+    @staticmethod
+    def get_user_projects(user_id, project_id):
+        project =   ( 
+                        db.session.query(Project)
+                        .join(Researcher, Researcher.id == Project.researcher_id)
+                        .join(User, User.id == Researcher.user_id)
+                        .filter(User.id == user_id, Project.id == project_id)
+                        .all()
+                    )
+        if project:
+            return project
+        print(project)
+        return None
+
+    
+      
+
