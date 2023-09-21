@@ -34,7 +34,7 @@ class EvaluationWindow(db.Model):
         current_evaluation_window = EvaluationWindow.get_first_window()
         if hasattr(current_evaluation_window, "data_end"):
             if parsed_start < current_evaluation_window.data_end or parsed_start < datetime.now().date():
-                raise CustomError("Invalid input", 400)
+                raise CustomError("Invalid input, end date is not greater than the start", 400)
         window = EvaluationWindow(data_start=parsed_start, data_end=parsed_end)
         db.session.add(window)
         db.session.commit()

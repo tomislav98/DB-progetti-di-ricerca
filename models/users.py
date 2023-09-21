@@ -3,9 +3,6 @@ from sqlalchemy import DateTime
 from config import db, bcrypt
 from utils.exceptions import CustomError
 
-
-# TODO: Cambiare i "@classmethod" che non utilizzano il cls in "@staticmethod", non vengono usati
-
 class UserType(Enum):
     RESEARCHER = 0
     EVALUATOR = 1
@@ -20,7 +17,6 @@ class UserType(Enum):
                 return UserType.EVALUATOR
             case _:
                 print("Errore")
-
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -52,12 +48,18 @@ class User(db.Model):
                 return True
         return False
 
+    # Crea un utente, se è il primo utente del DB viene settato ad admin,
+    # indipendentemente dai parametri scelti
     @classmethod
     def add_user(cls, name, surname, email, password, type_user):
         try:
             hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
             if cls.check_user_role(type_user):
                 type_user_enum = UserType.RESEARCHER
+                users = User.query.first()
+
+                if users is None:
+                    type_user_enum = UserType.ADMIN 
                 if type_user == UserType.EVALUATOR.value:
                     type_user_enum = UserType.EVALUATOR
                 user = cls(name=name, surname=surname, email=email, password=hashed_password, type_user=type_user_enum)
@@ -98,7 +100,6 @@ class User(db.Model):
         db.session.delete(user_object)
         db.session.commit()
 
-
 class Researcher(db.Model):
     __tablename__ = 'researchers'
     id = db.Column(db.Integer, primary_key=True)
@@ -120,7 +121,7 @@ class Researcher(db.Model):
         if researcher :
             return researcher
         else:
-            raise CustomError("Not Found",404)
+            raise CustomError("User is not a researcher therefore it cannot create a new project (if you are an admin and want to create a project for a researcher you can user /researchers/project endpoint)",404)
     @staticmethod
     def is_valid_researcher(data):
         """Function that verify if researcher that is loging is valid."""
@@ -133,7 +134,7 @@ class Researcher(db.Model):
             if User.check_password(password_hash, data['password']):
                 is_password_found = True
                 break
-
+    
         if is_email_found and is_password_found:
             return True
         return False

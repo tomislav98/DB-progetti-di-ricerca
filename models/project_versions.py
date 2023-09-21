@@ -1,6 +1,7 @@
 from config import db
 from utils.enums import ProjectStatus
 from utils.exceptions import CustomError
+import re
 
 class VersionProject(db.Model):
     __tablename__ = 'version_projects'
@@ -15,18 +16,21 @@ class VersionProject(db.Model):
     # esistenti
     @classmethod
     def create_version(cls,status, project_id, version):
-        try:
-            otherversions = VersionProject.query.filter_by(project_id=project_id).all()
+        if not re.match(r'^v\d+\.\d+\.\d+$', version):
+            raise CustomError("Il formato della versione deve essere 'vX.X.X'", 400)
+        
+        versions = VersionProject.query.filter_by(project_id=project_id).all()
 
-            if otherversions:
-                for v in otherversions:
-                    if v.version > version:
-                        raise CustomError("You can't create a version lower than the latest",400)
-                project_version = cls(status=status,project_id=project_id, version=version)
-            else:
-                project_version = cls(status=ProjectStatus.TO_BE_SUBMITTED ,project_id=project_id,version="v0.0.0" )    
+        if versions:
+            for v in versions:
+                if v.version >= version:
+                    raise CustomError("You can't create a version lower than the latest",400)
+            project_version = cls(status=status,project_id=project_id, version=version)
+        else:
+            project_version = cls(status=ProjectStatus.TO_BE_SUBMITTED ,project_id=project_id,version="v0.0.0" )    
 
-            db.session.add(project_version)
-            db.session.commit()
-        except Exception as e:
-            raise CustomError(f"Errore: {type(e).__name__} - {e}", 500)
+        db.session.add(project_version)
+        db.session.commit()
+
+        return project_version
+        

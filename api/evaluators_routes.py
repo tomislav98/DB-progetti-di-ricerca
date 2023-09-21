@@ -21,6 +21,9 @@ def get_projects_to_value(current_user):
     evaluation_window = EvaluationWindow.get_first_window()
     print(type(evaluation_window))
     projects = Project.get_project_by_window_id(evaluation_window.id)
+
+    if projects is None:
+        raise CustomError("There are no projects submitted yet", 404)
     project_data = [
         {"id": project.id, "name": project.name, "description": project.description, "status": str(project.status)}
         for project in projects]

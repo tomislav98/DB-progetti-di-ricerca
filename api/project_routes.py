@@ -21,34 +21,30 @@ proj_blueprint = Blueprint("proj", __name__)
 def get_project_versions_by_id(current_user, project_id):
     if request.method == 'GET':
         project_versions = Project.get_project_versions_list(project_id)
-        if current_user == UserType.RESEARCHER or current_user == UserType.ADMIN:
-            latest_version = project_versions[0].version
-            for version in project_versions:
-                if version.version > latest_version:
-                    latest_version = version
-                versions_data.append(version)
-                response_data = {
-                    "message": "Versions retrieved correctly!",
-                    "project_versions": versions_data,
-                    "latest_version": latest_version
-                }
-            return Response(json.dumps(response_data, 200))
+        versions_data = []
+        latest_version = project_versions[0].version
         
-        else:
-            versions_data = []
-            latest_version = project_versions[0].version
+        if current_user == UserType.RESEARCHER or current_user == UserType.ADMIN:
             for version in project_versions:
-                if version.version > latest_version:
-                    latest_version = version
+                if version.version >= latest_version:
+                    latest_version = version.version
+                versions_data.append(version.version)
+        else:
+            for version in project_versions:
+                if version.version >= latest_version:
+                    latest_version = version.version
                 if version.status == ProjectStatus.SUBMITTED:
-                    versions_data.append(version)
-            response_data = {
-                "message": "Versions retrieved correctly!",
-                "project_versions": versions_data,
-                "latest_version": latest_version
-            }
-            return Response(json.dumps(response_data), 200)
-                
+                    versions_data.append(version.version)
+
+        data = [{"id": v.id, "status": str(v.status), "project_id": v.project_id, "version": v.version} for v in project_versions]
+
+        response_data = {
+            "message": "Versions retrieved correctly!",
+            "other_versions": data,
+            "latest_version": latest_version
+        }
+        return Response(json.dumps(response_data), 200)
+               
 # @proj_blueprint.route("/<int:project_id>/latest")
 # def get_latest_versions_by_id():
 #     if request.method == "GET":
