@@ -20,31 +20,29 @@ proj_blueprint = Blueprint("proj", __name__)
 @error_handler
 def get_project_versions_by_id(current_user, project_id):
     if request.method == 'GET':
-        project_versions = Project.get_project_versions_list(project_id)
-        versions_data = []
-        latest_version = project_versions[0].version
-        
-        if current_user == UserType.RESEARCHER or current_user == UserType.ADMIN:
-            for version in project_versions:
-                if version.version >= latest_version:
-                    latest_version = version.version
-                versions_data.append(version.version)
-        else:
-            for version in project_versions:
-                if version.version >= latest_version:
-                    latest_version = version.version
-                if version.status == ProjectStatus.SUBMITTED:
-                    versions_data.append(version.version)
+        u = Project.get_user_from_project(project_id=project_id)
 
-        data = [{"id": v.id, "status": str(v.status), "project_id": v.project_id, "version": v.version} for v in project_versions]
+        project_versions = Project.get_project_versions_list(project_id)
+        latest_version = project_versions[0]
+
+        if latest_version.status != ProjectStatus.SUBMITTED and current_user.type_user == UserType.EVALUATOR:
+            raise CustomError("The project is either inexistent or not submitted yet", 404)
+        
+
+        if u.id != current_user.id:
+            data = [{"id": v.id, "status": str(v.status), "project_id": v.project_id, "version": v.version} 
+                    for v in project_versions if v.status != ProjectStatus.TO_BE_SUBMITTED]
+        else:
+            data = [{"id": v.id, "status": str(v.status), "project_id": v.project_id, "version": v.version} for v in project_versions]
 
         response_data = {
             "message": "Versions retrieved correctly!",
             "other_versions": data,
-            "latest_version": latest_version
+            "latest_version": latest_version.version
         }
+
         return Response(json.dumps(response_data), 200)
-               
+        
 # @proj_blueprint.route("/<int:project_id>/latest")
 # def get_latest_versions_by_id():
 #     if request.method == "GET":

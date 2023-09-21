@@ -116,12 +116,22 @@ class Researcher(db.Model):
         db.session.commit()
     
     @staticmethod
+    def get_researcher_from_id(id):
+        researcher = Researcher.query.filter_by(id=id).first()
+        if researcher :
+            return researcher
+        else:
+            raise CustomError("User is not a researcher therefore it cannot create a new project (if you are an admin and want to create a project for a researcher you can user /researchers/project endpoint)",404)
+    
+
+    @staticmethod
     def get_researcher_from_user_id(user_id):
         researcher = Researcher.query.filter_by(user_id=user_id).first()
         if researcher :
             return researcher
         else:
             raise CustomError("User is not a researcher therefore it cannot create a new project (if you are an admin and want to create a project for a researcher you can user /researchers/project endpoint)",404)
+    
     @staticmethod
     def is_valid_researcher(data):
         """Function that verify if researcher that is loging is valid."""
