@@ -11,3 +11,10 @@ class AssessmentReport(db.Model):
     content = db.Column(db.Text, nullable=False)
     evaluator_id = db.Column(db.Integer, db.ForeignKey('evaluators.id'))
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
+
+    @classmethod
+    def create_new_report(cls, project_id, evaluator_id, content):
+        report = cls(data_created = datetime.now(), project_id = project_id, evaluator_id = evaluator_id, content = content)
+        db.session.add(report)
+        return report
+        

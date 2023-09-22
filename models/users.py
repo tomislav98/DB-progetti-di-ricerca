@@ -52,31 +52,29 @@ class User(db.Model):
     # indipendentemente dai parametri scelti
     @classmethod
     def add_user(cls, name, surname, email, password, type_user):
-        try:
-            hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-            if cls.check_user_role(type_user):
-                type_user_enum = UserType.RESEARCHER
-                users = User.query.first()
+        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+        if cls.check_user_role(type_user):
+            type_user_enum = UserType.RESEARCHER
+            users = User.query.first()
 
-                if users is None:
-                    type_user_enum = UserType.ADMIN 
-                if type_user == UserType.EVALUATOR.value:
-                    type_user_enum = UserType.EVALUATOR
-                user = cls(name=name, surname=surname, email=email, password=hashed_password, type_user=type_user_enum)
-                db.session.add(user)
-                db.session.commit()
+            if users is None:
+                type_user_enum = UserType.ADMIN 
+            if type_user == UserType.EVALUATOR.value:
+                type_user_enum = UserType.EVALUATOR
+            user = cls(name=name, surname=surname, email=email, password=hashed_password, type_user=type_user_enum)
+            db.session.add(user)
+            db.session.commit()
 
-                if type_user_enum == UserType.RESEARCHER:
-                    Researcher.add_researcher(user_id=user.id)
+        if type_user_enum == UserType.RESEARCHER:
+            Researcher.add_researcher(user_id=user.id)
 
-                elif type_user_enum == UserType.EVALUATOR:
-                    Evaluator.add_evaluator(user_id=user.id)
-            else:
-                # Gestione del tipo di utente sconosciuto o non valido
-                raise ValueError("Unknown or invalid user type")
+        elif type_user_enum == UserType.EVALUATOR:
+            Evaluator.add_evaluator(user_id=user.id)
+        else:
+            # Gestione del tipo di utente sconosciuto o non valido
+            raise ValueError("Unknown or invalid user type")
 
-        except Exception as e:
-            raise CustomError(f"Errore: {type(e).__name__} - {e}", 500)
+       
 
     # If credentials are valid, this returns a User instance, None otherwise
     @staticmethod

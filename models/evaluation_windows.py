@@ -1,5 +1,5 @@
 from config import db
-from sqlalchemy import CheckConstraint
+from sqlalchemy import CheckConstraint, event
 from utils.exceptions import CustomError
 from utils.dates import str2date
 from datetime import datetime
@@ -46,3 +46,12 @@ class EvaluationWindow(db.Model):
             return windows
         except Exception as e:
             raise CustomError(f"Errore: {type(e).__name__} - {e}", 500)
+
+    @classmethod
+    def delete_first_window(cls):
+        evaluation_window = cls.get_first_window()
+        db.session.delete(evaluation_window)
+        db.session.commit()
+
+
+

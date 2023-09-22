@@ -37,3 +37,11 @@ def get_windows(current_user):
 
         return Response(json.dumps(windows_list),200)
 
+@window_blueprint.route("/", methods = ["DELETE"])
+@admin_required
+@error_handler
+def delete_window(current_user):
+    if request.method == "DELETE":
+        EvaluationWindow.delete_first_window()
+        return jsonify({"message": "Evaluation Window deleted"}),200
+
