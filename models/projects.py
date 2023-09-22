@@ -28,6 +28,7 @@ class Project(db.Model):
             raise CustomError("There are no evaluation windows at the moment, try again later",500) 
         self.status = ProjectStatus.SUBMITTED
         self.evaluation_window_id = window.id
+        VersionProject.get_versions_by_project_id(self.id)[0].update_status(self.status)
         db.session.commit()
         return self
 
@@ -40,6 +41,8 @@ class Project(db.Model):
             raise CustomError(f"Errore: {type(e).__name__} - {e}", 500)
 
     def update_project_version(self, version):
+        if self.status == ProjectStatus.SUBMITTED:
+            raise CustomError("You can't update a submitted project")
         version = VersionProject.create_version(self.status, self.id, version)
         return version
 
@@ -51,7 +54,7 @@ class Project(db.Model):
         db.session.add(project)
         db.session.commit()
         VersionProject.create_version(project.status,project.id,"v0.0.0")
-
+        return project
 
     @staticmethod
     def get_project_by_id(project_id):
@@ -77,7 +80,7 @@ class Project(db.Model):
     def get_project_versions_list(id):
         try:
             
-            projects = VersionProject.query.filter_by(project_id=id).all()
+            projects = VersionProject.query.filter_by(project_id=id).order_by(VersionProject.version.desc()).all()
 
             if projects:
                 return projects
@@ -100,6 +103,17 @@ class Project(db.Model):
         print(project)
         return None
 
+    @staticmethod
+    def get_user_from_project(project_id):
+        user =   ( 
+                        db.session.query(User)
+                        .join(Researcher, Researcher.user_id == User.id)
+                        .join(Project, Project.researcher_id == Researcher.id)
+                        .filter(Project.id == project_id)
+                        .one()
+                    )
+        db.session.commit()
+        return user
     
       
 

@@ -39,9 +39,17 @@ def add_researcher_project(current_user, user_id):
 
         researcher = Researcher.get_researcher_from_user_id(current_user.id)
         body = request.get_json()
-        Project.add_project(body["name"], body["description"], datetime.now(), researcher.id)
-
-        return Response(json.dumps({"message": "project created successfully"}), 200)
+        p = Project.add_project(body["name"], body["description"], datetime.now(), researcher.id)
+        
+        return Response(json.dumps({    
+            "message": "Project created successfully",
+            "project": {
+                "id": p.id, 
+                "status": str(p.status),
+                "name": p.name,
+                "description": p.description,
+            } 
+        }), 200)
     
 # TODO: usare le join per unire Users, Researchers, Projects 
 # anche per vedere se ce un user associato a quel progetto, senno uno puo cheattare e 
@@ -89,7 +97,7 @@ def delete_project(current_user,user_id,project_id):
         
         if proj.status == ProjectStatus.SUBMITTED:
             window = EvaluationWindow.get_by_id(proj.evaluation_window_id)
-            if datetime.combine(window.data_start, datetime.min.time()) < datetime.now():
+            if datetime.combine(window.data_start, datetime.min.time()) < datetime.now() and datetime.combine(window.data_end, datetime.min.time()) > datetime.now():
                 return Response(json.dumps({"message":"Sorry, the evaluation period has already started"}), 200)
             proj.delete()
             return Response(json.dumps({"message":"Project deleted successfully"}), 200)

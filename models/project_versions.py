@@ -34,3 +34,15 @@ class VersionProject(db.Model):
 
         return project_version
         
+    @staticmethod
+    def get_versions_by_project_id(proj_id):
+        versions = VersionProject.query.filter_by(project_id=proj_id).order_by(VersionProject.version.desc()).all()
+
+        if versions:
+            return versions
+        raise CustomError("Data not available", 404)
+    
+    def update_status(self,status):
+        self.status = status
+        db.session.commit()
+        return self
