@@ -28,7 +28,6 @@ def get_researcher_projects(current_user, user_id):
         return Response(json.dumps(projects_list), status=201, mimetype="application/json")
     
 
-# TODO: Creare una versione del progetto version:1.0; status: TO_BE_SUBMITTED
 @researcher_blueprint.route("/<int:user_id>/projects", methods=["POST"])
 @researcher_required
 @error_handler

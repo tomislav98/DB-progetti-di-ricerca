@@ -42,7 +42,9 @@ class Project(db.Model):
 
     def update_project_version(self, version):
         if self.status == ProjectStatus.SUBMITTED:
-            raise CustomError("You can't update a submitted project")
+            raise CustomError("You can't update a project while it is submitted to evaluation")
+        if ProjectStatus.APPROVED or ProjectStatus.NOT_APPROVED:
+            raise CustomError("You can't update this project anymore")
         version = VersionProject.create_version(self.status, self.id, version)
         return version
 
