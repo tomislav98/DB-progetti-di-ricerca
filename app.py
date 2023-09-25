@@ -86,7 +86,6 @@ app.register_blueprint(admin_blueprint, url_prefix='/admin')
 app.register_blueprint(report_blueprint, url_prefix='/report')
 app.register_blueprint(project_version_blueprint, url_prefix='/version_project')
 
-
 # Definizione della funzione di gestione degli errori
 @app.errorhandler(CustomError)
 def handle_custom_error(error):
