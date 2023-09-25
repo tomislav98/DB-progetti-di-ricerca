@@ -13,13 +13,11 @@ from utils.middleware import evaluator_required
 evaluators_blueprint = Blueprint("evaluators", __name__)
 
 
-# TODO tobe tested
 @evaluators_blueprint.route("/projects", methods=["GET"])
 @evaluator_required
 @error_handler
 def get_projects_to_value(current_user):
     evaluation_window = EvaluationWindow.get_first_window()
-    print(type(evaluation_window))
     projects = Project.get_project_by_window_id(evaluation_window.id)
 
     if projects is None:
