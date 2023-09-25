@@ -18,6 +18,7 @@ class UserType(Enum):
             case _:
                 print("Errore")
 
+# Aggiungere numero di telefono
 class User(db.Model):
     __tablename__ = 'users'
 

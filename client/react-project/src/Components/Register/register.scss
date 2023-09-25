@@ -1,0 +1,33 @@
+.my-container-block{
+    display: block;
+}
+
+.bd-placeholder-img {
+    font-size: 1.125rem;
+    text-anchor: middle;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+}
+
+@media (min-width: 768px) {
+    .bd-placeholder-img-lg {
+        font-size: 3.5rem;
+    }
+}
+
+.button-flex{
+    display: flex;
+}
+
+.password-strength-weak{
+    color: #dc3545;
+}
+
+.password-strength-medium{
+    color: #ffc107;
+}
+
+.password-strength-strong{
+    color: #198754;
+}
