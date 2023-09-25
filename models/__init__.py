@@ -6,6 +6,7 @@ from .project_versions import VersionProject
 from .projects import Project
 from .messages import Message
 from .project_documents import DocumentProject
+from . import events
 
 with app.app_context():
     # db.drop_all()

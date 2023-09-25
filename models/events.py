@@ -10,7 +10,7 @@ def before_delete_trigger(mapper, connection, target):
     evaluation_window_id = target.id
     related_project = db.session.query(Project).filter_by(evaluation_window_id = evaluation_window_id).first()
     print(db.session)
-    mimmo = db.session.query(Project).filter_by(evaluation_window_id = 2).all()
+    mimmo = db.session.query(Project).filter_by(id = 2).all()
     print(mimmo)
     print(related_project)
     if related_project : 

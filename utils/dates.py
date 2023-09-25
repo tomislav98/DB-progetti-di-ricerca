@@ -1,5 +1,7 @@
 from datetime import datetime
 
+from utils.exceptions import CustomError
+
 
 def str2date(date):
     # Supponiamo che d_end sia una stringa nel formato "01/01/01", "01-01-01", o "01/1/1"
@@ -10,10 +12,10 @@ def str2date(date):
         try:
             datetime_parsed = datetime.strptime(date, date_format)
             break
-        except ValueError:
+        except Exception:
             pass
     else:
         # Nessun formato valido trovato
-        raise ValueError("Formato data non valido")
+        raise CustomError("Formato data non valido",400)
 
     return datetime_parsed.date()
