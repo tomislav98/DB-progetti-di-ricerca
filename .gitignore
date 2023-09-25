@@ -24,3 +24,4 @@ htmlcov/
 .coverage
 .coverage.*
 *,cover
+client/react-project/node_modules
