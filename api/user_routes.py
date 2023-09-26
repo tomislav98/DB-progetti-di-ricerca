@@ -89,7 +89,6 @@ def register_user():  # put application's code here
             )
             response_data = {
                 "message": "User registered successfully",
-                "data": data,
             }
 
             return Response(json.dumps(response_data), status=201, mimetype="application/json")
