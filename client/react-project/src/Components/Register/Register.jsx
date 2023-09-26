@@ -2,8 +2,14 @@ import "./register.scss"
 import unive from '../../assets/Cat Icon 1.svg'
 import { useEffect, useState } from "react";
 import axios from "axios"
+import { redirect, useNavigate } from "react-router-dom";
+import Button from '@mui/material/Button';
+import { Snackbar, Alert } from '@mui/material';
+import { SnackbarProvider, useSnackbar } from "notistack"
+import Slide from "@mui/material/Slide";
 
-const SERVER_URL = process.env.SERVER_URL;
+// import { SnackbarProvider,us useSnackbar } from 'notistack';
+const SERVER_URL = process.env.REACT_APP_SERVER_URL;
 
 const doneCheck = (isDone) => {
     if (isDone)
@@ -39,13 +45,44 @@ function checkPassword(password) {
     return regex.test(password);
 }
 
+function renderUserType(type) {
+    switch (type) {
+        case 0:
+            return <strong>RESEARCHER</strong>
+            break;
+        case 1:
+            return <strong>EVALUATOR</strong>
+            break;
+        default:
+            return null
+            break;
+    }
+}
+
 function Register() {
     const [name, setName] = useState("");
     const [scndName, setScndName] = useState("");
     const [mail, setMail] = useState("");
     const [password, setPassword] = useState("");
     const [passwordStrength, setPasswordStrength] = useState("weak");
-    const [userType, setUserType] = useState(0); // Imposta il valore predefinito a 0 (Researcher)
+    const [userType, setUserType] = useState(2); // Imposta il valore predefinito a 0 (Researcher)
+    const navigate = useNavigate();
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+
+    const { enqueueSnackbar } = useSnackbar();
+
+    function TransitionLeft(props){
+        return <Slide {...props} direction="right"/>
+    }
+
+    const handleClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setSnackbarOpen(false);
+        navigate("/login")
+    };
 
     function changeName(event) {
         const { value } = event.target;
@@ -85,29 +122,51 @@ function Register() {
             return;
         }
 
-        // Crea il corpo della richiesta
         const requestBody = {
             name: name,
             surname: scndName,
-            password: "cela", // Aggiungi la password appropriata
+            password: password,
             email: mail,
             type_user: userType
         };
 
         try {
             // Effettua la richiesta POST
-            const response = await axios.post(SERVER_URL, requestBody);
+            const response = await axios.post("http://localhost:5000/user/register", requestBody, {
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
 
-            // Verifica la risposta dal server e gestisci di conseguenza
-            if (response.status === 200) {
-                alert("Registrazione completata con successo!");
-                // Esegui azioni aggiuntive, come il reindirizzamento a un'altra pagina
-            } else {
-                alert("Errore durante la registrazione. Si prega di riprovare.");
+            // Visualizza il codice di stato HTTP nella risposta
+            // alert("Response: " + response.status + "Body: " + JSON.stringify(response.data));
+            if (response.status == 201) {
+                setSnackbarOpen(true);
             }
         } catch (error) {
-            console.error("Errore durante la richiesta di registrazione:", error);
-            alert("Errore durante la registrazione. Si prega di riprovare.");
+            if (error.response) {
+                const variant = "error"
+
+                // enqueueSnackbar("Noo", {variant})
+                // Se la risposta è stata ricevuta ma ha un codice di stato diverso da 200
+                alert("Errore durante la registrazione. Codice di stato HTTP: " + error.response.status + "\nBody: " + JSON.stringify(error.response.data));
+            } else {
+                // Se non è stata ricevuta alcuna risposta
+                alert("Errore durante la registrazione. Si prega di riprovare.");
+            }
+        }
+    }
+
+    function handleUserTypeChange(event) {
+        const selectedValue = event.target.value;
+
+        // Imposta lo stato userType in base alla selezione
+        if (selectedValue === "0") {
+            setUserType(0); // Researcher
+        } else if (selectedValue === "1") {
+            setUserType(1); // Evaluator
+        } else {
+            setUserType(2); // Default a 0 se è stata scelta l'opzione "Choose..."
         }
     }
 
@@ -149,20 +208,35 @@ function Register() {
                                 {doneCheck(checkMail(mail))}
                             </li>
                             <li className="list-group-item d-flex justify-content-between bg-light">
-                                <div className="text-success">
+                                <div >
                                     <h6 className="my-0">User type</h6>
-                                    <small>RESEARCHER</small>
+                                    {renderUserType(userType)}
                                 </div>
-                                <span className="text-success">✗</span>
+                                {doneCheck(userType != 2)}
                             </li>
-                            <li className="list-group-item d-flex justify-content-between">
-                                <span>Total (USD)</span>
-                                <strong>$20</strong>
+                            <li className="list-group-item d-flex justify-content-between bg-light">
+                                <div >
+                                    <h6 className="my-0">Password</h6>
+                                    <small className="text-muted password-strength">
+                                        {
+                                            password.length != 0 ?
+                                                (<small className="text-muted password-strength">
+                                                    Password Strength:{" "}
+                                                    <span className={`password-strength-${passwordStrength}`}>
+                                                        {passwordStrength.toUpperCase()}
+                                                    </span>
+                                                </small>)
+                                                :
+                                                null
+                                        }
+                                    </small>
+                                </div>
+                                {doneCheck(checkPassword(password))}
                             </li>
                         </ul>
 
                         <div className="input-group">
-                            <button className="w-100 btn btn-primary btn-lg" type="submit">Register </button>
+                            <button className="w-100 btn btn-primary btn-lg" type="submit" onClick={handleRegistration}>Register </button>
 
                         </div>
                     </div>
@@ -196,25 +270,26 @@ function Register() {
 
                                 <div className="col-12">
                                     <label htmlFor="inputPassword5" className="form-label">Password</label>
+                                    {
+                                        password.length != 0 ?
+                                            (<small className="text-muted password-strength">
+                                                {" "}{" "}
+                                                <span className={`password-strength-${passwordStrength}`}>
+                                                    {passwordStrength.toUpperCase()}
+                                                </span>{" "}
+                                            </small>)
+                                            :
+                                            null
+                                    }
                                     <input type="password" id="inputPassword5" className="form-control" aria-describedby="passwordHelpBlock" onChange={checkPasswordStrength} />
+
                                     <div id="passwordHelpBlock" className="form-text">
                                         Your password must be 8-20 characters long, contain letters and numbers, and must not contain spaces, special characters, or emoji.
                                     </div>
-                                    {
-                                    password.length!=0 ?
-                                        (<small className="text-muted password-strength">
-                                            Password Strength:{" "}
-                                            <span className={`password-strength-${passwordStrength}`}>
-                                                {passwordStrength.toUpperCase()}
-                                            </span>
-                                        </small>)
-                                        :
-                                        null
-                                    }
                                 </div>
 
 
-                                <div className="col-12">
+                                <div className="col-md-7">
                                     <label htmlFor="address" className="form-label">Phone number <span className="text-muted">(Optional)</span></label>
                                     <input type="text" className="form-control" id="address" placeholder="+393333333333" />
                                     <div className="invalid-feedback">
@@ -222,36 +297,16 @@ function Register() {
                                     </div>
                                 </div>
 
-                                <div className="col-12">
-                                    <label htmlFor="address2" className="form-label">Address <span className="text-muted">(Optional)</span></label>
-                                    <input type="text" className="form-control" id="address2" placeholder="Apartment or suite" />
-                                </div>
-
                                 <div className="col-md-5">
                                     <label htmlFor="country" className="form-label">Role</label>
-                                    <select className="form-select" id="country" required>
+                                    <select className="form-select" id="country" required onChange={handleUserTypeChange}>
                                         <option value="">Choose...</option>
-                                        <option>Researcher</option>
-                                        <option>Evaluator</option>
+                                        <option value="0">Researcher</option>
+                                        <option value="1">Evaluator</option>
                                     </select>
                                     <div className="invalid-feedback">
-                                        Please select a valid country.
+                                        Please select a valid role.
                                     </div>
-                                </div>
-
-                                <div className="col-md-4">
-                                    <label htmlFor="state" className="form-label">State</label>
-                                    <select className="form-select" id="state" required>
-                                        <option value="">Choose...</option>
-                                        <option>California</option>
-                                    </select>
-                                    <div className="invalid-feedback">
-                                        Please provide a valid state.
-                                    </div>
-                                </div>
-
-                                <div className="col-md-3 button-flex">
-
                                 </div>
                             </div>
                         </form>
@@ -260,13 +315,18 @@ function Register() {
             </main>
 
             <footer className="my-5 pt-5 text-muted text-center text-small">
-                <p className="mb-1">&copy; 2022–2023 Company Name</p>
+                <p className="mb-1">&copy; 2022–2023 Tuby Squad</p>
                 <ul className="list-inline">
                     <li className="list-inline-item"><a href="#">Privacy</a></li>
                     <li className="list-inline-item"><a href="#">Terms</a></li>
                     <li className="list-inline-item"><a href="#">Support</a></li>
                 </ul>
             </footer>
+            <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical:"bottom", horizontal:"right" }} TransitionComponent={TransitionLeft}>
+                <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
+                    This is a success message!
+                </Alert>
+            </Snackbar>
         </div>
     )
 }
