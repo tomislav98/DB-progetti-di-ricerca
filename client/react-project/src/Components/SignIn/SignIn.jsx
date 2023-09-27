@@ -1,7 +1,7 @@
 
 import React from 'react';
 import './sign-in.scss';
-import unive from '../../assets/Cat Icon 1.svg'
+import unive from '../../assets/frog-face-svgrepo-com.svg'
 
 function Sign() {
   return (
