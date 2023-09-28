@@ -94,7 +94,7 @@ function Register() {
     const [completed, setCompleted] = useState(true)
     const [registerSuccess, setRegisterSuccess] = useState(false)
     const [snackbarComp, setSnackbarComp] = useState()
-
+    const [loading, setLoading] = useState(false)
 
     const checkForm = useCallback(() => {
         return (
@@ -120,7 +120,7 @@ function Register() {
             return;
         }
         setSnackbarOpen(false);
-        if(registerSuccess)
+        if (registerSuccess)
             navigate("/login")
     };
 
@@ -179,6 +179,7 @@ function Register() {
 
         try {
             // Effettua la richiesta POST
+            setLoading(true)
             const response = await axios.post("http://localhost:5000/user/register", requestBody, {
                 headers: {
                     "Content-Type": "application/json"
@@ -198,6 +199,9 @@ function Register() {
             } else {
                 alert("Qualcosa di strano e andato storto")
             }
+        }
+        finally {
+            setLoading(false)
         }
     }
 
@@ -253,7 +257,7 @@ function Register() {
                         <p className="lead">Register to the system as Researcher or Evaluator. Each required form group has a validation state that can be triggered by attempting to submit the form without completing it.</p>
                     </div>
 
-                    <div className="row g-5" style={{"flexWrap": "wrap-reverse"}}>
+                    <div className="row g-5" style={{ "flexWrap": "wrap-reverse" }}>
                         <div className="col-md-5 col-lg-4 order-md-last">
                             <h4 className="d-flex justify-content-between align-items-center mb-3">
                                 <span className="text-primary">Resume</span>
@@ -310,8 +314,15 @@ function Register() {
                             </ul>
 
                             <div className="input-group">
-                                <button className="w-100 btn btn-primary btn-lg" type="submit" onClick={handleRegistration} disabled={completed}>Register </button>
-
+                                <button className="w-100 btn btn-primary btn-lg" type="submit" onClick={handleRegistration} disabled={completed}>Register
+                                    {loading ?
+                                        <div class="spinner-border text-light my-spinner" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        :
+                                        null
+                                    }
+                                </button>
                             </div>
                         </div>
                         <div className="col-md-7 col-lg-8">

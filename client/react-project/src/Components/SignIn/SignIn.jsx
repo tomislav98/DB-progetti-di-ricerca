@@ -9,9 +9,11 @@ function Sign() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+
   // const { enqueueSnackbar } = useSnackbar();
 
-  function goMainpage(){
+  function goMainpage() {
     navigate('/mainpage')
   }
 
@@ -19,6 +21,7 @@ function Sign() {
     e.preventDefault();
 
     try {
+      setLoading(true);
       const response = await axios.post('http://localhost:5000/user/login', {
         email: email,
         password: password,
@@ -29,7 +32,7 @@ function Sign() {
         localStorage.setItem('token', token);
 
         // Mostra una notifica di successo
-        enqueueSnackbar('Accesso riuscito! ', { variant: 'success', anchorOrigin:{horizontal:'center', vertical:'top'}, onClose:goMainpage, autoHideDuration:1000 });
+        enqueueSnackbar('Accesso riuscito! ', { variant: 'success', anchorOrigin: { horizontal: 'center', vertical: 'top' }, onClose: goMainpage, autoHideDuration: 1000 });
         // Ora puoi fare qualcosa con il token JWT, ad esempio reindirizzare l'utente alla dashboard
         // history.push('/dashboard');
       }
@@ -37,7 +40,10 @@ function Sign() {
       console.error('Errore durante la richiesta di accesso:', error);
 
       // Mostra una notifica di errore
-      enqueueSnackbar(error.response.data.error+' '+error.response.status, { variant: 'error', anchorOrigin:{horizontal:'center', vertical:'top'}  });
+      enqueueSnackbar(error.response.data.error + ' ' + error.response.status, { variant: 'error', anchorOrigin: { horizontal: 'center', vertical: 'top' } });
+    }
+    finally {
+      setLoading(false)
     }
   };
 
@@ -78,8 +84,16 @@ function Sign() {
                   <input type="checkbox" value="remember-me" /> Remember me
                 </label>
               </div>
-              <button className="w-100 btn btn-lg btn-primary" type="submit">
+              <button className="w-100 btn btn-lg btn-primary" style={{position:'relative'}} type="submit">
                 Sign in
+
+                {loading ?
+                  <div class="spinner-border text-light my-spinner" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
+                  :
+                  null
+                }
               </button>
               <p className="mt-5 mb-3 text-muted">&copy; 2022–2023</p>
             </form>
