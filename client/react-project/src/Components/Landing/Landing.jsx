@@ -1,6 +1,8 @@
 import logo from '../../logo.svg';
+// const props ={
 
-function Home(){
+// }
+function Landing(){
     return (
         <div className="Home">
             <header className="Home-header">
@@ -21,4 +23,4 @@ function Home(){
     )
 }
 
-export default Home;
+export default Landing;

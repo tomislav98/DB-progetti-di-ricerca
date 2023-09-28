@@ -1,7 +1,11 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCoffee, faHome } from '@fortawesome/free-solid-svg-icons'
 import './main.scss'
-
+import Home from './Home/Home'
+import { Routes, Route } from "react-router-dom";
+import Project from './Project/Project';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@mui/base';
 // (() => {
 //     'use strict'
 //     const tooltipTriggerList = Array.from(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
@@ -14,7 +18,11 @@ const element = <FontAwesomeIcon icon={faCoffee} />
 const home = <FontAwesomeIcon icon={faHome} />
 
 function Main() {
+    const navigate = useNavigate();
 
+    function handleButton(){
+        navigate('projects',{ relative: "path" } )
+    }
 
     return (
         <main className='d-flex flex-nowrap main-container'>
@@ -39,15 +47,15 @@ function Main() {
                         </a>
                     </li>
                     <li>
-                        <a href="#" className="nav-link text-white">
+                        <Button className="nav-link text-white" onClick={()=>{handleButton('Home')}}>
                             <svg className="bi pe-none me-2" width="16" height="16"></svg>
                             Orders
-                        </a>
+                        </Button>
                     </li>
                     <li>
-                        <a href="#" className="nav-link text-white">
+                        <a href="/projects" className="nav-link text-white" >
                             <svg className="bi pe-none me-2" width="16" height="16"></svg>
-                            Products
+                            Projects
                         </a>
                     </li>
                     <li>
@@ -72,7 +80,11 @@ function Main() {
                     </ul>
                 </div>
             </div>
-            <div class="b-example-divider b-example-vr"></div>
+            <div className="b-example-divider b-example-vr"></div>
+            <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/projects" element={<Project />} />
+            </Routes>
         </main>
     )
 }
