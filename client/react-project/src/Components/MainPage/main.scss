@@ -1,0 +1,17 @@
+.main-container{
+    height: 100%;
+    // width: 100%;
+}
+
+.my-hr{
+    margin: 1rem 0;
+    color: inherit;
+    border: 0;
+    border-top: var(--bs-border-width) solid;
+    opacity: .25;
+    color: grey;
+}
+.sidebar-container{
+    background-color: rgb(33,37,41);
+    height: 100%;
+}

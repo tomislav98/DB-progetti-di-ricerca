@@ -124,7 +124,7 @@ def login():
             
             return jsonify({"token": token})
         else:
-            raise CustomError("Credentials are not valid. Try again.", 401)
+            raise CustomError("Credentials are not valid.", 401)
 
 # TODO: Error handling and status codes
 # Retrieves data of a specific user.

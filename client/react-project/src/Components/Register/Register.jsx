@@ -96,7 +96,6 @@ function Register() {
     const [snackbarComp, setSnackbarComp] = useState()
 
 
-
     const checkForm = useCallback(() => {
         return (
             checkName(name) &&
@@ -254,7 +253,7 @@ function Register() {
                         <p className="lead">Register to the system as Researcher or Evaluator. Each required form group has a validation state that can be triggered by attempting to submit the form without completing it.</p>
                     </div>
 
-                    <div className="row g-5">
+                    <div className="row g-5" style={{"flexWrap": "wrap-reverse"}}>
                         <div className="col-md-5 col-lg-4 order-md-last">
                             <h4 className="d-flex justify-content-between align-items-center mb-3">
                                 <span className="text-primary">Resume</span>
