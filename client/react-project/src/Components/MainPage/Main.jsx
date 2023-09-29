@@ -41,6 +41,9 @@ function Main() {
             case "Projects":
                 navigate('/mainpage/projects')
             break;
+            case "Customers":
+                navigate('/mainpage/customers')
+            break;
             default:
                 break;
         }
