@@ -1,6 +1,7 @@
 from flask import Blueprint
 from config import bcrypt
 from flask import request, jsonify, Response, json
+from models.project_documents import DocumentProject
 from models.users import User, Evaluator, Researcher, UserType
 from models.projects import Project, ProjectStatus
 from models.evaluation_windows import EvaluationWindow
@@ -102,20 +103,28 @@ def delete_project(current_user,user_id,project_id):
             return Response(json.dumps({"message":"Project deleted successfully"}), 200)
 
 # Per adesso, puo modificare la versione di un progetto, aggiungendo una nuova versione con vX.X.X maggiore di quella piu recente
+# TODO continuare a testare il file da mettere, da finire completamente
 @researcher_blueprint.route("<int:user_id>/projects/<int:project_id>", methods=["PUT"])
 @researcher_required
 @error_handler
 def update_project_version(current_user, user_id, project_id):
     if request.method == "PUT":
         if current_user.id == user_id:
-            body = request.get_json()
+            #body = request.get_json()
             project = Project.get_user_projects(user_id,project_id)
             if project is None:
                 raise CustomError("There are no projects with such parameters", 404)
-            updated = project[0].update_project_version(body["version"])
+            version = request.form.get('version')
+            file = request.files.get('file')
+
+            updated = project[0].update_project_version(version)
+            #if there's a file then it create and associate it
+            if file:
+                DocumentProject.create_document(name=file.filename,type_document="Mimmo", version_project_id= updated.id, pdf_data=file.read())
+            
 
             response_json = {
                 "message": "Project updated correctly to version "+ updated.version
             }
             return Response(json.dumps(response_json),200)
-        raise CustomError("You cannot update somebody else's project")
+        raise CustomError("You cannot update somebody else's project",403)

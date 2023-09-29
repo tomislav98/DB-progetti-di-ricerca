@@ -16,7 +16,6 @@ class Project(db.Model):
     researcher_id = db.Column(db.Integer, db.ForeignKey('researchers.id'), nullable=False)
     evaluation_window_id = db.Column(db.Integer, db.ForeignKey('evaluation_windows.id'))
     assessment_reports = db.relationship('AssessmentReport', backref='project')
-    document_project = db.relationship('DocumentProject', backref='project')
     version_project = db.relationship('VersionProject', backref='project')
     message = db.relationship('Message', backref='project')
 
@@ -41,10 +40,8 @@ class Project(db.Model):
             raise CustomError(f"Errore: {type(e).__name__} - {e}", 500)
 
     def update_project_version(self, version):
-        if self.status == ProjectStatus.SUBMITTED:
-            raise CustomError("You can't update a project while it is submitted to evaluation")
-        if ProjectStatus.APPROVED or ProjectStatus.NOT_APPROVED:
-            raise CustomError("You can't update this project anymore")
+        if self.status in [ProjectStatus.APPROVED,ProjectStatus.NOT_APPROVED,ProjectStatus.SUBMITTED]:
+            raise CustomError("You can't update the project",403)
         version = VersionProject.create_version(self.status, self.id, version)
         return version
 
@@ -81,9 +78,7 @@ class Project(db.Model):
     @staticmethod
     def get_project_versions_list(id):
         try:
-            
             projects = VersionProject.query.filter_by(project_id=id).order_by(VersionProject.version.desc()).all()
-
             if projects:
                 return projects
             raise CustomError("There are no projects with that id", 404) 
