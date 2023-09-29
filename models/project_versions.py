@@ -10,6 +10,7 @@ class VersionProject(db.Model):
     status = db.Column(db.Enum(ProjectStatus), nullable=False)
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
     version = db.Column(db.String, nullable=False)
+    document_project = db.relationship('DocumentProject', backref = "version_project")
 
     # Crea una versione associata ad un progetto, se il progetto non esiste con version = "v0.0.0"
     # controlla se la versione che sto provando ad aggiungere sia maggiore di tutte le altre versioni 
@@ -33,7 +34,7 @@ class VersionProject(db.Model):
         db.session.commit()
 
         return project_version
-        
+
     @staticmethod
     def get_versions_by_project_id(proj_id):
         versions = VersionProject.query.filter_by(project_id=proj_id).order_by(VersionProject.version.desc()).all()

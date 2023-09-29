@@ -1,6 +1,7 @@
 from flask import Blueprint
 from config import bcrypt
 from flask import request, jsonify, Response, json
+from models.project_documents import DocumentProject
 from models.reports import AssessmentReport
 from utils.exceptions import CustomError
 from datetime import datetime, timedelta
@@ -11,7 +12,16 @@ from models.project_versions import VersionProject
 
 project_version_blueprint = Blueprint("project_version", __name__)
 
-
+#TODO finish it, need to be tested and refactored
+@project_version_blueprint.route("/<int:project_version_id>", methods=["GET"])
+@token_required
+def get_document_project_version(current_user, project_version_id):
+    if request.method == "GET":
+        documents = DocumentProject.get_documents_by_version_project_id(project_version_id)
+        response_data = {}
+        for docs in documents:
+            response_data.append({"name" : docs.name, "type_document": docs.type_document, "pdf_data": docs.pdf_data })
+        return Response(jsonify(response_data),200)
 # @project_version_blueprint.route("/<int:project_version_id>", methods=["GET"])
 # # @token_required
 # # def get_version_of_specific_project(project_version_id):

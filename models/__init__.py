@@ -13,3 +13,4 @@ with app.app_context():
     from . import events
     #db.drop_all()
     db.create_all()
+    #populate_users(db.session)

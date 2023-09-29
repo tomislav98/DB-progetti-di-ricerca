@@ -81,7 +81,25 @@ def submit_project(current_user,user_id,project_id):
 
         return Response(json.dumps({"message":"Error submitting the project"}), 200)
          
-    
+
+@researcher_blueprint.route("<int:user_id>/projects/<int:project_id>/file", methods=["POST"])
+@researcher_required
+@error_handler
+def save_file(current_user, user_id, project_id):
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            return CustomError("No file apart",400)
+        file = request.files['file']
+
+        if file.filename == '':
+            return CustomError("No selected file",400)
+        
+
+        file_data = file.read()
+        document = DocumentProject.create_document(name=file.filename, type_document="Deliverables", project_id=project_id, pdf_data=file_data)
+        return document,200
+
+
 @researcher_blueprint.route("<int:user_id>/projects/<int:project_id>", methods=["DELETE"])
 @researcher_required
 @error_handler
