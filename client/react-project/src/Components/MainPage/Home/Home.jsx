@@ -12,6 +12,12 @@ function Home() {
                 <div className='col-12'>
                     <Post/>
                 </div>
+                <div className='col-12'>
+                    <Post/>
+                </div>
+                <div className='col-12'>
+                    <Post/>
+                </div>
             </div>
         </div>
     )

@@ -1,10 +1,17 @@
-import './project.scss'
+import Fab from '@mui/material/Fab';
+import './project.scss';
+import { faAdd } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-function Project(){
-    
+const add = <FontAwesomeIcon icon={faAdd}/>
+
+function Project() {
+
     return (
         <div className='container'>
-        ciao
+            <Fab className='my-fab' color="primary" aria-label="add">
+                {add}
+            </Fab>
         </div>
     )
 }

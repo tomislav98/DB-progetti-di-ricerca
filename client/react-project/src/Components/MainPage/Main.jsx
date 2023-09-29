@@ -1,11 +1,13 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCoffee, faHome } from '@fortawesome/free-solid-svg-icons'
+import { faCoffee, faHome, faDashboard, faShippingFast, faProjectDiagram, faPerson } from '@fortawesome/free-solid-svg-icons'
 import './main.scss'
 import Home from './Home/Home'
 import { Routes, Route } from "react-router-dom";
 import Project from './Project/Project';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@mui/base';
+import { useState } from 'react';
+
 // (() => {
 //     'use strict'
 //     const tooltipTriggerList = Array.from(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
@@ -16,12 +18,32 @@ import { Button } from '@mui/base';
 
 const element = <FontAwesomeIcon icon={faCoffee} />
 const home = <FontAwesomeIcon icon={faHome} />
+const dashboard = <FontAwesomeIcon icon={faDashboard} />
+const orders = <FontAwesomeIcon icon={faShippingFast} />
+const projects = <FontAwesomeIcon icon={faProjectDiagram} />
+const customers = <FontAwesomeIcon icon={faPerson}/>
 
 function Main() {
     const navigate = useNavigate();
+    const [selectedItem,setSelectedItem] = useState(0);
 
-    function handleButton(){
-        navigate('projects',{ relative: "path" } )
+    function handleButton(label) {
+        switch (label) {
+            case "Home":
+                navigate('/mainpage/')
+                break;
+            case "Dashboard":
+                navigate('/mainpage/dashboard')
+                break;
+            case "Orders":
+                navigate('/mainpage/orders')
+            break;
+            case "Projects":
+                navigate('/mainpage/projects')
+            break;
+            default:
+                break;
+        }
     }
 
     return (
@@ -35,34 +57,34 @@ function Main() {
                 <hr className='my-hr'></hr>
                 <ul className="nav nav-pills flex-column mb-auto">
                     <li className="nav-item">
-                        <a href="#" className="nav-link active" aria-current="page">
+                        <Button className="nav-link text-white my-button" aria-current="page" onClick={() => { handleButton('Home') }}>
                             <svg className="me-2" width="16" height="16">{home}</svg>
                             Home
-                        </a>
+                        </Button>
                     </li>
                     <li>
-                        <a href="#" className="nav-link text-white">
-                            <svg className="bi pe-none me-2" width="16" height="16"></svg>
+                        <Button className="nav-link text-white my-button" onClick={() => { handleButton('Dashboard') }}>
+                            <svg className="bi pe-none me-2" width="16" height="16">{dashboard}</svg>
                             Dashboard
-                        </a>
+                        </Button>
                     </li>
                     <li>
-                        <Button className="nav-link text-white" onClick={()=>{handleButton('Home')}}>
-                            <svg className="bi pe-none me-2" width="16" height="16"></svg>
+                        <Button className="nav-link text-white my-button" onClick={() => { handleButton('Orders') }}>
+                            <svg className="bi pe-none me-2" width="16" height="16">{orders}</svg>
                             Orders
                         </Button>
                     </li>
                     <li>
-                        <a href="/projects" className="nav-link text-white" >
-                            <svg className="bi pe-none me-2" width="16" height="16"></svg>
+                        <Button className="nav-link text-white my-button" onClick={() => { handleButton('Projects') }} >
+                            <svg className="bi pe-none me-2" width="16" height="16">{projects}</svg>
                             Projects
-                        </a>
+                        </Button>
                     </li>
                     <li>
-                        <a href="#" className="nav-link text-white">
-                            <svg className="bi pe-none me-2" width="16" height="16"></svg>
+                        <Button className="nav-link text-white my-button" onClick={() => { handleButton('Customers') }}>
+                            <svg className="bi pe-none me-2" width="16" height="16">{customers}</svg>
                             Customers
-                        </a>
+                        </Button>
                     </li>
                 </ul>
                 <hr className='my-hr'></hr>
