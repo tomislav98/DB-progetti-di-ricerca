@@ -21,29 +21,36 @@ const home = <FontAwesomeIcon icon={faHome} />
 const dashboard = <FontAwesomeIcon icon={faDashboard} />
 const orders = <FontAwesomeIcon icon={faShippingFast} />
 const projects = <FontAwesomeIcon icon={faProjectDiagram} />
-const customers = <FontAwesomeIcon icon={faPerson}/>
+const customers = <FontAwesomeIcon icon={faPerson} />
 
 function Main() {
     const navigate = useNavigate();
-    const [selectedItem,setSelectedItem] = useState(0);
+    const [selectedItem, setSelectedItem] = useState(0);
 
+
+    // TODO fixare il fatto che quando premo freccia indietro del browser lo stato non viene cambiato a quello precedente 
     function handleButton(label) {
         switch (label) {
             case "Home":
+                setSelectedItem(0);
                 navigate('/mainpage/')
                 break;
             case "Dashboard":
+                setSelectedItem(1);
                 navigate('/mainpage/dashboard')
                 break;
             case "Orders":
+                setSelectedItem(2);
                 navigate('/mainpage/orders')
-            break;
+                break;
             case "Projects":
+                setSelectedItem(3);
                 navigate('/mainpage/projects')
-            break;
+                break;
             case "Customers":
+                setSelectedItem(4);
                 navigate('/mainpage/customers')
-            break;
+                break;
             default:
                 break;
         }
@@ -60,34 +67,69 @@ function Main() {
                 <hr className='my-hr'></hr>
                 <ul className="nav nav-pills flex-column mb-auto">
                     <li className="nav-item">
-                        <Button className="nav-link text-white my-button" aria-current="page" onClick={() => { handleButton('Home') }}>
-                            <svg className="me-2" width="16" height="16">{home}</svg>
-                            Home
-                        </Button>
+                        {selectedItem === 0 ?
+                            <Button className="nav-link active my-button" aria-current="page" onClick={() => { handleButton('Home') }}>
+                                <svg className="me-2" width="16" height="16">{home}</svg>
+                                Home
+                            </Button>
+                            :
+                            <Button className="nav-link text-white my-button" aria-current="page" onClick={() => { handleButton('Home') }}>
+                                <svg className="me-2" width="16" height="16">{home}</svg>
+                                Home
+                            </Button>
+                        }
                     </li>
                     <li>
-                        <Button className="nav-link text-white my-button" onClick={() => { handleButton('Dashboard') }}>
-                            <svg className="bi pe-none me-2" width="16" height="16">{dashboard}</svg>
-                            Dashboard
-                        </Button>
+                        {selectedItem === 1 ?
+                            <Button className="nav-link active my-button" aria-current="page" onClick={() => { handleButton('Dashboard') }}>
+                                <svg className="me-2" width="16" height="16">{dashboard}</svg>
+                                Dashboard
+                            </Button>
+                            :
+                            <Button className="nav-link text-white my-button" aria-current="page" onClick={() => { handleButton('Dashboard') }}>
+                                <svg className="me-2" width="16" height="16">{dashboard}</svg>
+                                Dashboard
+                            </Button>
+                        }
                     </li>
                     <li>
-                        <Button className="nav-link text-white my-button" onClick={() => { handleButton('Orders') }}>
-                            <svg className="bi pe-none me-2" width="16" height="16">{orders}</svg>
-                            Orders
-                        </Button>
+                        {selectedItem === 2 ?
+                            <Button className="nav-link active my-button" aria-current="page" onClick={() => { handleButton('Orders') }}>
+                                <svg className="me-2" width="16" height="16">{orders}</svg>
+                                Orders
+                            </Button>
+                            :
+                            <Button className="nav-link text-white my-button" aria-current="page" onClick={() => { handleButton('Orders') }}>
+                                <svg className="me-2" width="16" height="16">{orders}</svg>
+                                Orders
+                            </Button>
+                        }
                     </li>
                     <li>
-                        <Button className="nav-link text-white my-button" onClick={() => { handleButton('Projects') }} >
-                            <svg className="bi pe-none me-2" width="16" height="16">{projects}</svg>
-                            Projects
-                        </Button>
+                        {selectedItem === 3 ?
+                            <Button className="nav-link active my-button" aria-current="page" onClick={() => { handleButton('Projects') }}>
+                                <svg className="me-2" width="16" height="16">{home}</svg>
+                                Projects
+                            </Button>
+                            :
+                            <Button className="nav-link text-white my-button" aria-current="page" onClick={() => { handleButton('Projects') }}>
+                                <svg className="me-2" width="16" height="16">{home}</svg>
+                                Projects
+                            </Button>
+                        }
                     </li>
                     <li>
-                        <Button className="nav-link text-white my-button" onClick={() => { handleButton('Customers') }}>
-                            <svg className="bi pe-none me-2" width="16" height="16">{customers}</svg>
-                            Customers
-                        </Button>
+                        {selectedItem === 4 ?
+                            <Button className="nav-link active my-button" aria-current="page" onClick={() => { handleButton('Customers') }}>
+                                <svg className="me-2" width="16" height="16">{customers}</svg>
+                                Customers
+                            </Button>
+                            :
+                            <Button className="nav-link text-white my-button" aria-current="page" onClick={() => { handleButton('Customers') }}>
+                                <svg className="me-2" width="16" height="16">{customers}</svg>
+                                Customers
+                            </Button>
+                        }
                     </li>
                 </ul>
                 <hr className='my-hr'></hr>
