@@ -6,38 +6,46 @@ import StepLabel from '@mui/material/StepLabel';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { TextField } from '@mui/material';
+import img from '../../../../assets/flat2.jpg'
+import DropzoneButton from'../../../Dropzone/DropzoneButton'
+import '../project.scss'
 
-const steps = ['Name your project', 'Upload documents', 'Create a project'];
+const steps = ['Create a project', 'Add infos', 'Upload files'];
 function MySteps(props) {
     console.log(props)
     switch (props.number) {
         case 1:
             console.log('first')
             return (
-                <div className='container'>
-                    <div className='row'>
-                        <div className='col-8'>
-                            <TextField id="standard-basic" label="Title" variant="standard" />
-                            <TextField id="standard-basic" label="Description" variant="standard" />
-
+                <div class="container col-xxl-8 px-4 py-5 my-modal">
+                    <div class="row flex-lg-row-reverse align-items-center g-5 py-5">
+                        <div class="col-10 col-sm-8 col-lg-6">
+                            <img src={img} class="d-block mx-lg-auto img-fluid" alt="Bootstrap Themes" width="700" height="500" />
                         </div>
-                        <div className='col-8'>
-                            <div className='col-8'>
-                            </div>
+                        <div class="col-lg-6">
+                            <h1 class="display-5 fw-bold lh-1 mb-3">Create a project</h1>
+                            <p class="lead">In this section we can quickly make a fresh project from scrap.</p>
                         </div>
                     </div>
                 </div>
             )
         case 2:
             return (
-                <div className='container'>
-                    <div className='row'>
-                        <div className='col-8'>
-                            <TextField id="standard-basic" label="Title" variant="standard" />
-                        </div>
-                        <div className='col-8'>
-                            <div className='col-8'>
+                <div class="container col-xxl-8 px-4 py-5 my-modal">
+                    <div class="row flex-lg-row-reverse flex-wrap-reverse align-items-center g-5 py-5">
+                        <div class="col-12">
+                            <div className='row'>
+                                <div className='col-12'>
+                                    <TextField sx={{marginBottom:'25px',width:'100%'}} id="standard-basic" label="Title" variant="standard" />
+                                </div>
+                                <div className='col-12'>
+                                    <TextField sx={{width:'100%'}} helperText="A quick description for now" id="standard-basic" label="Description" variant="outlined" multiline rows={2}/>
+                                </div>
                             </div>
+                        </div>
+                        <div class="col-12">
+                            <h1 class="display-5 fw-bold lh-1 mb-3">Add some infos</h1>
+                            <p class="lead">What is your project about?</p>
                         </div>
                     </div>
                 </div>
@@ -45,8 +53,22 @@ function MySteps(props) {
         default:
             return (
 
-                null
-        
+                <div class="container col-xxl-8 px-4 py-5 my-modal">
+                    <div class="row flex-lg-row-reverse flex-wrap-reverse align-items-center g-5 py-5">
+                        <div class="col-12">
+                            <div className='row'>
+                                <div className='col-12 my-dropzone'>
+                                    <DropzoneButton/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <h1 class="display-5 fw-bold lh-1 mb-3">Upload your files</h1>
+                            <p class="lead">Upload you documents, later on you will be able to edit other properties about this project.</p>
+                        </div>
+                    </div>
+                </div>
+
             )
     }
 }
@@ -131,7 +153,6 @@ export default function HorizontalLinearStepper() {
                 </React.Fragment>
             ) : (
                 <React.Fragment>
-                    <Typography sx={{ mt: 2, mb: 1 }}>Step {activeStep + 1}</Typography>
                     <MySteps number={activeStep + 1} />
                     <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
                         <Button
