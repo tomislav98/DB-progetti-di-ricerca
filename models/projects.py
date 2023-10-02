@@ -1,5 +1,6 @@
 from config import db
 from models import EvaluationWindow
+from models.project_documents import DocumentProject
 from models.project_versions import VersionProject
 from models.users import Researcher, User
 from utils.exceptions import CustomError
@@ -46,13 +47,16 @@ class Project(db.Model):
         return version
 
     @classmethod
-    def add_project(cls, name, description, data_creation, creator_user_id):
+    def add_project(cls, name, description, data_creation, creator_user_id, file):
         project = cls(name=name, description=description, data_creation=data_creation,
                         researcher_id=creator_user_id)
         project.status = ProjectStatus.TO_BE_SUBMITTED
         db.session.add(project)
         db.session.commit()
-        VersionProject.create_version(project.status,project.id,"v0.0.0")
+        version = VersionProject.create_version(project.status,project.id,"v0.0.0")
+        if file:
+            #TODO cambiare il nome e il typedocument prendendolo dalla richiesta
+            DocumentProject.create_document(name = file.filename, type_document="Mimmo",version_project_id=version.id, pdf_data=file.read() )
         return project
 
     @staticmethod
