@@ -58,7 +58,7 @@ function RegisterSuccess() {
         <div className="container py-5">
             <div className="p-5 text-center bg-body-tertiary">
                 <svg className="bi mt-5 mb-3" width="48" height="48">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-check2-circle" viewBox="0 0 16 16">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" className="bi bi-check2-circle" viewBox="0 0 16 16">
                         <path d="M2.5 8a5.5 5.5 0 0 1 8.25-4.764.5.5 0 0 0 .5-.866A6.5 6.5 0 1 0 14.5 8a.5.5 0 0 0-1 0 5.5 5.5 0 1 1-11 0z" />
                         <path d="M15.354 3.354a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l7-7z" />
                     </svg>
@@ -67,14 +67,14 @@ function RegisterSuccess() {
                 <p className="col-lg-6 mx-auto mb-4 text-muted">
                     Ti ringraziamo, la registrazione è avvenuta con successo. Tra qualche secondo verrai reindirizzato alla pagina di login.
                 </p>
-                <div class="spinner-grow spinner-grow-sm" role="status">
-                    <span class="visually-hidden">Loading...</span>
+                <div className="spinner-grow spinner-grow-sm" role="status">
+                    <span className="visually-hidden">Loading...</span>
                 </div>
-                <div class="spinner-grow spinner-grow-sm" role="status">
-                    <span class="visually-hidden">Loading...</span>
+                <div className="spinner-grow spinner-grow-sm" role="status">
+                    <span className="visually-hidden">Loading...</span>
                 </div>
-                <div class="spinner-grow spinner-grow-sm" role="status">
-                    <span class="visually-hidden">Loading...</span>
+                <div className="spinner-grow spinner-grow-sm" role="status">
+                    <span className="visually-hidden">Loading...</span>
                 </div>
             </div>
         </div>
@@ -316,8 +316,8 @@ function Register() {
                             <div className="input-group">
                                 <button className="w-100 btn btn-primary btn-lg" type="submit" onClick={handleRegistration} disabled={completed}>Register
                                     {loading ?
-                                        <div class="spinner-border text-light my-spinner" role="status">
-                                            <span class="visually-hidden">Loading...</span>
+                                        <div className="spinner-border text-light my-spinner" role="status">
+                                            <span className="visually-hidden">Loading...</span>
                                         </div>
                                         :
                                         null

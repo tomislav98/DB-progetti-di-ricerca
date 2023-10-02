@@ -88,8 +88,8 @@ function Sign() {
                 Sign in
 
                 {loading ?
-                  <div class="spinner-border text-light my-spinner" role="status">
-                    <span class="visually-hidden">Loading...</span>
+                  <div className="spinner-border text-light my-spinner" role="status">
+                    <span className="visually-hidden">Loading...</span>
                   </div>
                   :
                   null

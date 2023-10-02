@@ -1,28 +1,30 @@
-import { useRef } from 'react';
-import { Text, Group, Button, rem, useMantineTheme } from '@mantine/core';
+import { useRef, useState } from 'react';
+import { Text, Group, Button, rem} from '@mantine/core';
+import { Chip } from '@mui/material';
 import { Dropzone, MIME_TYPES } from '@mantine/dropzone';
 import { IconCloudUpload, IconX, IconDownload } from '@tabler/icons-react';
-import { useState } from 'react';
-import { Chip } from '@mui/material';
 import classes from './dropzone.scss';
 
-function DropzoneButton() {
-  const theme = useMantineTheme();
+function DropzoneButton({ onFilesUploaded }) {
   const openRef = useRef(null);
-  const [uploadedFileName, setUploadedFileName] = useState(null);
-
-  const handleDelete = () => {
-    console.log('first')
-  }
+  const [uploadedFiles, setUploadedFiles] = useState([]);
 
   const handleDrop = (files) => {
-    // Verifica se è stato caricato almeno un file
-    if (files.length > 0) {
-      // Ottieni il nome del file dal primo file caricato
-      const fileName = files[0].name;
-      setUploadedFileName(fileName);
-    }
+    // Aggiungi i file caricati allo stato
+    setUploadedFiles(uploadedFiles.concat(files));
+
+    // Call the onFilesUploaded function to pass the files up to MySteps
+    onFilesUploaded(uploadedFiles.concat(files));
   };
+
+  const handleFileDelete = (index) => {
+    // Rimuovi il file dall'array dei file caricati
+    const newUploadedFiles = [...uploadedFiles];
+    newUploadedFiles.splice(index, 1);
+    setUploadedFiles(newUploadedFiles);
+  };
+  
+  
   return (
     <div className={classes.wrapper}>
       <div className='row'>
@@ -39,14 +41,12 @@ function DropzoneButton() {
               <Dropzone.Accept>
                 <IconDownload
                   style={{ width: rem(50), height: rem(50) }}
-                  color={theme.colors.blue[6]}
                   stroke={1.5}
                 />
               </Dropzone.Accept>
               <Dropzone.Reject>
                 <IconX
                   style={{ width: rem(50), height: rem(50) }}
-                  color={theme.colors.red[6]}
                   stroke={1.5}
                 />
               </Dropzone.Reject>
@@ -72,12 +72,12 @@ function DropzoneButton() {
       </div>
       <div className='row'>
         <div className='col-12'>
-          {uploadedFileName && (
-            <Chip label={uploadedFileName} onDelete={handleDelete} />
-          )}
+          {uploadedFiles.map((file, index) => (
+            <Chip key={index} label={file.name}  onDelete={() => handleFileDelete(index)} />
+          ))}
         </div>
       </div>
-    </div>
+    </div >
   );
 }
 

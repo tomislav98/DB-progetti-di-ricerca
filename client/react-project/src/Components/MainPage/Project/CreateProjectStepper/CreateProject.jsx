@@ -7,45 +7,53 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { TextField } from '@mui/material';
 import img from '../../../../assets/flat2.jpg'
-import DropzoneButton from'../../../Dropzone/DropzoneButton'
+import DropzoneButton from '../../../Dropzone/DropzoneButton';
+import { useState } from 'react';
 import '../project.scss'
+import { Chip } from '@mui/material';
 
-const steps = ['Create a project', 'Add infos', 'Upload files'];
+const steps = ['Create a project', 'Add info', 'Upload files'];
 function MySteps(props) {
-    console.log(props)
+    const [uploadedFiles, setUploadedFiles] = useState([]);
+
+    // Function to handle new files being uploaded
+    const handleFilesUploaded = (files) => {
+        setUploadedFiles(files);
+        props.onFilesUploaded(files);
+    };
+
     switch (props.number) {
         case 1:
-            console.log('first')
             return (
-                <div class="container col-xxl-8 px-4 py-5 my-modal">
-                    <div class="row flex-lg-row-reverse align-items-center g-5 py-5">
-                        <div class="col-10 col-sm-8 col-lg-6">
-                            <img src={img} class="d-block mx-lg-auto img-fluid" alt="Bootstrap Themes" width="700" height="500" />
+                <div className="container col-xxl-8 px-4 py-5 my-modal">
+                    <div className="row flex-lg-row-reverse align-items-center g-5 py-5">
+                        <div className="col-10 col-sm-8 col-lg-6">
+                            <img src={img} className="d-block mx-lg-auto img-fluid" alt="Bootstrap Themes" width="700" height="500" />
                         </div>
-                        <div class="col-lg-6">
-                            <h1 class="display-5 fw-bold lh-1 mb-3">Create a project</h1>
-                            <p class="lead">In this section we can quickly make a fresh project from scrap.</p>
+                        <div className="col-lg-6">
+                            <h1 className="display-5 fw-bold lh-1 mb-3">Create a project</h1>
+                            <p className="lead">In this section we can quickly make a fresh project from scrap.</p>
                         </div>
                     </div>
                 </div>
             )
         case 2:
             return (
-                <div class="container col-xxl-8 px-4 py-5 my-modal">
-                    <div class="row flex-lg-row-reverse flex-wrap-reverse align-items-center g-5 py-5">
-                        <div class="col-12">
+                <div className="container col-xxl-8 px-4 py-5 my-modal">
+                    <div className="row flex-lg-row-reverse flex-wrap-reverse align-items-center g-5 py-5">
+                        <div className="col-12">
                             <div className='row'>
                                 <div className='col-12'>
-                                    <TextField sx={{marginBottom:'25px',width:'100%'}} id="standard-basic" label="Title" variant="standard" />
+                                    <TextField sx={{ marginBottom: '25px', width: '100%' }} id="standard-basic" label="Title" variant="standard" />
                                 </div>
                                 <div className='col-12'>
-                                    <TextField sx={{width:'100%'}} helperText="A quick description for now" id="standard-basic" label="Description" variant="outlined" multiline rows={2}/>
+                                    <TextField sx={{ width: '100%' }} helperText="A quick description for now" id="standard-basic" label="Description" variant="outlined" multiline rows={2} />
                                 </div>
                             </div>
                         </div>
-                        <div class="col-12">
-                            <h1 class="display-5 fw-bold lh-1 mb-3">Add some infos</h1>
-                            <p class="lead">What is your project about?</p>
+                        <div className="col-12">
+                            <h1 className="display-5 fw-bold lh-1 mb-3">Add some info</h1>
+                            <p className="lead">What is your project about?</p>
                         </div>
                     </div>
                 </div>
@@ -53,19 +61,20 @@ function MySteps(props) {
         default:
             return (
 
-                <div class="container col-xxl-8 px-4 py-5 my-modal">
-                    <div class="row flex-lg-row-reverse flex-wrap-reverse align-items-center g-5 py-5">
-                        <div class="col-12">
+                <div className="container overflow-auto col-xxl-8 px-4 py-5 my-modal">
+                    <div className="row my-row flex-lg-row-reverse align-items-center g-5 py-5">
+                        <div className="col-12">
                             <div className='row'>
                                 <div className='col-12 my-dropzone'>
-                                    <DropzoneButton/>
+                                    <DropzoneButton onFilesUploaded={handleFilesUploaded} />
                                 </div>
                             </div>
                         </div>
-                        <div class="col-12">
-                            <h1 class="display-5 fw-bold lh-1 mb-3">Upload your files</h1>
-                            <p class="lead">Upload you documents, later on you will be able to edit other properties about this project.</p>
+                        <div className="col-12">
+                            <h1 className="display-5 fw-bold lh-1 mb-3">Upload your files</h1>
+                            <p className="lead">Upload you documents, later on you will be able to edit other properties about this project.</p>
                         </div>
+
                     </div>
                 </div>
 
@@ -75,6 +84,11 @@ function MySteps(props) {
 export default function HorizontalLinearStepper() {
     const [activeStep, setActiveStep] = React.useState(0);
     const [skipped, setSkipped] = React.useState(new Set());
+    const [uploadedFiles, setUploadedFiles] = useState([]);
+
+    const handleFilesUploaded = (files) => {
+        setUploadedFiles(files);
+    };
 
     const isStepOptional = (step) => {
         return false;
@@ -86,11 +100,15 @@ export default function HorizontalLinearStepper() {
         return skipped.has(step);
     };
 
-    const handleNext = () => {
+    const handleNext = (e) => {
         let newSkipped = skipped;
         if (isStepSkipped(activeStep)) {
             newSkipped = new Set(newSkipped.values());
             newSkipped.delete(activeStep);
+        }
+        if (e.target.innerText === 'FINISH') {
+
+            console.log(uploadedFiles)
         }
 
         setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -146,6 +164,9 @@ export default function HorizontalLinearStepper() {
                     <Typography sx={{ mt: 2, mb: 1 }}>
                         All steps completed - you&apos;re finished
                     </Typography>
+                    {uploadedFiles.map((file, index) => (
+                        <Chip key={index} label={file.name} />
+                    ))}
                     <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
                         <Box sx={{ flex: '1 1 auto' }} />
                         <Button onClick={handleReset}>Reset</Button>
@@ -153,7 +174,7 @@ export default function HorizontalLinearStepper() {
                 </React.Fragment>
             ) : (
                 <React.Fragment>
-                    <MySteps number={activeStep + 1} />
+                    <MySteps number={activeStep + 1} onFilesUploaded={handleFilesUploaded} />
                     <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
                         <Button
                             color="inherit"
