@@ -47,16 +47,16 @@ class Project(db.Model):
         return version
 
     @classmethod
-    def add_project(cls, name, description, data_creation, creator_user_id, file):
+    def add_project(cls, name, description, data_creation, creator_user_id, files):
         project = cls(name=name, description=description, data_creation=data_creation,
                         researcher_id=creator_user_id)
         project.status = ProjectStatus.TO_BE_SUBMITTED
         db.session.add(project)
         db.session.commit()
         version = VersionProject.create_version(project.status,project.id,"v0.0.0")
-        if file:
-            #TODO cambiare il nome e il typedocument prendendolo dalla richiesta
-            DocumentProject.create_document(name = file.filename, type_document="Mimmo",version_project_id=version.id, pdf_data=file.read() )
+        if files:
+            for key, file in files.items(): #TODO qui handliamo piu file, dobbiamo cambiare il typedocument e il nome, il nome potremmo metterlo anche come key maybe 
+                DocumentProject.create_document(name = file.filename, type_document="Mimmo",version_project_id=version.id, pdf_data=file.read() )
         return project
 
     @staticmethod
