@@ -38,8 +38,9 @@ def add_researcher_project(current_user, user_id):
             raise CustomError("Unauthorized, you can't create a project for another researcher", 401)
 
         researcher = Researcher.get_researcher_from_user_id(current_user.id)
-        body = request.get_json()
-        p = Project.add_project(body["name"], body["description"], datetime.now(), researcher.id)
+        body = request.form
+        files = request.files # in caso non venga fornito un file np viene handlato dentro l'addproject
+        p = Project.add_project(body["name"], body["description"], datetime.now(), researcher.id, files)
         
         return Response(json.dumps({    
             "message": "Project created successfully",
