@@ -11,6 +11,10 @@ import DropzoneButton from '../../../Dropzone/DropzoneButton';
 import { useState } from 'react';
 import '../project.scss'
 import { Chip } from '@mui/material';
+import axios from 'axios';
+import jwt_decode from 'jwt-decode';
+import { Success } from '../../../SuccessPage/Success';
+
 
 const steps = ['Create a project', 'Add info', 'Upload files'];
 function MySteps(props) {
@@ -85,6 +89,8 @@ export default function HorizontalLinearStepper() {
     const [activeStep, setActiveStep] = React.useState(0);
     const [skipped, setSkipped] = React.useState(new Set());
     const [uploadedFiles, setUploadedFiles] = useState([]);
+    const [responseOk, setResponseOk] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const handleFilesUploaded = (files) => {
         setUploadedFiles(files);
@@ -92,12 +98,62 @@ export default function HorizontalLinearStepper() {
 
     const isStepOptional = (step) => {
         return false;
-        // return step === 1;
-
     };
 
     const isStepSkipped = (step) => {
         return skipped.has(step);
+    };
+
+    const handleSubmit = () => {
+        // Prepare the data to be sent in the POST request
+        const projectData = new FormData();
+        projectData.append('name', 'MyProject'); // Replace with your project name
+        projectData.append('description', 'first project'); // Replace with your project description
+
+        // Add uploaded files to the FormData
+        uploadedFiles.forEach((file) => {
+            projectData.append('files', file);
+        });
+
+        // Get the token from localStorage
+        const token = localStorage.getItem('token');
+
+        // Check if the token exists in localStorage
+        if (token) {
+            const decodedToken = jwt_decode(token);
+
+            // Make the Axios POST request with the token
+            setLoading(true);
+            axios
+                .post(
+                    `http://localhost:5000/researchers/${decodedToken.user_id}/projects`,
+                    projectData,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${token}`, // Use the token from localStorage
+                            'Content-Type': 'multipart/form-data',
+                        },
+                    }
+                )
+                .then((response) => {
+                    // Handle the response here
+
+                    if (response.status === 200) {
+                        setResponseOk(true);
+                    }
+                    console.log(response.data);
+                }).finally(()=>{
+                    setLoading(false);
+                })
+                .catch((error) => {
+                    // Handle errors here
+                    console.error(error);
+                });
+                
+        } else {
+            // Handle the case where the token is not found in localStorage
+            console.error('Token not found in localStorage');
+        }
     };
 
     const handleNext = (e) => {
@@ -107,8 +163,7 @@ export default function HorizontalLinearStepper() {
             newSkipped.delete(activeStep);
         }
         if (e.target.innerText === 'FINISH') {
-
-            console.log(uploadedFiles)
+            handleSubmit();
         }
 
         setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -121,8 +176,6 @@ export default function HorizontalLinearStepper() {
 
     const handleSkip = () => {
         if (!isStepOptional(activeStep)) {
-            // You probably want to guard against something like this,
-            // it should never occur unless someone's actively trying to break something.
             throw new Error("You can't skip a step that isn't optional.");
         }
 
@@ -164,6 +217,23 @@ export default function HorizontalLinearStepper() {
                     <Typography sx={{ mt: 2, mb: 1 }}>
                         All steps completed - you&apos;re finished
                     </Typography>
+                    {loading?
+                        <div className="spinner-border text-dark my-spinner" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                        </div>
+                        :
+                        null
+                    }
+                    {responseOk ?
+                        <Success label='Project created successfully' helperText='We have accepted your request, Thank you. ' />
+                        :
+                        null
+                    }
+                    {!responseOk && !loading ?
+                        <Success label='Project not created' helperText='Something went wrong... '  />
+                        : null
+                    }
+
                     {uploadedFiles.map((file, index) => (
                         <Chip key={index} label={file.name} />
                     ))}
