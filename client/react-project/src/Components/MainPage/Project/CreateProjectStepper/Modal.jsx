@@ -44,7 +44,7 @@ export default function BasicModal() {
                 aria-describedby="modal-modal-description"
             >
                 <Box sx={style}>
-                    <HorizontalLinearStepper/>
+                    <HorizontalLinearStepper closeEvent={handleClose}/>
                 </Box>
             </Modal>
         </div>

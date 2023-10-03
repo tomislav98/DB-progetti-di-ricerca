@@ -15,16 +15,31 @@ import axios from 'axios';
 import jwt_decode from 'jwt-decode';
 import { Success } from '../../../SuccessPage/Success';
 
-
 const steps = ['Create a project', 'Add info', 'Upload files'];
 function MySteps(props) {
     const [uploadedFiles, setUploadedFiles] = useState([]);
+    const [stepperStatus, setStepperStatus] = useState(props.stepperStatus ? props.stepperStatus : { title: '', description: '' })
+
 
     // Function to handle new files being uploaded
     const handleFilesUploaded = (files) => {
         setUploadedFiles(files);
         props.onFilesUploaded(files);
     };
+
+    function handleTitleChange(e,) {
+        let status = stepperStatus;
+        status.title = e.target.value;
+        setStepperStatus(status);
+        props.onStateChange(status);
+    }
+
+    function handleDescriptionChange(e) {
+        let status = stepperStatus;
+        status.description = e.target.value;
+        setStepperStatus(status);
+        props.onStateChange(status);
+    }
 
     switch (props.number) {
         case 1:
@@ -48,10 +63,10 @@ function MySteps(props) {
                         <div className="col-12">
                             <div className='row'>
                                 <div className='col-12'>
-                                    <TextField sx={{ marginBottom: '25px', width: '100%' }} id="standard-basic" label="Title" variant="standard" />
+                                    <TextField sx={{ marginBottom: '25px', width: '100%' }} id="standard-basic" label="Title" variant="standard" onChange={handleTitleChange} defaultValue={stepperStatus.title} />
                                 </div>
                                 <div className='col-12'>
-                                    <TextField sx={{ width: '100%' }} helperText="A quick description for now" id="standard-basic" label="Description" variant="outlined" multiline rows={2} />
+                                    <TextField sx={{ width: '100%' }} helperText="A quick description for now" id="standard-basic" label="Description" variant="filled" multiline rows={4} defaultValue={stepperStatus.description} onChange={handleDescriptionChange} />
                                 </div>
                             </div>
                         </div>
@@ -70,7 +85,7 @@ function MySteps(props) {
                         <div className="col-12">
                             <div className='row'>
                                 <div className='col-12 my-dropzone'>
-                                    <DropzoneButton onFilesUploaded={handleFilesUploaded} />
+                                    <DropzoneButton uploadedFilesprops={uploadedFiles} onFilesUploaded={handleFilesUploaded} />
                                 </div>
                             </div>
                         </div>
@@ -85,12 +100,17 @@ function MySteps(props) {
             )
     }
 }
-export default function HorizontalLinearStepper() {
+
+export default function HorizontalLinearStepper({ closeEvent }) {
     const [activeStep, setActiveStep] = React.useState(0);
     const [skipped, setSkipped] = React.useState(new Set());
     const [uploadedFiles, setUploadedFiles] = useState([]);
     const [responseOk, setResponseOk] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [stepperStatus, setStepperStatus] = useState({ title: '', description: '' })
+    const handleClose = () => {
+        closeEvent();
+    }
 
     const handleFilesUploaded = (files) => {
         setUploadedFiles(files);
@@ -104,11 +124,16 @@ export default function HorizontalLinearStepper() {
         return skipped.has(step);
     };
 
+    function handleChildrenChange(status){
+        let newStatus = status;
+        setStepperStatus(newStatus);
+    }
+
     const handleSubmit = () => {
         // Prepare the data to be sent in the POST request
         const projectData = new FormData();
-        projectData.append('name', 'MyProject'); // Replace with your project name
-        projectData.append('description', 'first project'); // Replace with your project description
+        projectData.append('name', stepperStatus.title); 
+        projectData.append('description', stepperStatus.description); 
 
         // Add uploaded files to the FormData
         uploadedFiles.forEach((file) => {
@@ -142,14 +167,14 @@ export default function HorizontalLinearStepper() {
                         setResponseOk(true);
                     }
                     console.log(response.data);
-                }).finally(()=>{
+                }).finally(() => {
                     setLoading(false);
                 })
                 .catch((error) => {
                     // Handle errors here
                     console.error(error);
                 });
-                
+
         } else {
             // Handle the case where the token is not found in localStorage
             console.error('Token not found in localStorage');
@@ -187,10 +212,6 @@ export default function HorizontalLinearStepper() {
         });
     };
 
-    const handleReset = () => {
-        setActiveStep(0);
-    };
-
     return (
         <Box sx={{ width: '100%' }}>
             <Stepper activeStep={activeStep}>
@@ -217,7 +238,7 @@ export default function HorizontalLinearStepper() {
                     <Typography sx={{ mt: 2, mb: 1 }}>
                         All steps completed - you&apos;re finished
                     </Typography>
-                    {loading?
+                    {loading ?
                         <div className="spinner-border text-dark my-spinner" role="status">
                             <span className="visually-hidden">Loading...</span>
                         </div>
@@ -230,21 +251,19 @@ export default function HorizontalLinearStepper() {
                         null
                     }
                     {!responseOk && !loading ?
-                        <Success label='Project not created' helperText='Something went wrong... '  />
+                        <Success label='Project not created' helperText='Something went wrong... ' />
                         : null
                     }
 
-                    {uploadedFiles.map((file, index) => (
-                        <Chip key={index} label={file.name} />
-                    ))}
+
                     <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
                         <Box sx={{ flex: '1 1 auto' }} />
-                        <Button onClick={handleReset}>Reset</Button>
+                        <Button onClick={handleClose}>Close</Button>
                     </Box>
                 </React.Fragment>
             ) : (
                 <React.Fragment>
-                    <MySteps number={activeStep + 1} onFilesUploaded={handleFilesUploaded} />
+                    <MySteps state={stepperStatus} onStateChange={handleChildrenChange} number={activeStep + 1} onFilesUploaded={handleFilesUploaded} />
                     <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
                         <Button
                             color="inherit"

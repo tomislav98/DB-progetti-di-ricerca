@@ -5,9 +5,10 @@ import { Dropzone, MIME_TYPES } from '@mantine/dropzone';
 import { IconCloudUpload, IconX, IconDownload } from '@tabler/icons-react';
 import classes from './dropzone.scss';
 
-function DropzoneButton({ onFilesUploaded }) {
+function DropzoneButton({ onFilesUploaded, uploadedFilesprops }) {
   const openRef = useRef(null);
-  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [uploadedFiles, setUploadedFiles] = useState(uploadedFilesprops);
+
 
   const handleDrop = (files) => {
     // Aggiungi i file caricati allo stato
@@ -27,7 +28,7 @@ function DropzoneButton({ onFilesUploaded }) {
   
   return (
     <div className={classes.wrapper}>
-      <div className='row'>
+      <div className='row '>
         <Dropzone
           openRef={openRef}
           onDrop={handleDrop}
@@ -70,7 +71,7 @@ function DropzoneButton({ onFilesUploaded }) {
           </div>
         </Dropzone>
       </div>
-      <div className='row'>
+      <div className='row dropzone-row'>
         <div className='col-12'>
           {uploadedFiles.map((file, index) => (
             <Chip key={index} label={file.name}  onDelete={() => handleFileDelete(index)} />
