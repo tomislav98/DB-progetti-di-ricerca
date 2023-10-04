@@ -52,6 +52,9 @@
     ]
   },
   "devDependencies": {
+    "postcss": "^8.4.31",
+    "postcss-preset-mantine": "^1.8.0",
+    "postcss-simple-vars": "^7.0.1",
     "sass": "^1.68.0"
   }
 }

@@ -102,6 +102,7 @@ function Main() {
     return (
         
         <main className='d-flex flex-nowrap main-container'>
+        {/*
             <div className="d-flex flex-column flex-shrink-0 p-3 text-bg-dark sidebar-container" style={{ width: "280px", position:'absolute' }}>
                 <a href="/" className="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
                     <svg className="me-2" width="40" height="32">{element}</svg>
@@ -189,8 +190,10 @@ function Main() {
                         <li><a className="dropdown-item" href="#">Sign out</a></li>
                     </ul>
                 </div>
-            </div>
-            {matches?<div className="b-example-divider b-example-vr"></div>:null}
+                {matches?<div className="b-example-divider b-example-vr"></div>:null}
+                
+                </div>
+                    */}
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/projects" element={<Project onClick={closeSidebar} />} />

@@ -1,22 +1,149 @@
-.my-fab{
-    position: absolute !important;
+.control {
+    width: 120px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 16px;
+    /* Var(--mantine-spacing-xs) = 4px, Var(--mantine-spacing-md) = 16px */
+    border-radius: 8px;
+    /* Var(--mantine-radius-md) = 8px */
+    border: 1px solid #ccc;
+    /* Lighten or darken as needed */
+    transition: background-color 150ms ease;
+    background-color: #fff;
+    /* Lighten or darken as needed */
+
+    &[data-expanded] {
+        background-color: #f5f5f5;
+        /* Lighten or darken as needed */
+    }
+
+    &:hover {
+        background-color: #f5f5f5;
+        /* Lighten or darken as needed */
+    }
+}
+
+.label {
+    font-weight: 500;
+    font-size: 14px;
+    /* Var(--mantine-font-size-sm) = 14px */
+}
+
+.icon {
+    transition: transform 150ms ease;
+    transform: rotate(0deg);
+
+    &[data-expanded] {
+        transform: rotate(180deg);
+    }
+}
+
+
+.my-projects-container{
+    padding-top: 40px;
+    padding-bottom: 40px;
+}
+
+.my-fab {
+    position: fixed !important;
     bottom: 25px;
     right: 25px;
 }
 
-.my-modal{
+.my-modal {
     height: 70vh;
 }
 
-.my-dropzone{
+.my-dropzone {
     text-align: center;
 }
 
-.my-row{
+.my-row {
     margin-top: auto;
     flex-wrap: wrap-reverse;
 }
 
-.dropzone-row{
+.dropzone-row {
     margin-top: 25px;
+}
+
+.my-projects-container {
+    width: 100%;
+}
+
+.my-full-row {
+    width: 100%;
+    height: 100%;
+}
+
+.my-searchbar {
+    // width: 100%;
+}
+
+.content-row {
+    width: 100%;
+    height: 5%;
+}
+
+.projects-container {
+    height: 100%;
+    padding-top:20px;
+    align-items: baseline;
+}
+
+.title-row {
+    width: 100%;
+    height: 15%;
+}
+
+.content-row {
+    width: 100%;
+    height: 15%;
+}
+
+.common-badge {
+
+    &.badge-2bsubmitted {
+        background-color: #6c757d;
+    }
+
+    &.badge-submitted {}
+
+    &.badge-approved {
+        background-color: lightgreen;
+    }
+
+    &.badge-not-approved {
+        background-color: lightcoral;
+    }
+}
+
+.header-row {
+    margin-top: 35px;
+    margin-bottom: 35px;
+}
+
+.cards-row {
+    row-gap: 35px;
+}
+
+.my-picker-container{
+    display: flex;
+    align-items: center;
+}
+
+.half-page-container{
+    height: 50%;
+}
+
+.total-main-container{
+    // display: flex;
+    height: 100%;
+    width: 100%;
+}
+
+.total-title-row{
+    text-align: center;
+    justify-content: center;
 }

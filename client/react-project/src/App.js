@@ -5,12 +5,31 @@ import Landing from './Components/Landing/Landing';
 import Register from "./Components/Register/Register"
 import { Routes, Route } from "react-router-dom";
 import Main from './Components/MainPage/Main';
-import { MantineProvider } from '@mantine/core';
+import { MantineProvider, createTheme } from '@mantine/core';
+
+const myColor = [
+  '#eef3ff',
+  '#dce4f5',
+  '#b9c7e2',
+  '#94a8d0',
+  '#748dc1',
+  '#5f7cb8',
+  '#5474b4',
+  '#44639f',
+  '#39588f',
+  '#2d4b81'
+];
+
+const theme = createTheme({
+  colors: {
+    myColor,
+  }
+});
 
 function App() {
   return (
     <div className="App">
-      <MantineProvider>
+      <MantineProvider theme={theme}>
 
         <Routes>
           <Route path="/" element={<Landing />} />

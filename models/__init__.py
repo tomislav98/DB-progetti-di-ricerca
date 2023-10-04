@@ -11,6 +11,6 @@ from . import events
 
 with app.app_context():
     from . import events
-    #db.drop_all()
+    # db.drop_all()
     db.create_all()
-    #populate_users(db.session)
+    populate_users(db.session)
