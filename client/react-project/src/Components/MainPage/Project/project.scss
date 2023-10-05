@@ -1,13 +1,14 @@
 .control {
     width: 120px;
+    height: 35px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 4px 16px;
+    padding: 4px 16px !important;
     /* Var(--mantine-spacing-xs) = 4px, Var(--mantine-spacing-md) = 16px */
     border-radius: 8px;
     /* Var(--mantine-radius-md) = 8px */
-    border: 1px solid #ccc;
+    border: 1px solid #ccc !important;
     /* Lighten or darken as needed */
     transition: background-color 150ms ease;
     background-color: #fff;

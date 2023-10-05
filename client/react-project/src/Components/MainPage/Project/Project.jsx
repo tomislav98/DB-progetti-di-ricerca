@@ -7,6 +7,8 @@ import { IconUpload } from '@tabler/icons-react';
 import axios from 'axios';
 import { IconChevronDown } from '@tabler/icons-react';
 import { IconArrowUpRight, IconArrowDownRight } from '@tabler/icons-react';
+import jwtDecode from 'jwt-decode';
+import { useMediaQuery } from '@mui/material';
 
 const avatars = [
     'https://avatars.githubusercontent.com/u/10353856?s=460&u=88394dfd67727327c1f7670a1764dc38a8a24831&v=4',
@@ -130,12 +132,17 @@ function ProjectCard({ name, description, id, status, version = 'v0.0.0' }) {
 
 function Project() {
     const [projects, setProjects] = useState([]);
+    const matches = useMediaQuery('(min-width:600px)', { noSsr: true });
 
-    useEffect(() => {
+    function fetchProjects() {
+        const token = localStorage.getItem('token');
+        const decodedToken = jwtDecode(token);
+        const user_id = decodedToken.user_id;
+
         // La chiamata Axios verrà effettuata quando la componente viene montata
-        axios.get('http://localhost:5000/researchers/4/projects', {
+        axios.get('http://localhost:5000/researchers/' + user_id + '/projects', {
             headers: {
-                Authorization: 'Bearer ' + localStorage.getItem('token'), // Sostituisci con il tuo token JWT
+                Authorization: 'Bearer ' + token, // Sostituisci con il tuo token JWT
             },
         })
             .then((response) => {
@@ -146,6 +153,12 @@ function Project() {
                 // Gestisci gli errori qui
                 console.error('Errore nella chiamata Axios:', error);
             });
+    }
+
+    useEffect(() => {
+
+        fetchProjects();
+
     }, []);
 
 
@@ -159,14 +172,24 @@ function Project() {
                                 <InputWithButton />
                             </div>
                             <div className='col-12'>
-                                <div className='row header-row justify-content-around'>
+                                <div className='row header-row'>
                                     <div className='col-8 col-lg-6'>
                                         <h1>I miei progetti</h1>
                                     </div>
 
-                                    <div className='col-4 my-picker-container'>
-                                        <SortbyPicker />
+                                    <div className='col-4 d-flex align-items-center'>
+                                        <div className='row'>
+                                            {matches ?
+                                                <div className='col-4'>
+                                                    <p className='text-muted small'> Sort by</p>
+                                                </div> :
+                                                null
+                                            }
+                                            <div className='col-8'>
 
+                                                <SortbyPicker />
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -200,7 +223,7 @@ function Project() {
                                         sections={[{ value: 52, color: 'red' }]}
                                         label={
                                             <Center>
-                                                <IconArrowDownRight style={{ width: rem(20), height: rem(20) }} stroke={1.5} />
+                                                <h4> {projects.length} </h4>
                                             </Center>
                                         }
                                     />
