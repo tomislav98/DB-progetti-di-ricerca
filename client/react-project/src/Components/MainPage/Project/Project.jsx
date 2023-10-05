@@ -9,6 +9,7 @@ import { IconChevronDown } from '@tabler/icons-react';
 import { IconArrowUpRight, IconArrowDownRight } from '@tabler/icons-react';
 import jwtDecode from 'jwt-decode';
 import { useMediaQuery } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 const avatars = [
     'https://avatars.githubusercontent.com/u/10353856?s=460&u=88394dfd67727327c1f7670a1764dc38a8a24831&v=4',
@@ -133,11 +134,20 @@ function ProjectCard({ name, description, id, status, version = 'v0.0.0' }) {
 function Project() {
     const [projects, setProjects] = useState([]);
     const matches = useMediaQuery('(min-width:600px)', { noSsr: true });
+    const navigate = useNavigate();
 
     function fetchProjects() {
-        const token = localStorage.getItem('token');
-        const decodedToken = jwtDecode(token);
-        const user_id = decodedToken.user_id;
+        const token = null;
+        const decodedToken = null;
+        const user_id = null;
+
+        try {
+            token = localStorage.getItem('token');
+            const decodedToken = jwtDecode(token);
+            user_id = decodedToken.user_id;
+        } catch (error) {
+            navigate('/login')
+        }
 
         // La chiamata Axios verrà effettuata quando la componente viene montata
         axios.get('http://localhost:5000/researchers/' + user_id + '/projects', {
