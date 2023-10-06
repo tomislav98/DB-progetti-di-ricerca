@@ -101,6 +101,8 @@ function MySteps(props) {
     }
 }
 
+// TODO controllare se il titolo o descrzione sono piu piccoli di 50 char (max per quei dati nel db)
+
 export default function HorizontalLinearStepper({ closeEvent }) {
     const [activeStep, setActiveStep] = React.useState(0);
     const [skipped, setSkipped] = React.useState(new Set());

@@ -10,7 +10,7 @@ class Project(db.Model):
     __tablename__ = 'projects'
     # name='status_enum'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), nullable=False)
+    name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
     data_creation = db.Column(db.Date, nullable=False)
     status = db.Column(db.Enum(ProjectStatus), nullable=False)

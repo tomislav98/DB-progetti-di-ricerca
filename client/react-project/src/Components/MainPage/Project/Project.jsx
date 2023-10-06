@@ -10,6 +10,10 @@ import { IconArrowUpRight, IconArrowDownRight } from '@tabler/icons-react';
 import jwtDecode from 'jwt-decode';
 import { useMediaQuery } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { styled } from '@mui/material/styles';
+import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEllipsisVertical, faCircle } from '@fortawesome/free-solid-svg-icons';
 
 const avatars = [
     'https://avatars.githubusercontent.com/u/10353856?s=460&u=88394dfd67727327c1f7670a1764dc38a8a24831&v=4',
@@ -81,7 +85,7 @@ function StatusBadge(status) {
     switch (status.status) {
         case 'ProjectStatus.TO_BE_SUBMITTED':
             console.log('first')
-            return <Badge className='common-badge badge-2bsubmitted'> TO BE SUBMITTED</Badge>
+            return <Badge className='common-badge badge-2bsubmitted'> DRAFT </Badge>
         case 'ProjectStatus.SUBMITTED':
             return <Badge className='common-badge badge-submitted'> SUBMITTED </Badge>
         case 'ProjectStatus.APPROVED':
@@ -95,18 +99,34 @@ function StatusBadge(status) {
     }
 }
 
+const BootstrapTooltip = styled(({ className, ...props }) => (
+    <Tooltip {...props} arrow classes={{ popper: className }} />
+))(({ theme }) => ({
+    [`& .${tooltipClasses.arrow}`]: {
+        color: theme.palette.common.black,
+    },
+    [`& .${tooltipClasses.tooltip}`]: {
+        backgroundColor: theme.palette.common.black,
+    },
+}));
+
 function ProjectCard({ name, description, id, status, version = 'v0.0.0' }) {
     return (
-        <Card withBorder padding="lg" radius="md">
+        <Card className='justify-content-around' padding="lg" radius="md" style={{ height: '300px' }}>
             <Group justify="space-between">
-                <Avatar src={avatars[0]} />
+
+                <div className='d-flex'>
+                    <Avatar src={avatars[0]} />
+                    <p className='text-dark' style={{ marginLeft: '10px' }}>My name </p>
+                </div>
                 <StatusBadge status={status} />
             </Group>
 
-            <Text fz="lg" fw={500} mt="md">
+            <Text lineClamp={2} fz="lg" fw={500} mt="md">
                 {name}
             </Text>
-            <Text fz="sm" c="dimmed" mt={5}>
+
+            <Text lineClamp={2} fz="sm" c="dimmed" mt={5}>
                 {description}
             </Text>
 
@@ -135,15 +155,16 @@ function Project() {
     const [projects, setProjects] = useState([]);
     const matches = useMediaQuery('(min-width:600px)', { noSsr: true });
     const navigate = useNavigate();
+    const [approvedProjects, setApprovedProjects] = useState(0);
+    const [projectsInfo, setProjectsInfo] = useState({ approved: 0, drafts: 0, changes: 0, submitted: 0, disapproved: 0 })
 
     function fetchProjects() {
-        const token = null;
-        const decodedToken = null;
-        const user_id = null;
+        let token = null;
+        let user_id = null;
 
         try {
             token = localStorage.getItem('token');
-            const decodedToken = jwtDecode(token);
+            const decodedToken = jwtDecode(token,);
             user_id = decodedToken.user_id;
         } catch (error) {
             navigate('/login')
@@ -152,12 +173,40 @@ function Project() {
         // La chiamata Axios verrà effettuata quando la componente viene montata
         axios.get('http://localhost:5000/researchers/' + user_id + '/projects', {
             headers: {
-                Authorization: 'Bearer ' + token, // Sostituisci con il tuo token JWT
+                Authorization: 'Bearer ' + token,
             },
         })
             .then((response) => {
-                // Una volta ottenuti i dati, aggiorna lo stato "projects"
+                let approvedCount = 0;
+                let disapprovedCount = 0;
+                let draftsCount = 0;
+                let changesCount = 0;
+                let submittedCount = 0;
+
                 setProjects(response.data);
+                for (const project of response.data) {
+                    if (project.status === 'ProjectStatus.APPROVED') {
+                        approvedCount++;
+                    }
+                    else if (project.status === 'ProjectStatus.NOT_APPROVED') {
+                        disapprovedCount++;
+                    }
+                    else if (project.status === 'ProjectStatus.TO_BE_SUBMITTED') {
+                        draftsCount++;
+                    }
+                    else if (project.status === 'ProjectStatus.REQUIRES_CHANGES') {
+                        changesCount++;
+                    }
+                    else if (project.status === 'ProjectStatus.SUBMITTED') {
+                        submittedCount++;
+                    }
+                }
+
+                const newInfos = {
+                    approved: approvedCount, drafts: draftsCount, changes: changesCount, submitted: submittedCount, disapproved: disapprovedCount
+                }
+
+                setProjectsInfo(newInfos);
             })
             .catch((error) => {
                 // Gestisci gli errori qui
@@ -191,7 +240,7 @@ function Project() {
                                         <div className='row'>
                                             {matches ?
                                                 <div className='col-4'>
-                                                    <p className='text-muted small'> Sort by</p>
+                                                    <p className='text-muted small' style={{margin:0}}> Sort by</p>
                                                 </div> :
                                                 null
                                             }
@@ -230,20 +279,80 @@ function Project() {
                                         size={180}
                                         roundCaps
                                         thickness={8}
-                                        sections={[{ value: 52, color: 'red' }]}
+                                        sections={[{ value: approvedProjects / projects.length, color: 'lightgreen' }]}
                                         label={
                                             <Center>
-                                                <h4> {projects.length} </h4>
+                                                <h3> {projects.length} </h3>
                                             </Center>
                                         }
                                     />
                                 </div>
                             </div>
                             <div className='row'>
+                                <div className='container text-center'>
+                                    <h5> {approvedProjects} Approved projects </h5>
+                                    <p className='text-muted'>of {projects.length} projects</p>
+                                </div>
                             </div>
                         </div>
                         <div className='row half-page-container'>
+                            <div className='col-12'>
+                                <div className='container project-info'>
+                                    <div className='d-flex align-items-center'>
+                                        <FontAwesomeIcon color='grey' icon={faCircle} style={{ marginRight: '15px' }} />
 
+                                        <div>
+                                            <h5 style={{ margin: 0 }}> Drafts </h5>
+                                            <p className='text-muted'> {projectsInfo.drafts} projects drafted</p>
+                                        </div>
+
+                                    </div>
+                                    <FontAwesomeIcon icon={faEllipsisVertical} />
+                                </div>
+                                <div className='container project-info'>
+                                    <div className='d-flex align-items-center'>
+                                        <FontAwesomeIcon color='lightblue' icon={faCircle} style={{ marginRight: '15px' }} />
+
+                                        <div>
+                                            <h5 style={{ margin: 0 }}> Submitted </h5>
+                                            <p className='text-muted'> {projectsInfo.submitted} projects submitted</p>
+                                        </div>
+                                    </div>
+                                    <FontAwesomeIcon icon={faEllipsisVertical} />
+                                </div>
+                                <div className='container project-info'>
+                                    <div className='d-flex align-items-center'>
+                                        <FontAwesomeIcon color='lightgreen' icon={faCircle} style={{ marginRight: '15px' }} />
+                                        <div>
+                                            <h5 style={{ margin: 0 }}> Approved </h5>
+                                            <p className='text-muted'> {projectsInfo.approved} projects approved</p>
+                                        </div>
+                                    </div>
+                                    <FontAwesomeIcon icon={faEllipsisVertical} />
+                                </div>
+                                <div className='container project-info'>
+                                    <div className='d-flex align-items-center'>
+                                        <FontAwesomeIcon color='lightcoral' icon={faCircle} style={{ marginRight: '15px' }} />
+
+                                        <div>
+                                            <h5 style={{ margin: 0 }}> Not Approved </h5>
+                                            <p className='text-muted'> {projectsInfo.disapproved} projects not approved</p>
+                                        </div>
+                                    </div>
+                                    <FontAwesomeIcon icon={faEllipsisVertical} />
+                                </div>
+                                <div className='container project-info'>
+                                    <div className='d-flex align-items-center'>
+                                        <FontAwesomeIcon color='lightsalmon' icon={faCircle} style={{ marginRight: '15px' }} />
+
+                                        <div>
+                                            <h5 style={{ margin: 0 }}> Required Changes </h5>
+                                            <p className='text-muted'> {projectsInfo.changes} projects that requires changes</p>
+                                        </div>
+                                    </div>
+                                    <FontAwesomeIcon icon={faEllipsisVertical} />
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
