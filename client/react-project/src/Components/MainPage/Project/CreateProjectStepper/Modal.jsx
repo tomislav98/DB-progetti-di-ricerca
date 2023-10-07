@@ -12,11 +12,11 @@ const add = <FontAwesomeIcon icon={faAdd}/>
 
 
 
-export default function BasicModal() {
+export default function BasicModal({updateProjects}) {
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
-
+    const handleProjectsUpdate = () => updateProjects();
     const matches = useMediaQuery('(min-width:600px)', { noSsr: true });
 
     const style = {
@@ -44,7 +44,7 @@ export default function BasicModal() {
                 aria-describedby="modal-modal-description"
             >
                 <Box sx={style}>
-                    <HorizontalLinearStepper closeEvent={handleClose}/>
+                    <HorizontalLinearStepper closeEvent={handleClose} updateProjects={handleProjectsUpdate}/>
                 </Box>
             </Modal>
         </div>

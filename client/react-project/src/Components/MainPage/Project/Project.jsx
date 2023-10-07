@@ -182,8 +182,8 @@ function Project() {
                 let draftsCount = 0;
                 let changesCount = 0;
                 let submittedCount = 0;
-
-                setProjects(response.data);
+                
+                setProjects(response.data.reverse());
                 for (const project of response.data) {
                     if (project.status === 'ProjectStatus.APPROVED') {
                         approvedCount++;
@@ -357,7 +357,7 @@ function Project() {
                     </div>
                 </div>
             </div>
-            <BasicModal />
+            <BasicModal updateProjects={fetchProjects}/>
         </div>
     )
 }
