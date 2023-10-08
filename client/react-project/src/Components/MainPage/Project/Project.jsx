@@ -84,7 +84,6 @@ function InputWithButton(props) {
 function StatusBadge(status) {
     switch (status.status) {
         case 'ProjectStatus.TO_BE_SUBMITTED':
-            console.log('first')
             return <Badge className='common-badge badge-2bsubmitted'> DRAFT </Badge>
         case 'ProjectStatus.SUBMITTED':
             return <Badge className='common-badge badge-submitted'> SUBMITTED </Badge>

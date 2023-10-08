@@ -110,6 +110,8 @@ export default function HorizontalLinearStepper({ closeEvent, updateProjects }) 
     const [responseOk, setResponseOk] = useState(false);
     const [loading, setLoading] = useState(false);
     const [stepperStatus, setStepperStatus] = useState({ title: '', description: '' })
+    const [isButtonDisabled, setButtonDisabled] = useState(false);
+
     const handleClose = () => {
         updateProjects()
         closeEvent();
@@ -129,6 +131,7 @@ export default function HorizontalLinearStepper({ closeEvent, updateProjects }) 
 
     function handleChildrenChange(status){
         let newStatus = status;
+        setButtonDisabled(isFormCompleted(activeStep));
         setStepperStatus(newStatus);
     }
 
@@ -186,6 +189,7 @@ export default function HorizontalLinearStepper({ closeEvent, updateProjects }) 
 
     const handleNext = (e) => {
         let newSkipped = skipped;
+        
         if (isStepSkipped(activeStep)) {
             newSkipped = new Set(newSkipped.values());
             newSkipped.delete(activeStep);
@@ -193,8 +197,9 @@ export default function HorizontalLinearStepper({ closeEvent, updateProjects }) 
         if (e.target.innerText === 'FINISH') {
             handleSubmit();
         }
-
+        
         setActiveStep((prevActiveStep) => prevActiveStep + 1);
+        setButtonDisabled(isFormCompleted(activeStep+1));
         setSkipped(newSkipped);
     };
 
@@ -214,6 +219,16 @@ export default function HorizontalLinearStepper({ closeEvent, updateProjects }) 
             return newSkipped;
         });
     };
+
+    function isFormCompleted(step) {
+        if (step === 0)
+            return false;
+        else {
+            if (stepperStatus.title === '' || stepperStatus.description === '')
+                return true;
+            return false; 
+        }
+    } 
 
     return (
         <Box sx={{ width: '100%' }}>
@@ -283,7 +298,7 @@ export default function HorizontalLinearStepper({ closeEvent, updateProjects }) 
                             </Button>
                         )}
 
-                        <Button onClick={handleNext}>
+                        <Button onClick={handleNext} disabled={isButtonDisabled}>
                             {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
                         </Button>
                     </Box>
