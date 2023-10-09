@@ -14,6 +14,8 @@ import { styled } from '@mui/material/styles';
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEllipsisVertical, faCircle } from '@fortawesome/free-solid-svg-icons';
+import { Routes, Route } from 'react-router-dom';
+import SingleProject from './SingleProject/SingleProject';
 
 const avatars = [
     'https://avatars.githubusercontent.com/u/10353856?s=460&u=88394dfd67727327c1f7670a1764dc38a8a24831&v=4',
@@ -109,14 +111,14 @@ const BootstrapTooltip = styled(({ className, ...props }) => (
     },
 }));
 
-function ProjectCard({ name, description, id, status, version = 'v0.0.0' }) {
+function ProjectCard({ name, description, id, status, version = 'v0.0.0', username }) {
     return (
-        <Card className='justify-content-around' padding="lg" radius="md" style={{ height: '300px' }}>
+        <Card className='justify-content-around my-card'  padding="lg" radius="md" style={{ height: '300px' }}>
             <Group justify="space-between">
 
                 <div className='d-flex'>
                     <Avatar src={avatars[0]} />
-                    <p className='text-dark' style={{ marginLeft: '10px' }}>My name </p>
+                    <p className='text-dark' style={{ marginLeft: '10px' }}>{username} </p>
                 </div>
                 <StatusBadge status={status} />
             </Group>
@@ -150,12 +152,13 @@ function ProjectCard({ name, description, id, status, version = 'v0.0.0' }) {
 }
 
 
-function Project() {
+function ProjectContainer({onProjectChange}) {
     const [projects, setProjects] = useState([]);
     const matches = useMediaQuery('(min-width:600px)', { noSsr: true });
     const navigate = useNavigate();
     const [approvedProjects, setApprovedProjects] = useState(0);
     const [projectsInfo, setProjectsInfo] = useState({ approved: 0, drafts: 0, changes: 0, submitted: 0, disapproved: 0 })
+    const [username, setUsername] = useState('');
 
     function fetchProjects() {
         let token = null;
@@ -165,11 +168,12 @@ function Project() {
             token = localStorage.getItem('token');
             const decodedToken = jwtDecode(token,);
             user_id = decodedToken.user_id;
+            setUsername(decodedToken.sub);
+
         } catch (error) {
             navigate('/login')
         }
 
-        // La chiamata Axios verrà effettuata quando la componente viene montata
         axios.get('http://localhost:5000/researchers/' + user_id + '/projects', {
             headers: {
                 Authorization: 'Bearer ' + token,
@@ -181,8 +185,8 @@ function Project() {
                 let draftsCount = 0;
                 let changesCount = 0;
                 let submittedCount = 0;
+
                 
-                setProjects(response.data.reverse());
                 for (const project of response.data) {
                     if (project.status === 'ProjectStatus.APPROVED') {
                         approvedCount++;
@@ -205,7 +209,9 @@ function Project() {
                     approved: approvedCount, drafts: draftsCount, changes: changesCount, submitted: submittedCount, disapproved: disapprovedCount
                 }
 
+                setProjects(response.data.reverse());
                 setProjectsInfo(newInfos);
+                onProjectChange(response.data.reverse());
             })
             .catch((error) => {
                 // Gestisci gli errori qui
@@ -213,10 +219,12 @@ function Project() {
             });
     }
 
+    function handleCardClick(id){
+        navigate('/mainpage/projects/'+id);
+    }
+
     useEffect(() => {
-
         fetchProjects();
-
     }, []);
 
 
@@ -239,12 +247,11 @@ function Project() {
                                         <div className='row'>
                                             {matches ?
                                                 <div className='col-4'>
-                                                    <p className='text-muted small' style={{margin:0}}> Sort by</p>
+                                                    <p className='text-muted small' style={{ margin: 0 }}> Sort by</p>
                                                 </div> :
                                                 null
                                             }
                                             <div className='col-8'>
-
                                                 <SortbyPicker />
                                             </div>
                                         </div>
@@ -255,8 +262,8 @@ function Project() {
                                 <div className='row cards-row'>
                                     {projects.map((proj, i) => {
                                         return (
-                                            <div className='col-12 col-sm-12 col-md-6 col-lg-4' key={i}>
-                                                <ProjectCard name={proj.name} description={proj.description} id={proj.id} status={proj.status} />
+                                            <div className='col-12 col-md-6 col-lg-4' key={i} pid={proj.id} onClick={()=>{handleCardClick(proj.id)}}>
+                                                <ProjectCard name={proj.name} description={proj.description} id={proj.id} status={proj.status} username={username} version={proj.version} key={i}   />
                                             </div>
                                         );
                                     })}
@@ -356,9 +363,24 @@ function Project() {
                     </div>
                 </div>
             </div>
-            <BasicModal updateProjects={fetchProjects}/>
+            <BasicModal updateProjects={fetchProjects} />
         </div>
     )
 }
 
-export default Project;
+function Projects() {
+    const [projects, setProjects] = useState([]);
+
+    function updateProjects(projects){
+        setProjects(projects);
+    }
+
+    return (
+        <Routes>
+            <Route path="/" element={<ProjectContainer onProjectChange={updateProjects} />} />
+            <Route path="/*" element={<SingleProject projects={projects} />} />
+        </Routes>
+    )
+}
+
+export default Projects;

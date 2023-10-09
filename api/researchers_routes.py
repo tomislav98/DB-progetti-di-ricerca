@@ -13,7 +13,6 @@ from utils.middleware import token_required, researcher_required
 
 researcher_blueprint = Blueprint("researcher", __name__)
 
-
 @researcher_blueprint.route("/<int:user_id>/projects", methods=["GET"])
 @researcher_required
 @error_handler
@@ -23,7 +22,7 @@ def get_researcher_projects(current_user, user_id):
         if current_user.id != user_id and current_user.type_user != UserType.ADMIN:
             raise CustomError("Unauthorized, you can't retrieve another researcher's projects", 401)
         projects = Project.query.filter_by(researcher_id=researcher.id).all()
-        projects_list = [{"id": project.id, "name": project.name, "description": project.description, "status": str(project.status)} for project in
+        projects_list = [{"id": project.id, "name": project.name, "description": project.description, "status": str(project.status), "version": project.latest_version} for project in
                             projects]
 
         return Response(json.dumps(projects_list), status=201, mimetype="application/json")

@@ -59,3 +59,12 @@ $color-darker-gray: '#5474b4';
 $color-navy: '#44639f';
 $color-dark-navy: '#39588f';
 $color-deep-navy: '#2d4b81';
+
+.my-card{
+  cursor: pointer;
+}
+
+
+.my-card:hover {
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3); /* Aggiunge un'ombra leggera al passaggio del mouse */
+}

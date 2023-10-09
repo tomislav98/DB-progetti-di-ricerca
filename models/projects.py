@@ -6,12 +6,15 @@ from models.users import Researcher, User
 from utils.exceptions import CustomError
 from utils.enums import ProjectStatus
 
+
+# aggiungere anche un attributo latest_version che ad ogni aggiornamento viene aggiornato
 class Project(db.Model):
     __tablename__ = 'projects'
     # name='status_enum'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
+    latest_version = db.Column(db.Text, nullable=False)
     data_creation = db.Column(db.Date, nullable=False)
     status = db.Column(db.Enum(ProjectStatus), nullable=False)
     researcher_id = db.Column(db.Integer, db.ForeignKey('researchers.id'), nullable=False)
@@ -28,7 +31,9 @@ class Project(db.Model):
             raise CustomError("There are no evaluation windows at the moment, try again later",500) 
         self.status = ProjectStatus.SUBMITTED
         self.evaluation_window_id = window.id
-        VersionProject.get_versions_by_project_id(self.id)[0].update_status(self.status)
+        version = VersionProject.get_versions_by_project_id(self.id)
+        version[0].update_status(self.status)
+        self.latest_version = version[0].version
         db.session.commit()
         return self
 
@@ -49,7 +54,7 @@ class Project(db.Model):
     @classmethod
     def add_project(cls, name, description, data_creation, creator_user_id, files):
         project = cls(name=name, description=description, data_creation=data_creation,
-                        researcher_id=creator_user_id)
+                        researcher_id=creator_user_id, latest_version="v0.0.0")
         project.status = ProjectStatus.TO_BE_SUBMITTED
         db.session.add(project)
         db.session.commit()

@@ -3,7 +3,7 @@ import { faCoffee, faHome, faDashboard, faShippingFast, faProjectDiagram, faPers
 import './main.scss'
 import Home from './Home/Home'
 import { Routes, Route } from "react-router-dom";
-import Project from './Project/Project';
+import Project from './Project/Projects';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@mui/base';
 import { useState } from 'react';
@@ -196,7 +196,7 @@ function Main() {
                     */}
             <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/projects" element={<Project onClick={closeSidebar} />} />
+                <Route path="/projects/*" element={<Project onClick={closeSidebar} />} />
             </Routes>
         </main>
     )

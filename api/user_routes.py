@@ -112,7 +112,7 @@ def login():
         valid_user = User.is_valid_user(data)
         if valid_user:
             payload = {
-                "sub": valid_user.name,
+                "sub": valid_user.name +' '+ valid_user.surname ,
                 "exp": datetime.utcnow() + timedelta(days=1),
                 "role": valid_user.type_user.__str__(),
                 "user_id": valid_user.id
