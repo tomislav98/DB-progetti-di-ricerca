@@ -1,4 +1,3 @@
-import * as React from 'react';
 import Box from '@mui/material/Box';
 import { faAdd } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -7,17 +6,25 @@ import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import Fab from '@mui/material/Fab';
 import HorizontalLinearStepper from './CreateProject';
+import { useState, useEffect } from 'react';
 
 const add = <FontAwesomeIcon icon={faAdd}/>
 
 
 
-export default function BasicModal({updateProjects}) {
-    const [open, setOpen] = React.useState(false);
-    const handleOpen = () => setOpen(true);
-    const handleClose = () => setOpen(false);
+export default function BasicModal({updateProjects, isOpen, onCloseModal, onOpenModal}) {
+    const [open, setOpen] = useState(isOpen);
     const handleProjectsUpdate = () => updateProjects();
     const matches = useMediaQuery('(min-width:600px)', { noSsr: true });
+
+    const handleClose = () => {
+        onCloseModal();
+        setOpen(false); 
+    }
+    const handleOpen = () => {
+        onOpenModal();
+        setOpen(true);
+    }
 
     const style = {
         position: 'absolute',
@@ -31,6 +38,10 @@ export default function BasicModal({updateProjects}) {
         boxShadow: 24,
         p: 4,
     };
+
+    useEffect(()=>{
+        setOpen(isOpen);
+    })
 
     return (
         <div>

@@ -83,7 +83,6 @@
 }
 
 .projects-container {
-    height: 100%;
     padding-top: 20px;
     align-items: baseline;
 }
@@ -124,6 +123,7 @@
 }
 
 .cards-row {
+    row-gap: 35px;
     height: 80%;
 
 }

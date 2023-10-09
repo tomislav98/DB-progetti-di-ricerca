@@ -164,7 +164,10 @@ export function Illustration(props) {
     );
 }
 
-export function NothingFoundBackground() {
+export function NothingFoundBackground({openModal}) {
+    function handleClick(){
+        openModal();
+    }
     return (
         <Container className={classes.mantineroot}>
             <div className={classes.mantineinner}>
@@ -177,7 +180,7 @@ export function NothingFoundBackground() {
                         you can kickstart your journey by simply clicking the inviting button below to create your very first project.
                     </Text>
                     <Group classNames='' justify="center">
-                        <Button size="md">Create a new project</Button>
+                        <Button size="md" onClick={handleClick}>Create a new project</Button>
                     </Group>
                 </div>
             </div>
@@ -192,6 +195,7 @@ function ProjectContainer({ onProjectChange }) {
     const [approvedProjects, setApprovedProjects] = useState(0);
     const [projectsInfo, setProjectsInfo] = useState({ approved: 0, drafts: 0, changes: 0, submitted: 0, disapproved: 0 })
     const [username, setUsername] = useState('');
+    const [isModalOpen, setModalOpen] = useState(false)
 
     function fetchProjects() {
         let token = null;
@@ -252,6 +256,14 @@ function ProjectContainer({ onProjectChange }) {
             });
     }
 
+    function handleOpenModal(){
+        setModalOpen(true);
+    }
+
+    function handleCloseModal(){
+        setModalOpen(false);
+    }
+
     function handleCardClick(id) {
         navigate('/mainpage/projects/' + id);
     }
@@ -266,7 +278,6 @@ function ProjectContainer({ onProjectChange }) {
             <div className='row my-full-row justify-content-around'>
                 <div className='col-12 col-lg-9'>
                     <div className='container projects-container'>
-
                         <div className='row content-row'>
                             <div className='col-12 col-lg-5 '>
                                 <InputWithButton />
@@ -296,7 +307,7 @@ function ProjectContainer({ onProjectChange }) {
                         </div>
                         <div className='row cards-row'>
                             {projects.length === 0 ?
-                                <NothingFoundBackground />
+                                <NothingFoundBackground openModal={handleOpenModal}/>
                                 :
                                 projects.map((proj, i) => {
                                     return (
@@ -400,7 +411,7 @@ function ProjectContainer({ onProjectChange }) {
                     </div>
                 </div>
             </div>
-            <BasicModal updateProjects={fetchProjects} />
+            <BasicModal updateProjects={fetchProjects} isOpen={isModalOpen} onCloseModal={handleCloseModal} onOpenModal={handleOpenModal} />
         </div>
     )
 }
