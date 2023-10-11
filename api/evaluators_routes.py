@@ -12,6 +12,7 @@ from utils.middleware import evaluator_required
 
 evaluators_blueprint = Blueprint("evaluators", __name__)
 
+# TODO fare in modo che sto metodo controlli che siamo in una finestra di valutazione, senno non li deve restituire
 
 @evaluators_blueprint.route("/projects", methods=["GET"])
 @evaluator_required

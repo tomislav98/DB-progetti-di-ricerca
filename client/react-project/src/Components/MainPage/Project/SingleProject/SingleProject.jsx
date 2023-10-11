@@ -31,6 +31,8 @@ export default function SingleProject({ projects }) {
         const projectId = parseInt(segments[segments.length - 1]);
         const current = projects.find((proj) => { return proj.id === projectId })
 
+        console.log(current.id)
+
         setCurrentProject(current);
     }
 
@@ -118,24 +120,24 @@ export default function SingleProject({ projects }) {
 
     return (
         <div className="project-slider" style={{ right: `${rightValue}vw` }}>
-            <nav className="navbar navbar-light justify-content-start m-3">
+            <nav className="navbar navbar-light justify-content-start" style={{ height: '10%', paddingLeft:'25px', paddingRight:'25px'}}>
                 <FontAwesomeIcon icon={faAngleLeft} style={{ cursor: "pointer" }} onClick={handleGoBack} />
                 <Breadcrumbs aria-label="breadcrumb" style={{ marginLeft: '25px' }}>
                     <Link underline="hover" color="inherit" href="/">
-                        MUI
+                        Mainpage
                     </Link>
                     <Link
                         underline="hover"
                         color="inherit"
                         href="/material-ui/getting-started/installation/"
                     >
-                        Core
+                        Projects
                     </Link>
-                    <Typography color="text.primary">Breadcrumbs</Typography>
+                    <Typography color="text.primary">Project {currentProject? currentProject.id: null} </Typography>
                 </Breadcrumbs>
             </nav>
 
-            <div className="container-fluid m-3" style={{ height: '100%' }} >
+            <div className="container-fluid" style={{ height: '90%' }} >
                 <div className="row row-graph container-fluid">
                     <div className="col-12">
                         <h1>Your project</h1>

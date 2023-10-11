@@ -16,7 +16,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEllipsisVertical, faCircle } from '@fortawesome/free-solid-svg-icons';
 import { Routes, Route } from 'react-router-dom';
 import SingleProject from './SingleProject/SingleProject';
-import catImage from '../../../assets/errorimage3.png'
 import classes from './NothingFoundBackground.module.css';
 
 const avatars = [
