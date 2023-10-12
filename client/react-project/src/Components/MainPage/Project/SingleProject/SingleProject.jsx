@@ -1,10 +1,218 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import jwtDecode from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import { Breadcrumbs, Link, Typography } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAngleLeft } from "@fortawesome/free-solid-svg-icons";
+import Chart from 'chart.js/auto'; // Import Chart.js
+import feather from 'feather-icons';
+
+function MyDashboard({title=''}) {
+    const chartRef = useRef(null);
+
+  useEffect(() => {
+    const ctx = document.getElementById('myChart');
+    
+    feather.replace({ 'aria-hidden': 'true' });
+
+    if (chartRef.current) {
+      chartRef.current.destroy();
+    }
+
+    chartRef.current = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [
+          'Sunday',
+          'Monday',
+          'Tuesday',
+          'Wednesday',
+          'Thursday',
+          'Friday',
+          'Saturday'
+        ],
+        datasets: [{
+          data: [
+            15339,
+            21345,
+            18483,
+            24003,
+            23489,
+            24092,
+            12034
+          ],
+          tension: 0, // Use 'tension' instead of 'lineTension'
+          backgroundColor: 'transparent',
+          borderColor: '#007bff',
+          borderWidth: 4,
+          pointBackgroundColor: '#007bff'
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: false
+          }
+        },
+        plugins: {
+          legend: {
+            display: false
+          }
+        }
+      }
+    });
+  }, []);
+
+    return (
+        <main className="col-md-9 col-lg-10 px-md-4">
+            <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 className="h2">{title}</h1>
+                <div className="btn-toolbar mb-2 mb-md-0">
+                    <div className="btn-group me-2">
+                        <button type="button" className="btn btn-sm btn-outline-secondary">Share</button>
+                        <button type="button" className="btn btn-sm btn-outline-secondary">Export</button>
+                    </div>
+                    <button type="button" className="btn btn-sm btn-outline-secondary dropdown-toggle">
+                        <span data-feather="calendar" className="align-text-bottom"></span>
+                        This week
+                    </button>
+                </div>
+            </div>
+
+            <canvas className="my-4 w-100" id="myChart" width="900" height="380"></canvas>
+
+            <h2>Project's versions</h2>
+            <div className="table-responsive">
+                <table className="table table-striped table-sm">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Header</th>
+                            <th scope="col">Header</th>
+                            <th scope="col">Header</th>
+                            <th scope="col">Header</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1,001</td>
+                            <td>random</td>
+                            <td>data</td>
+                            <td>placeholder</td>
+                            <td>text</td>
+                        </tr>
+                        <tr>
+                            <td>1,002</td>
+                            <td>placeholder</td>
+                            <td>irrelevant</td>
+                            <td>visual</td>
+                            <td>layout</td>
+                        </tr>
+                        <tr>
+                            <td>1,003</td>
+                            <td>data</td>
+                            <td>rich</td>
+                            <td>dashboard</td>
+                            <td>tabular</td>
+                        </tr>
+                        <tr>
+                            <td>1,003</td>
+                            <td>information</td>
+                            <td>placeholder</td>
+                            <td>illustrative</td>
+                            <td>data</td>
+                        </tr>
+                        <tr>
+                            <td>1,004</td>
+                            <td>text</td>
+                            <td>random</td>
+                            <td>layout</td>
+                            <td>dashboard</td>
+                        </tr>
+                        <tr>
+                            <td>1,005</td>
+                            <td>dashboard</td>
+                            <td>irrelevant</td>
+                            <td>text</td>
+                            <td>placeholder</td>
+                        </tr>
+                        <tr>
+                            <td>1,006</td>
+                            <td>dashboard</td>
+                            <td>illustrative</td>
+                            <td>rich</td>
+                            <td>data</td>
+                        </tr>
+                        <tr>
+                            <td>1,007</td>
+                            <td>placeholder</td>
+                            <td>tabular</td>
+                            <td>information</td>
+                            <td>irrelevant</td>
+                        </tr>
+                        <tr>
+                            <td>1,008</td>
+                            <td>random</td>
+                            <td>data</td>
+                            <td>placeholder</td>
+                            <td>text</td>
+                        </tr>
+                        <tr>
+                            <td>1,009</td>
+                            <td>placeholder</td>
+                            <td>irrelevant</td>
+                            <td>visual</td>
+                            <td>layout</td>
+                        </tr>
+                        <tr>
+                            <td>1,010</td>
+                            <td>data</td>
+                            <td>rich</td>
+                            <td>dashboard</td>
+                            <td>tabular</td>
+                        </tr>
+                        <tr>
+                            <td>1,011</td>
+                            <td>information</td>
+                            <td>placeholder</td>
+                            <td>illustrative</td>
+                            <td>data</td>
+                        </tr>
+                        <tr>
+                            <td>1,012</td>
+                            <td>text</td>
+                            <td>placeholder</td>
+                            <td>layout</td>
+                            <td>dashboard</td>
+                        </tr>
+                        <tr>
+                            <td>1,013</td>
+                            <td>dashboard</td>
+                            <td>irrelevant</td>
+                            <td>text</td>
+                            <td>visual</td>
+                        </tr>
+                        <tr>
+                            <td>1,014</td>
+                            <td>dashboard</td>
+                            <td>illustrative</td>
+                            <td>rich</td>
+                            <td>data</td>
+                        </tr>
+                        <tr>
+                            <td>1,015</td>
+                            <td>random</td>
+                            <td>tabular</td>
+                            <td>information</td>
+                            <td>text</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    )
+}
 
 export default function SingleProject({ projects }) {
     const [projectVersions, setProjectVersions] = useState([]);
@@ -98,7 +306,7 @@ export default function SingleProject({ projects }) {
             });
     }
 
-    function handleGoBack(){
+    function handleGoBack() {
         navigate('/mainpage/projects')
     }
 
@@ -120,7 +328,7 @@ export default function SingleProject({ projects }) {
 
     return (
         <div className="project-slider" style={{ right: `${rightValue}vw` }}>
-            <nav className="navbar navbar-light justify-content-start" style={{ height: '10%', paddingLeft:'25px', paddingRight:'25px'}}>
+            <nav className="navbar navbar-light justify-content-start" style={{ height: '10%', paddingLeft: '25px', paddingRight: '25px' }}>
                 <FontAwesomeIcon icon={faAngleLeft} style={{ cursor: "pointer" }} onClick={handleGoBack} />
                 <Breadcrumbs aria-label="breadcrumb" style={{ marginLeft: '25px' }}>
                     <Link underline="hover" color="inherit" href="/">
@@ -133,21 +341,18 @@ export default function SingleProject({ projects }) {
                     >
                         Projects
                     </Link>
-                    <Typography color="text.primary">Project {currentProject? currentProject.id: null} </Typography>
+                    <Typography color="text.primary">Project {currentProject ? currentProject.id : null} </Typography>
                 </Breadcrumbs>
             </nav>
 
-            <div className="container-fluid" style={{ height: '90%' }} >
-                <div className="row row-graph container-fluid">
-                    <div className="col-12">
-                        <h1>Your project</h1>
-                    </div>
-                </div>
-                <div className="row row-versions container-fluid">
-                    <div className="col-12">
-                        <h3>Versions</h3>
-                    </div>
-                </div>
+            <div className="container-fluid" style={{ height: '90%', paddingLeft: '25px' }} >
+                {
+                    currentProject?
+                    <MyDashboard title={currentProject.name? currentProject.name : ''}/>
+                    :
+                    <MyDashboard title={''}/>
+                }
+
             </div>
         </div>
     )
