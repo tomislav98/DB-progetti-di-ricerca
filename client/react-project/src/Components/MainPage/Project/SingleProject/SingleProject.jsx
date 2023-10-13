@@ -10,11 +10,8 @@ import 'chartjs-adapter-date-fns';
 import Chart from 'chart.js/auto';
 import { Line } from 'react-chartjs-2';
 
-const input = [
-    { x: new Date("Sun, 15 Oct 2023 15:05:13 GMT"), y: 0.1 },
-    { x: new Date("Sun, 15 Nov 2023 15:05:13 GMT"), y: 0.2 },
-    { x: new Date("Sun, 15 Dec 2023 15:05:13 GMT"), y: 0.3 },
-    { x: new Date("Sun, 28 Dec 2023 15:05:13 GMT"), y: 0.5 }
+const skeletonInput = [
+    
 ];
 
 
@@ -51,18 +48,61 @@ const data = {
     datasets: [
         {
             label: 'My Dataset',
-            data: input,
+            data: skeletonInput,
         },
     ],
+}
+
+const createData = (i) => {
+    return {
+        datasets: [
+            {
+                label: 'My Dataset',
+                data: i,
+            },
+        ],
+    }
 };
 
+function stringToNumber(versione) {
+    // v0.0.0
+
+    // Rimuovo il carattere 'v' se presente
+    versione = versione.replace('v', '');
+
+    // Sostituisco i punti con un punto decimale
+    const integer = parseInt(versione.split('.')[0])
+
+    // Converto la stringa in un numero in virgola mobile
+    const decimal = parseFloat(versione.split('.')[1] + versione.split('.')[2]);
+
+    return integer + decimal;
+}
+
+
 function MyChart({ projectVersions }) {
+    const [chartData, setChartData] = useState(null);
+
+    useEffect(() => {
+        console.log(projectVersions.other_versions)
+
+        if (projectVersions && projectVersions.other_versions) {
+            const versionsData = projectVersions.other_versions.map((p) => {
+                return { x: new Date(p.created), y: stringToNumber(p.version) }
+            });
 
 
+            console.log(createData(versionsData))
+            console.log(data)
+            setChartData(createData(versionsData))
+        }
+
+
+    }, [projectVersions])
 
     return (
         <Line
-            data={data}
+            data={chartData ? chartData : data}
             options={options}
             width={900}
             height={380}
@@ -71,7 +111,6 @@ function MyChart({ projectVersions }) {
 }
 
 function MyDashboard({ title = '', projectVersions }) {
-
     return (
         <main className="col-md-9 col-lg-10 px-md-4">
             <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
@@ -88,10 +127,7 @@ function MyDashboard({ title = '', projectVersions }) {
                 </div>
             </div>
 
-            {
-                true ?
-                    <MyChart projectVersions={projectVersions} /> : null
-            }
+            <MyChart projectVersions={projectVersions} />
 
             {projectVersions && projectVersions.other_versions ? (
                 <h2>Project's versions</h2>
@@ -159,8 +195,6 @@ export default function SingleProject({ projects }) {
         const segments = currentPath.split('/');
         const projectId = parseInt(segments[segments.length - 1]);
         const current = projects.find((proj) => { return proj.id === projectId })
-
-        console.log(current.id)
 
         setCurrentProject(current);
     }
