@@ -5,64 +5,72 @@ import { useNavigate } from "react-router-dom";
 import { Breadcrumbs, Link, Typography } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAngleLeft } from "@fortawesome/free-solid-svg-icons";
-import Chart from 'chart.js/auto'; // Import Chart.js
 import feather from 'feather-icons';
+import 'chartjs-adapter-date-fns';
+import Chart from 'chart.js/auto';
+import { Line } from 'react-chartjs-2';
 
-function MyDashboard({title=''}) {
-    const chartRef = useRef(null);
+const input = [
+    { x: new Date("Sun, 15 Oct 2023 15:05:13 GMT"), y: 0.1 },
+    { x: new Date("Sun, 15 Nov 2023 15:05:13 GMT"), y: 0.2 },
+    { x: new Date("Sun, 15 Dec 2023 15:05:13 GMT"), y: 0.3 },
+    { x: new Date("Sun, 28 Dec 2023 15:05:13 GMT"), y: 0.5 }
+];
 
-  useEffect(() => {
-    const ctx = document.getElementById('myChart');
-    
-    feather.replace({ 'aria-hidden': 'true' });
 
-    if (chartRef.current) {
-      chartRef.current.destroy();
-    }
-
-    chartRef.current = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: [
-          'Sunday',
-          'Monday',
-          'Tuesday',
-          'Wednesday',
-          'Thursday',
-          'Friday',
-          'Saturday'
-        ],
-        datasets: [{
-          data: [
-            15339,
-            21345,
-            18483,
-            24003,
-            23489,
-            24092,
-            12034
-          ],
-          tension: 0, // Use 'tension' instead of 'lineTension'
-          backgroundColor: 'transparent',
-          borderColor: '#007bff',
-          borderWidth: 4,
-          pointBackgroundColor: '#007bff'
-        }]
-      },
-      options: {
-        scales: {
-          y: {
-            beginAtZero: false
-          }
+const options = {
+    scales: {
+        x: {
+            type: 'time',
+            time: {
+                unit: 'month',
+                displayFormats: {
+                    month: 'MMMM yyyy',
+                },
+            },
+            title: {
+                display: true,
+                text: 'Date of Creation',
+            },
         },
-        plugins: {
-          legend: {
-            display: false
-          }
-        }
-      }
-    });
-  }, []);
+        y: {
+            title: {
+                display: true,
+                text: 'Project Version',
+            },
+        },
+    },
+    plugins: {
+        legend: {
+            display: false,
+        },
+    },
+};
+
+const data = {
+    datasets: [
+        {
+            label: 'My Dataset',
+            data: input,
+        },
+    ],
+};
+
+function MyChart({ projectVersions }) {
+
+
+
+    return (
+        <Line
+            data={data}
+            options={options}
+            width={900}
+            height={380}
+        />
+    );
+}
+
+function MyDashboard({ title = '', projectVersions }) {
 
     return (
         <main className="col-md-9 col-lg-10 px-md-4">
@@ -80,133 +88,46 @@ function MyDashboard({title=''}) {
                 </div>
             </div>
 
-            <canvas className="my-4 w-100" id="myChart" width="900" height="380"></canvas>
+            {
+                true ?
+                    <MyChart projectVersions={projectVersions} /> : null
+            }
 
-            <h2>Project's versions</h2>
+            {projectVersions && projectVersions.other_versions ? (
+                <h2>Project's versions</h2>
+            ) : null}
+
             <div className="table-responsive">
                 <table className="table table-striped table-sm">
                     <thead>
                         <tr>
                             <th scope="col">#</th>
-                            <th scope="col">Header</th>
-                            <th scope="col">Header</th>
+                            <th scope="col">Version</th>
+                            <th scope="col">Created</th>
                             <th scope="col">Header</th>
                             <th scope="col">Header</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>1,001</td>
-                            <td>random</td>
-                            <td>data</td>
-                            <td>placeholder</td>
-                            <td>text</td>
-                        </tr>
-                        <tr>
-                            <td>1,002</td>
-                            <td>placeholder</td>
-                            <td>irrelevant</td>
-                            <td>visual</td>
-                            <td>layout</td>
-                        </tr>
-                        <tr>
-                            <td>1,003</td>
-                            <td>data</td>
-                            <td>rich</td>
-                            <td>dashboard</td>
-                            <td>tabular</td>
-                        </tr>
-                        <tr>
-                            <td>1,003</td>
-                            <td>information</td>
-                            <td>placeholder</td>
-                            <td>illustrative</td>
-                            <td>data</td>
-                        </tr>
-                        <tr>
-                            <td>1,004</td>
-                            <td>text</td>
-                            <td>random</td>
-                            <td>layout</td>
-                            <td>dashboard</td>
-                        </tr>
-                        <tr>
-                            <td>1,005</td>
-                            <td>dashboard</td>
-                            <td>irrelevant</td>
-                            <td>text</td>
-                            <td>placeholder</td>
-                        </tr>
-                        <tr>
-                            <td>1,006</td>
-                            <td>dashboard</td>
-                            <td>illustrative</td>
-                            <td>rich</td>
-                            <td>data</td>
-                        </tr>
-                        <tr>
-                            <td>1,007</td>
-                            <td>placeholder</td>
-                            <td>tabular</td>
-                            <td>information</td>
-                            <td>irrelevant</td>
-                        </tr>
-                        <tr>
-                            <td>1,008</td>
-                            <td>random</td>
-                            <td>data</td>
-                            <td>placeholder</td>
-                            <td>text</td>
-                        </tr>
-                        <tr>
-                            <td>1,009</td>
-                            <td>placeholder</td>
-                            <td>irrelevant</td>
-                            <td>visual</td>
-                            <td>layout</td>
-                        </tr>
-                        <tr>
-                            <td>1,010</td>
-                            <td>data</td>
-                            <td>rich</td>
-                            <td>dashboard</td>
-                            <td>tabular</td>
-                        </tr>
-                        <tr>
-                            <td>1,011</td>
-                            <td>information</td>
-                            <td>placeholder</td>
-                            <td>illustrative</td>
-                            <td>data</td>
-                        </tr>
-                        <tr>
-                            <td>1,012</td>
-                            <td>text</td>
-                            <td>placeholder</td>
-                            <td>layout</td>
-                            <td>dashboard</td>
-                        </tr>
-                        <tr>
-                            <td>1,013</td>
-                            <td>dashboard</td>
-                            <td>irrelevant</td>
-                            <td>text</td>
-                            <td>visual</td>
-                        </tr>
-                        <tr>
-                            <td>1,014</td>
-                            <td>dashboard</td>
-                            <td>illustrative</td>
-                            <td>rich</td>
-                            <td>data</td>
-                        </tr>
-                        <tr>
-                            <td>1,015</td>
-                            <td>random</td>
-                            <td>tabular</td>
-                            <td>information</td>
-                            <td>text</td>
-                        </tr>
+                        {projectVersions && projectVersions.other_versions ? (
+                            projectVersions.other_versions.map((version, index) => (
+                                <tr key={index}>
+                                    <td>{index + 1}</td>
+                                    <td>{version.version}</td>
+                                    <td>{version.created}</td>
+                                    {/* Include other relevant fields here */}
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td>1,001</td>
+                                <td>random</td>
+                                <td>data</td>
+                                <td>placeholder</td>
+                                <td>text</td>
+                            </tr>
+                            // Add more default rows as needed
+                        )}
                     </tbody>
                 </table>
             </div>
@@ -347,10 +268,10 @@ export default function SingleProject({ projects }) {
 
             <div className="container-fluid" style={{ height: '90%', paddingLeft: '25px' }} >
                 {
-                    currentProject?
-                    <MyDashboard title={currentProject.name? currentProject.name : ''}/>
-                    :
-                    <MyDashboard title={''}/>
+                    currentProject ?
+                        <MyDashboard title={currentProject.name ? currentProject.name : ''} projectVersions={projectVersions} />
+                        :
+                        <MyDashboard title={''} projectVersions={projectVersions} />
                 }
 
             </div>

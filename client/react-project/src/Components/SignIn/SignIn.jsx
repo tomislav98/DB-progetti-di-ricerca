@@ -3,15 +3,13 @@ import './sign-in.scss';
 import unive from '../../assets/frog-face-svgrepo-com.svg';
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
-import { SnackbarProvider, useSnackbar, enqueueSnackbar } from 'notistack';
+import { SnackbarProvider, enqueueSnackbar } from 'notistack';
 
 function Sign() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-
-  // const { enqueueSnackbar } = useSnackbar();
 
   function goMainpage() {
     navigate('/mainpage')
@@ -28,18 +26,13 @@ function Sign() {
       });
       if (response.status === 200) {
         const { token } = response.data;
-        // Salva il token nel local storage
         localStorage.setItem('token', token);
 
-        // Mostra una notifica di successo
         enqueueSnackbar('Accesso riuscito! ', { variant: 'success', anchorOrigin: { horizontal: 'center', vertical: 'top' }, onClose: goMainpage, autoHideDuration: 1000 });
-        // Ora puoi fare qualcosa con il token JWT, ad esempio reindirizzare l'utente alla dashboard
-        // history.push('/dashboard');
       }
     } catch (error) {
       console.error('Errore durante la richiesta di accesso:', error);
 
-      // Mostra una notifica di errore
       enqueueSnackbar(error.response.data.error + ' ' + error.response.status, { variant: 'error', anchorOrigin: { horizontal: 'center', vertical: 'top' } });
     }
     finally {

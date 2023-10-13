@@ -48,8 +48,10 @@ class Project(db.Model):
     def update_project_version(self, version):
         if self.status in [ProjectStatus.APPROVED,ProjectStatus.NOT_APPROVED,ProjectStatus.SUBMITTED]:
             raise CustomError("You can't update the project",403)
-        version = VersionProject.create_version(self.status, self.id, version)
-        return version
+        v = VersionProject.create_version(self.status, self.id, version)
+        self.latest_version = v.version
+        db.session.commit()
+        return v
 
     @classmethod
     def add_project(cls, name, description, data_creation, creator_user_id, files):

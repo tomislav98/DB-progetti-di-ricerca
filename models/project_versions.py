@@ -2,6 +2,8 @@ from config import db
 from utils.enums import ProjectStatus
 from utils.exceptions import CustomError
 import re
+from datetime import datetime
+from sqlalchemy import DateTime
 
 class VersionProject(db.Model):
     __tablename__ = 'version_projects'
@@ -11,6 +13,7 @@ class VersionProject(db.Model):
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
     version = db.Column(db.String, nullable=False)
     document_project = db.relationship('DocumentProject', backref = "version_project")
+    created = db.Column(DateTime, default=datetime.utcnow, nullable=False)
 
     # Crea una versione associata ad un progetto, se il progetto non esiste con version = "v0.0.0"
     # controlla se la versione che sto provando ad aggiungere sia maggiore di tutte le altre versioni 
@@ -29,7 +32,7 @@ class VersionProject(db.Model):
             project_version = cls(status=status,project_id=project_id, version=version)
         else:
             project_version = cls(status=ProjectStatus.TO_BE_SUBMITTED ,project_id=project_id,version="v0.0.0" )    
-
+        project_version.created = datetime.utcnow()  # Imposta created all'ora corrente
         db.session.add(project_version)
         db.session.commit()
 

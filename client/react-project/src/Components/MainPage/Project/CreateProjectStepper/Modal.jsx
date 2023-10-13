@@ -2,7 +2,6 @@ import Box from '@mui/material/Box';
 import { faAdd } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useMediaQuery } from '@mui/material';
-import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import Fab from '@mui/material/Fab';
 import HorizontalLinearStepper from './CreateProject';

@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { Snackbar, Alert } from '@mui/material';
 import Slide from "@mui/material/Slide";
 
-const SERVER_URL = process.env.REACT_APP_SERVER_URL;
+// const SERVER_URL = process.env.REACT_APP_SERVER_URL;
 
 const doneCheck = (isDone) => {
     if (isDone)
@@ -25,10 +25,10 @@ function checkName(name) {
     return regex.test(name);
 }
 
-function checkNumber(number) {
-    const regex = /\+(9[976]\d|8[987530]\d|6[987]\d|5[90]\d|42\d|3[875]\d|2[98654321]\d|9[8543210]|8[6421]|6[6543210]|5[87654321]|4[987654310]|3[9643210]|2[70]|7|1)\d{1,14}$/;
-    return regex.test(number);
-}
+// function checkNumber(number) {
+//     const regex = /\+(9[976]\d|8[987530]\d|6[987]\d|5[90]\d|42\d|3[875]\d|2[98654321]\d|9[8543210]|8[6421]|6[6543210]|5[87654321]|4[987654310]|3[9643210]|2[70]|7|1)\d{1,14}$/;
+//     return regex.test(number);
+// }
 
 function checkMail(email) {
     // Espressione regolare per il formato dell'email
@@ -297,7 +297,7 @@ function Register() {
                                         <h6 className="my-0">Password</h6>
                                         <small className="text-muted password-strength">
                                             {
-                                                password.length != 0 ?
+                                                password.length !== 0 ?
                                                     (<small className="text-muted password-strength">
                                                         Password Strength:{" "}
                                                         <span className={`password-strength-${passwordStrength}`}>
@@ -356,7 +356,7 @@ function Register() {
                                     <div className="col-12">
                                         <label htmlFor="inputPassword5" className="form-label">Password</label>
                                         {
-                                            password.length != 0 ?
+                                            password.length !== 0 ?
                                                 (<small className="text-muted password-strength">
                                                     {" "}{" "}
                                                     <span className={`password-strength-${passwordStrength}`}>

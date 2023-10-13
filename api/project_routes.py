@@ -30,10 +30,10 @@ def get_project_versions_by_id(current_user, project_id):
         
 
         if u.id != current_user.id:
-            data = [{"id": v.id, "status": str(v.status), "project_id": v.project_id, "version": v.version} 
+            data = [{"id": v.id, "status": str(v.status), "project_id": v.project_id, "version": v.version, "created":v.created} 
                     for v in project_versions if v.status != ProjectStatus.TO_BE_SUBMITTED]
         else:
-            data = [{"id": v.id, "status": str(v.status), "project_id": v.project_id, "version": v.version} for v in project_versions]
+            data = [{"id": v.id, "status": str(v.status), "project_id": v.project_id, "version": v.version,"created":v.created} for v in project_versions]
 
         response_data = {
             "message": "Versions retrieved correctly!",

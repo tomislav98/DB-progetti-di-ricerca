@@ -5,17 +5,8 @@ import Home from './Home/Home'
 import { Routes, Route } from "react-router-dom";
 import Project from './Project/Projects';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@mui/base';
 import { useState } from 'react';
 import { useMediaQuery } from '@mui/material';
-
-// (() => {
-//     'use strict'
-//     const tooltipTriggerList = Array.from(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-//     tooltipTriggerList.forEach(tooltipTriggerEl => {
-//       new bootstrap.Tooltip(tooltipTriggerEl)
-//     })
-//   })()
 
 const element = <FontAwesomeIcon icon={faCoffee} />
 const home = <FontAwesomeIcon icon={faHome} />
