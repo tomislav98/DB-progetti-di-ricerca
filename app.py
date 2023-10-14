@@ -7,6 +7,7 @@ from api.evaluation_window_routes import window_blueprint
 from api.evaluators_routes import evaluators_blueprint
 from api.report_routes import report_blueprint
 from api.project_version_routes import project_version_blueprint
+from api.unauth_user_routes import unauth_user_blueprint
 from utils.exceptions import CustomError
 from flask import request, jsonify
 from models.users import User, Researcher, Evaluator
@@ -85,6 +86,7 @@ app.register_blueprint(window_blueprint, url_prefix='/evaluation-window')
 app.register_blueprint(admin_blueprint, url_prefix='/admin')
 app.register_blueprint(report_blueprint, url_prefix='/report')
 app.register_blueprint(project_version_blueprint, url_prefix='/version_project')
+app.register_blueprint(unauth_user_blueprint, url_prefix='/unauth-user' )
 
 # Definizione della funzione di gestione degli errori
 @app.errorhandler(CustomError)

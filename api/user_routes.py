@@ -64,7 +64,6 @@ def get_users(current_user):
         }
         return jsonify(response_data)
 
-
 # DONE
 @user_blueprint.route("/register", methods=["POST"])
 @error_handler

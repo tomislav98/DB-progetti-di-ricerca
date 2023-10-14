@@ -32,10 +32,16 @@ class User(db.Model):
     researcher = db.relationship('Researcher', backref='user', uselist=False, cascade='all, delete-orphan')
     evaluator = db.relationship('Evaluator', backref='user', uselist=False, cascade='all, delete-orphan')
 
-    # TODO Capire se si deve togliere manualmente l'utente dalla tabella researchers o evaluators (ha la chiave
-    #  esterna li) prima di metterlo admin o se fa tutto automaticamente 🧐
+
+    # TODO bisogna fare in modo che quando un utente viene promosso ad admin, venga eliminata la sua corrispondenza in researchers o evaluators
+    # TODO fare sta cosa per evaluators funzione delete_evaluators()
     def op_user(self):
         try:
+            if(self.type_user == UserType.RESEARCHER):
+                self.researcher.delete_researcher()
+            if(self.type_user == UserType.RESEARCHER):
+                self.researcher.delete_evaluator()
+
             self.type_user = UserType.ADMIN
             db.session.commit()
         
@@ -50,10 +56,12 @@ class User(db.Model):
         return False
 
     # Crea un utente, se è il primo utente del DB viene settato ad admin,
-    # indipendentemente dai parametri scelti
+    # indipendentemente dai parametri scelti 
     @classmethod
     def add_user(cls, name, surname, email, password, type_user):
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+        type_user_enum = None
+
         if cls.check_user_role(type_user):
             type_user_enum = UserType.RESEARCHER
             users = User.query.first()
@@ -71,6 +79,9 @@ class User(db.Model):
 
         elif type_user_enum == UserType.EVALUATOR:
             Evaluator.add_evaluator(user_id=user.id)
+            
+        elif type_user_enum == UserType.ADMIN:
+            print("Admin added")
         else:
             # Gestione del tipo di utente sconosciuto o non valido
             raise ValueError("Unknown or invalid user type")
@@ -108,6 +119,11 @@ class Researcher(db.Model):
     projects = db.relationship('Project', backref='researcher')
     message = db.relationship('Message', backref='researcher')
 
+    def delete_researcher(self):
+        db.session.delete(self)
+        db.session.commit()
+        return self
+        
     @classmethod
     def add_researcher(cls, user_id):
         researcher = Researcher(user_id=user_id)

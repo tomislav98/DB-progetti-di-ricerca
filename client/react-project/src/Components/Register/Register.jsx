@@ -94,7 +94,8 @@ function Register() {
     const [completed, setCompleted] = useState(true)
     const [registerSuccess, setRegisterSuccess] = useState(false)
     const [snackbarComp, setSnackbarComp] = useState()
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(false);
+    const [isDbEmpty, setDbEmpty] = useState(false);
 
     const checkForm = useCallback(() => {
         return (
@@ -105,6 +106,23 @@ function Register() {
             userType !== 2
         );
     }, [name, scndName, mail, password, userType]);
+
+
+    useEffect(() => {
+
+        axios.get('http://localhost:5000/unauth-user/', {
+
+        })
+            .then((response) => {
+                if (response && response.data) {
+                    setDbEmpty(response.data.response)
+                }
+            })
+            .catch((err) => {
+                console.error('Error: ' + err)
+            })
+
+    }, [])
 
     useEffect(() => {
         const isFormValid = checkForm();
@@ -323,6 +341,7 @@ function Register() {
                                         null
                                     }
                                 </button>
+                                {isDbEmpty? <p className="text-muted small"> You are the first user, you will be register as an admin  </p>: null}
                             </div>
                         </div>
                         <div className="col-md-7 col-lg-8">
@@ -383,12 +402,23 @@ function Register() {
                                     </div>
 
                                     <div className="col-md-5">
-                                        <label htmlFor="country" className="form-label">Role</label>
-                                        <select className="form-select" id="country" required onChange={ChangeUserType}>
-                                            <option value="">Choose...</option>
-                                            <option value="0">Researcher</option>
-                                            <option value="1">Evaluator</option>
-                                        </select>
+                                        <label htmlFor="country" className="form-label">Role </label>
+
+                                        {
+                                            isDbEmpty ?
+                                                <select className="form-select" id="country" required onChange={ChangeUserType}>
+                                                    <option value="">Choose...</option>
+                                                    <option value="0">Admin</option>
+                                                </select>
+                                                :
+                                                <select className="form-select" id="country" required onChange={ChangeUserType}>
+                                                    <option value="">Choose...</option>
+                                                    <option value="0">Researcher</option>
+                                                    <option value="1">Evaluator</option>
+                                                </select>
+                                                
+                                        }
+
                                         <div className="invalid-feedback">
                                             Please select a valid role.
                                         </div>
