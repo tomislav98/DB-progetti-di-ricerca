@@ -16,6 +16,7 @@ import { faEllipsisVertical, faCircle } from '@fortawesome/free-solid-svg-icons'
 import { Routes, Route } from 'react-router-dom';
 import SingleProject from './SingleProject/SingleProject';
 import classes from './NothingFoundBackground.module.css';
+import { Skeleton } from '@mui/material';
 
 const avatars = [
     'https://avatars.githubusercontent.com/u/10353856?s=460&u=88394dfd67727327c1f7670a1764dc38a8a24831&v=4',
@@ -162,8 +163,30 @@ export function Illustration(props) {
     );
 }
 
-export function NothingFoundBackground({openModal}) {
-    function handleClick(){
+function ProjectsSkeleton() {
+    const skeletonItems = [];
+
+    for (let i = 0; i < 6; i++) {
+        skeletonItems.push(
+            <div className='col-12 col-md-6 col-lg-4' >
+                <Card key={i}>
+                    <Skeleton variant="circular" width={40} height={40} />
+                    <Skeleton variant="text" sx={{ fontSize: '1rem' }} width={100} />
+                    <Skeleton variant="rectangular" width={'100%'} height={60} />
+                    <Skeleton variant="rounded" width={'100%'} height={60} />
+                </Card>
+            </div>
+
+        );
+    }
+
+    return (
+        skeletonItems 
+    );
+}
+
+export function NothingFoundBackground({ openModal }) {
+    function handleClick() {
         openModal();
     }
     return (
@@ -171,8 +194,8 @@ export function NothingFoundBackground({openModal}) {
             <div className={classes.mantineinner}>
                 <Illustration className={classes.mantineimage} />
                 <div className={classes.mantinecontent}>
-                    <Title className={classes.mantinetitle} style={{marginBottom:'35px'}}>Nothing to see here</Title>
-                    <Text classNames='' c="dimmed" size="lg" ta="center" className={classes.mentinedescription} style={{margin:'10px', marginBottom:'25px'}}>
+                    <Title className={classes.mantinetitle} style={{ marginBottom: '35px' }}>Nothing to see here</Title>
+                    <Text classNames='' c="dimmed" size="lg" ta="center" className={classes.mentinedescription} style={{ margin: '10px', marginBottom: '25px' }}>
                         Welcome! It seems like you haven't started any projects yet,
                         but don't worry,
                         you can kickstart your journey by simply clicking the inviting button below to create your very first project.
@@ -194,6 +217,7 @@ function ProjectContainer({ onProjectChange }) {
     const [projectsInfo, setProjectsInfo] = useState({ approved: 0, drafts: 0, changes: 0, submitted: 0, disapproved: 0 })
     const [username, setUsername] = useState('');
     const [isModalOpen, setModalOpen] = useState(false)
+    const [loading, setLoading] = useState(false)
 
     function fetchProjects() {
         let token = null;
@@ -208,6 +232,8 @@ function ProjectContainer({ onProjectChange }) {
         } catch (error) {
             navigate('/login')
         }
+
+        setLoading(true);
 
         axios.get('http://localhost:5000/researchers/' + user_id + '/projects', {
             headers: {
@@ -251,14 +277,17 @@ function ProjectContainer({ onProjectChange }) {
             .catch((error) => {
                 // Gestisci gli errori qui
                 console.error('Errore nella chiamata Axios:', error);
+            })
+            .finally(() => {
+                setLoading(false)
             });
     }
 
-    function handleOpenModal(){
+    function handleOpenModal() {
         setModalOpen(true);
     }
 
-    function handleCloseModal(){
+    function handleCloseModal() {
         setModalOpen(false);
     }
 
@@ -305,7 +334,11 @@ function ProjectContainer({ onProjectChange }) {
                         </div>
                         <div className='row cards-row'>
                             {projects.length === 0 ?
-                                <NothingFoundBackground openModal={handleOpenModal}/>
+                                loading ?
+                                    <ProjectsSkeleton />
+
+                                    :
+                                    <NothingFoundBackground openModal={handleOpenModal} />
                                 :
                                 projects.map((proj, i) => {
                                     return (
