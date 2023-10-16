@@ -4,14 +4,19 @@ import jwtDecode from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import { Breadcrumbs, Link, Typography } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAngleLeft } from "@fortawesome/free-solid-svg-icons";
+import { faAdjust, faAngleLeft, faCalendar, faFile, faLock, faNoteSticky, faStarHalfStroke } from "@fortawesome/free-solid-svg-icons";
 import feather from 'feather-icons';
 import 'chartjs-adapter-date-fns';
 import Chart from 'chart.js/auto';
 import { Line } from 'react-chartjs-2';
+import { RingProgress, Center, Group, Code,  ScrollArea } from "@mantine/core";
+import { faCircle, faEllipsisVertical, faGauge } from "@fortawesome/free-solid-svg-icons";
+// import Logo from '../../../../assets/unilogo.svg'
+import classes from './NavbarNested.module.scss';
 
+// Can be used to fake an input in the graph until the true data arrives  
 const skeletonInput = [
-    
+
 ];
 
 
@@ -171,6 +176,93 @@ function MyDashboard({ title = '', projectVersions }) {
     )
 }
 
+const mockdata = [
+    { label: 'Dashboard', icon: faGauge },
+    {
+      label: 'Market news',
+      icon: faNoteSticky,
+      initiallyOpened: true,
+      links: [
+        { label: 'Overview', link: '/' },
+        { label: 'Forecasts', link: '/' },
+        { label: 'Outlook', link: '/' },
+        { label: 'Real time', link: '/' },
+      ],
+    },
+    {
+      label: 'Releases',
+      icon: faCalendar,
+      links: [
+        { label: 'Upcoming releases', link: '/' },
+        { label: 'Previous releases', link: '/' },
+        { label: 'Releases schedule', link: '/' },
+      ],
+    },
+    { label: 'Analytics', icon: faStarHalfStroke },
+    { label: 'Contracts', icon: faFile },
+    { label: 'Settings', icon: faAdjust },
+    {
+      label: 'Security',
+      icon: faLock,
+      links: [
+        { label: 'Enable 2FA', link: '/' },
+        { label: 'Change password', link: '/' },
+        { label: 'Recovery codes', link: '/' },
+      ],
+    },
+  ];
+
+function ProjectStatus() {
+    const links = mockdata.map((item) => <div {...item} key={item.label} />);
+
+    return (
+        <div className="container-fluid ">
+            <div className='row half-page-container'>
+                <div className='row total-title-row align-items-end'>
+                    <h2> Project status</h2>
+                </div>
+                <div className='row total-title-row align-items-center'>
+                    <div className='d-flex total-title-row'>
+
+                        <RingProgress
+                            size={180}
+                            roundCaps
+                            thickness={8}
+                            sections={[{ value: 100, color: 'lightgreen' }]}
+                            label={
+                                <Center>
+                                    <h3> info </h3>
+                                </Center>
+                            }
+                        />
+                    </div>
+                </div>
+                <div className='row'>
+                    <div className='container text-center'>
+                        <h5>  Approved projects </h5>
+                        <p className='text-muted'>of  projects</p>
+                    </div>
+                </div>
+            </div>
+            <div className='row half-page-container'>
+                <div className={classes.mantineHeader}>
+                    <Group justify="space-between">
+                        <Code fw={700}>v3.1.2</Code>
+                    </Group>
+                </div>
+
+                <ScrollArea className={classes.mantineLinks}>
+                    <div className={classes.mantineLinksInner}>{links}</div>
+                </ScrollArea>
+
+                <div className={classes.mantineFooter}>
+                        button
+                </div>
+            </div>
+        </div>
+    )
+}
+
 export default function SingleProject({ projects }) {
     const [projectVersions, setProjectVersions] = useState([]);
     const [projectList, setProjectList] = useState([]);
@@ -300,14 +392,18 @@ export default function SingleProject({ projects }) {
                 </Breadcrumbs>
             </nav>
 
-            <div className="container-fluid" style={{ height: '90%', paddingLeft: '25px' }} >
-                {
-                    currentProject ?
-                        <MyDashboard title={currentProject.name ? currentProject.name : ''} projectVersions={projectVersions} />
-                        :
-                        <MyDashboard title={''} projectVersions={projectVersions} />
-                }
-
+            <div className="container-fluid single-project-content"  >
+                <div className="row" style={{ height: '100%' }}>
+                    {
+                        currentProject ?
+                            <MyDashboard title={currentProject.name ? currentProject.name : ''} projectVersions={projectVersions} />
+                            :
+                            <MyDashboard title={''} projectVersions={projectVersions} />
+                    }
+                    <div className="col-md-3 col-lg-2 p-md-4" style={{ height: '90vh' }}>
+                        <ProjectStatus />
+                    </div>
+                </div>
             </div>
         </div>
     )

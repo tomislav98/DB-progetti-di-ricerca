@@ -168,8 +168,8 @@ function ProjectsSkeleton() {
 
     for (let i = 0; i < 6; i++) {
         skeletonItems.push(
-            <div className='col-12 col-md-6 col-lg-4' >
-                <Card key={i}>
+            <div className='col-12 col-md-6 col-lg-4'  >
+                <Card key={i} style={{ height: '300px' }}>
                     <Skeleton variant="circular" width={40} height={40} />
                     <Skeleton variant="text" sx={{ fontSize: '1rem' }} width={100} />
                     <Skeleton variant="rectangular" width={'100%'} height={60} />
@@ -181,7 +181,7 @@ function ProjectsSkeleton() {
     }
 
     return (
-        skeletonItems 
+        skeletonItems
     );
 }
 
