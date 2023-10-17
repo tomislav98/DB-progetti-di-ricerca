@@ -11,6 +11,8 @@ import Chart from 'chart.js/auto';
 import { Line } from 'react-chartjs-2';
 import { RingProgress, Center, Group, Code,  ScrollArea } from "@mantine/core";
 import { faCircle, faEllipsisVertical, faGauge } from "@fortawesome/free-solid-svg-icons";
+import { LinksGroup } from "./LinksGroup";
+
 // import Logo from '../../../../assets/unilogo.svg'
 import classes from './NavbarNested.module.scss';
 
@@ -117,7 +119,7 @@ function MyChart({ projectVersions }) {
 
 function MyDashboard({ title = '', projectVersions }) {
     return (
-        <main className="col-md-9 col-lg-10 px-md-4">
+        <main className="col-md-9 col-lg-10 px-md-5">
             <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                 <h1 className="h2">{title}</h1>
                 <div className="btn-toolbar mb-2 mb-md-0">
@@ -212,14 +214,14 @@ const mockdata = [
     },
   ];
 
-function ProjectStatus() {
-    const links = mockdata.map((item) => <div {...item} key={item.label} />);
+function ProjectStatus({version}) {
+    const links = mockdata.map((item) => <LinksGroup {...item} key={item.label} />);
 
     return (
         <div className="container-fluid ">
             <div className='row half-page-container'>
                 <div className='row total-title-row align-items-end'>
-                    <h2> Project status</h2>
+                    <h2> Project version</h2>
                 </div>
                 <div className='row total-title-row align-items-center'>
                     <div className='d-flex total-title-row'>
@@ -231,16 +233,10 @@ function ProjectStatus() {
                             sections={[{ value: 100, color: 'lightgreen' }]}
                             label={
                                 <Center>
-                                    <h3> info </h3>
+                                    <h3> {version? version.version : 'v0.0.0'} </h3>
                                 </Center>
                             }
                         />
-                    </div>
-                </div>
-                <div className='row'>
-                    <div className='container text-center'>
-                        <h5>  Approved projects </h5>
-                        <p className='text-muted'>of  projects</p>
                     </div>
                 </div>
             </div>
@@ -401,7 +397,7 @@ export default function SingleProject({ projects }) {
                             <MyDashboard title={''} projectVersions={projectVersions} />
                     }
                     <div className="col-md-3 col-lg-2 p-md-4" style={{ height: '90vh' }}>
-                        <ProjectStatus />
+                        <ProjectStatus version={currentProject} />
                     </div>
                 </div>
             </div>
