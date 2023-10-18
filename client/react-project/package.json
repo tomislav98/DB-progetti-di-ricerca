@@ -12,7 +12,7 @@
     "@mantine/dropzone": "^7.1.0",
     "@mantine/hooks": "^7.1.0",
     "@mui/material": "^5.14.10",
-    "@tabler/icons-react": "^2.38.0",
+    "@tabler/icons-react": "^2.39.0",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -61,6 +61,6 @@
     "postcss": "^8.4.31",
     "postcss-preset-mantine": "^1.8.0",
     "postcss-simple-vars": "^7.0.1",
-    "sass": "^1.68.0"
+    "sass": "^1.69.4"
   }
 }

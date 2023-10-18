@@ -4,15 +4,22 @@ import jwtDecode from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import { Breadcrumbs, Link, Typography } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAdjust, faAngleLeft, faCalendar, faFile, faLock, faNoteSticky, faStarHalfStroke } from "@fortawesome/free-solid-svg-icons";
+import { faAdjust, faAngleLeft, faCalendar, faFile, faLock, faNoteSticky, faStarHalfStroke, faGauge, faBoltLightning } from "@fortawesome/free-solid-svg-icons";
 import feather from 'feather-icons';
 import 'chartjs-adapter-date-fns';
 import Chart from 'chart.js/auto';
 import { Line } from 'react-chartjs-2';
-import { RingProgress, Center, Group, Code,  ScrollArea } from "@mantine/core";
-import { faCircle, faEllipsisVertical, faGauge } from "@fortawesome/free-solid-svg-icons";
+import { RingProgress, Center, Group, Code, ScrollArea, Divider } from "@mantine/core";
 import { LinksGroup } from "./LinksGroup";
-
+import {
+    IconNotes,
+    IconCalendarStats,
+    IconGauge,
+    IconPresentationAnalytics,
+    IconFileAnalytics,
+    IconAdjustments,
+    IconLock,
+} from '@tabler/icons-react';
 // import Logo from '../../../../assets/unilogo.svg'
 import classes from './NavbarNested.module.scss';
 
@@ -178,73 +185,59 @@ function MyDashboard({ title = '', projectVersions }) {
     )
 }
 
-const mockdata = [
-    { label: 'Dashboard', icon: faGauge },
-    {
-      label: 'Market news',
-      icon: faNoteSticky,
-      initiallyOpened: true,
-      links: [
-        { label: 'Overview', link: '/' },
-        { label: 'Forecasts', link: '/' },
-        { label: 'Outlook', link: '/' },
-        { label: 'Real time', link: '/' },
-      ],
-    },
-    {
-      label: 'Releases',
-      icon: faCalendar,
-      links: [
-        { label: 'Upcoming releases', link: '/' },
-        { label: 'Previous releases', link: '/' },
-        { label: 'Releases schedule', link: '/' },
-      ],
-    },
-    { label: 'Analytics', icon: faStarHalfStroke },
-    { label: 'Contracts', icon: faFile },
-    { label: 'Settings', icon: faAdjust },
-    {
-      label: 'Security',
-      icon: faLock,
-      links: [
-        { label: 'Enable 2FA', link: '/' },
-        { label: 'Change password', link: '/' },
-        { label: 'Recovery codes', link: '/' },
-      ],
-    },
-  ];
+function ProjectStatus({ version }) {
+    const mockdata = [
+        { label: 'Dashboard', icon: faGauge },
+        {
+            label: 'Market news',
+            icon: faNoteSticky,
+            initiallyOpened: true,
+            links: [
+                { label: 'Overview', link: '/' },
+                { label: 'Forecasts', link: '/' },
+                { label: 'Outlook', link: '/' },
+                { label: 'Real time', link: '/' },
+            ],
+        },
+        {
+            label: 'Releases',
+            icon: faCalendar,
+            links: [
+                { label: 'Upcoming releases', link: '/' },
+                { label: 'Previous releases', link: '/' },
+                { label: 'Releases schedule', link: '/' },
+            ],
+        },
+        { label: 'Analytics', icon: faStarHalfStroke },
+        { label: 'Contracts', icon: faFile },
+        { label: 'Settings', icon: faAdjust },
+        {
+            label: 'Security',
+            icon: faLock,
+            links: [
+                { label: 'Enable 2FA', link: '/' },
+                { label: 'Change password', link: '/' },
+                { label: 'Recovery codes', link: '/' },
+            ],
+        },
+    ];
 
-function ProjectStatus({version}) {
     const links = mockdata.map((item) => <LinksGroup {...item} key={item.label} />);
 
     return (
         <div className="container-fluid ">
             <div className='row half-page-container'>
-                <div className='row total-title-row align-items-end'>
-                    <h2> Project version</h2>
-                </div>
-                <div className='row total-title-row align-items-center'>
-                    <div className='d-flex total-title-row'>
-
-                        <RingProgress
-                            size={180}
-                            roundCaps
-                            thickness={8}
-                            sections={[{ value: 100, color: 'lightgreen' }]}
-                            label={
-                                <Center>
-                                    <h3> {version? version.version : 'v0.0.0'} </h3>
-                                </Center>
-                            }
-                        />
-                    </div>
-                </div>
-            </div>
-            <div className='row half-page-container'>
                 <div className={classes.mantineHeader}>
                     <Group justify="space-between">
+                        <div className="d-flex">
+                            <Center style={{ margin: '20px' }}>
+                                <FontAwesomeIcon icon={faBoltLightning} />
+                            </Center>
+                            <h2>Actions</h2>
+                        </div>
                         <Code fw={700}>v3.1.2</Code>
                     </Group>
+                    <Divider my='s' />
                 </div>
 
                 <ScrollArea className={classes.mantineLinks}>
@@ -252,7 +245,7 @@ function ProjectStatus({version}) {
                 </ScrollArea>
 
                 <div className={classes.mantineFooter}>
-                        button
+                    button
                 </div>
             </div>
         </div>
