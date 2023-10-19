@@ -22,6 +22,7 @@ import {
 } from '@tabler/icons-react';
 // import Logo from '../../../../assets/unilogo.svg'
 import classes from './NavbarNested.module.scss';
+import { StatusBadge } from "../Projects";
 
 // Can be used to fake an input in the graph until the true data arrives  
 const skeletonInput = [
@@ -144,7 +145,7 @@ function MyDashboard({ title = '', projectVersions }) {
             <MyChart projectVersions={projectVersions} />
 
             {projectVersions && projectVersions.other_versions ? (
-                <h2>Project's versions</h2>
+                <h3>Project's versions</h3>
             ) : null}
 
             <div className="table-responsive">
@@ -187,20 +188,18 @@ function MyDashboard({ title = '', projectVersions }) {
 
 function ProjectStatus({ version }) {
     const mockdata = [
-        { label: 'Dashboard', icon: faGauge },
+        { label: 'Submit', icon: faGauge },
         {
-            label: 'Market news',
+            label: 'Update',
             icon: faNoteSticky,
             initiallyOpened: true,
             links: [
-                { label: 'Overview', link: '/' },
-                { label: 'Forecasts', link: '/' },
-                { label: 'Outlook', link: '/' },
-                { label: 'Real time', link: '/' },
+                { label: 'Project data', link: '/' },
+                { label: 'Single document', link: '/' },
             ],
         },
         {
-            label: 'Releases',
+            label: 'Documents',
             icon: faCalendar,
             links: [
                 { label: 'Upcoming releases', link: '/' },
@@ -208,7 +207,6 @@ function ProjectStatus({ version }) {
                 { label: 'Releases schedule', link: '/' },
             ],
         },
-        { label: 'Analytics', icon: faStarHalfStroke },
         { label: 'Contracts', icon: faFile },
         { label: 'Settings', icon: faAdjust },
         {
@@ -224,29 +222,65 @@ function ProjectStatus({ version }) {
 
     const links = mockdata.map((item) => <LinksGroup {...item} key={item.label} />);
 
+    useEffect(()=>{
+        console.log(version)
+    },[])
+
     return (
         <div className="container-fluid ">
+            <div className='row half-page-container' style={{marginBottom:'25px', paddingRight:'30px', justifyContent: 'left'}}>
+                <div className='row total-title-row ' style={{ textAlign: "left" }}>
+                    <h2>Project's info</h2>
+                </div>
+                <div className='row total-title-row align-items-center' style={{marginLeft:'5px'}}>
+                    <div className='total-title-row' style={{ textAlign: "left" }} >
+                        <div className="row"  >
+                            <div className="col-8">
+                                <span className="text-muted small fw-bold">Title: </span>
+                            </div>
+                            <div className="col-12" style={{ marginBottom:'20px'}}>
+                                <span> {version ? version.name : ''} </span>
+                            </div>
+                        </div>
+                        <div className="row" >
+                            <div className="col-8">
+                                <span className="text-muted small fw-bold">Description: </span>
+                            </div>
+                            <div className="col-12" style={{ marginBottom:'20px'}}>
+                                <span> {version ? version.description : ''} </span>
+                            </div>
+                        </div>
+                        <div className="row" >
+                            <div className="col-8">
+                                <span className="text-muted small fw-bold">Latest version: </span>
+                            </div>
+                            <div className="col-4">
+                                <span> {version ? version.version : 'v0.0.0'} </span>
+                            </div>
+                        </div>
+                        <div className="row">
+                            <div className="col-8">
+                                <span className="text-muted small fw-bold">Latest status: </span>
+                            </div>
+                            <div className="col-4" >
+                                <StatusBadge status={version ? version.status : null} />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div className='row half-page-container'>
                 <div className={classes.mantineHeader}>
                     <Group justify="space-between">
                         <div className="d-flex">
-                            <Center style={{ margin: '20px' }}>
-                                <FontAwesomeIcon icon={faBoltLightning} />
-                            </Center>
-                            <h2>Actions</h2>
+                            <h3>Actions</h3>
                         </div>
-                        <Code fw={700}>v3.1.2</Code>
                     </Group>
-                    <Divider my='s' />
                 </div>
 
                 <ScrollArea className={classes.mantineLinks}>
                     <div className={classes.mantineLinksInner}>{links}</div>
                 </ScrollArea>
-
-                <div className={classes.mantineFooter}>
-                    button
-                </div>
             </div>
         </div>
     )
@@ -276,7 +310,6 @@ export default function SingleProject({ projects }) {
         const segments = currentPath.split('/');
         const projectId = parseInt(segments[segments.length - 1]);
         const current = projects.find((proj) => { return proj.id === projectId })
-
         setCurrentProject(current);
     }
 
@@ -348,7 +381,7 @@ export default function SingleProject({ projects }) {
 
     useEffect(() => {
         fetchVersions();
-
+        console.log(currentProject)
     }, []);
 
     useEffect(() => {

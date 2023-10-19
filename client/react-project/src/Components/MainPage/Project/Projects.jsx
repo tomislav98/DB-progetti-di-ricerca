@@ -84,7 +84,7 @@ function InputWithButton(props) {
     );
 }
 
-function StatusBadge(status) {
+export function StatusBadge(status='ProjectStatus.TO_BE_SUBMITTED') {
     switch (status.status) {
         case 'ProjectStatus.TO_BE_SUBMITTED':
             return <Badge className='common-badge badge-2bsubmitted'> DRAFT </Badge>
