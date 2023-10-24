@@ -208,3 +208,9 @@
     padding-left:10px;
     border-left:1px solid gainsboro
 }
+
+
+.Fab-icon:active {
+    transition: transform 0.3s ease; /* Regola la durata e l'effetto di transizione desiderati. */
+    transform: rotate(-90deg);
+}

@@ -2,9 +2,9 @@ import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import jwtDecode from "jwt-decode";
 import { useNavigate } from "react-router-dom";
-import { Breadcrumbs, Link, Typography } from "@mui/material";
+import { Breadcrumbs, Link, Typography, Fab } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAdjust, faAngleLeft, faCalendar, faFile, faLock, faNoteSticky, faStarHalfStroke, faGauge, faBoltLightning } from "@fortawesome/free-solid-svg-icons";
+import { faAdjust, faAngleLeft, faCalendar, faFile, faLock, faNoteSticky, faStarHalfStroke, faGauge, faBoltLightning, faUpload, faSubscript, faAdd, faArrowLeft, faChevronLeft, faChevronUp } from "@fortawesome/free-solid-svg-icons";
 import feather from 'feather-icons';
 import 'chartjs-adapter-date-fns';
 import Chart from 'chart.js/auto';
@@ -127,7 +127,7 @@ function MyChart({ projectVersions }) {
 
 function MyDashboard({ title = '', projectVersions }) {
     return (
-        <main className="col-md-9 col-lg-10 px-md-5">
+        <main className="col-12 col-md-8 col-lg-9 col-xxl-10 px-md-5">
             <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                 <h1 className="h2">{title}</h1>
                 <div className="btn-toolbar mb-2 mb-md-0">
@@ -188,7 +188,7 @@ function MyDashboard({ title = '', projectVersions }) {
 
 function ProjectStatus({ version }) {
     const mockdata = [
-        { label: 'Submit', icon: faGauge },
+        { label: 'Reports', icon: faGauge },
         {
             label: 'Update',
             icon: faNoteSticky,
@@ -222,23 +222,23 @@ function ProjectStatus({ version }) {
 
     const links = mockdata.map((item) => <LinksGroup {...item} key={item.label} />);
 
-    useEffect(()=>{
+    useEffect(() => {
         console.log(version)
-    },[])
+    }, [])
 
     return (
-        <div className="container-fluid ">
-            <div className='row half-page-container' style={{marginBottom:'25px', paddingRight:'30px', justifyContent: 'left'}}>
+        <div className="" >
+            <div className='row half-page-container' style={{ marginBottom: '25px', justifyContent: 'left' }}>
                 <div className='row total-title-row ' style={{ textAlign: "left" }}>
-                    <h2>Project's info</h2>
+                    <h3>Project's info</h3>
                 </div>
-                <div className='row total-title-row align-items-center' style={{marginLeft:'5px'}}>
+                <div className='row total-title-row align-items-center' style={{ marginLeft: '5px' }}>
                     <div className='total-title-row' style={{ textAlign: "left" }} >
                         <div className="row"  >
                             <div className="col-8">
                                 <span className="text-muted small fw-bold">Title: </span>
                             </div>
-                            <div className="col-12" style={{ marginBottom:'20px'}}>
+                            <div className="col-12" style={{ marginBottom: '20px' }}>
                                 <span> {version ? version.name : ''} </span>
                             </div>
                         </div>
@@ -246,7 +246,7 @@ function ProjectStatus({ version }) {
                             <div className="col-8">
                                 <span className="text-muted small fw-bold">Description: </span>
                             </div>
-                            <div className="col-12" style={{ marginBottom:'20px'}}>
+                            <div className="col-12" style={{ marginBottom: '20px' }}>
                                 <span> {version ? version.description : ''} </span>
                             </div>
                         </div>
@@ -273,7 +273,7 @@ function ProjectStatus({ version }) {
                 <div className={classes.mantineHeader}>
                     <Group justify="space-between">
                         <div className="d-flex">
-                            <h3>Actions</h3>
+                            <h3>Links</h3>
                         </div>
                     </Group>
                 </div>
@@ -284,6 +284,68 @@ function ProjectStatus({ version }) {
             </div>
         </div>
     )
+}
+
+function ProjectActions() {
+    const [fabOffset, setFabOffset] = useState(0);
+    const fabRef = useRef(null);
+
+    const animateFabOffset = () => {
+        let start = null;
+        const endValue = fabOffset >= 100 ? 0 : 100;
+        
+        const step = (timestamp) => {
+            if (!start) start = timestamp;
+            const progress = (timestamp - start) / 300; // You can adjust the duration (300ms) as needed.
+            if (progress < 1) {
+                const newOffset = fabOffset + (endValue - fabOffset) * progress;
+                setFabOffset(newOffset);
+                requestAnimationFrame(step);
+            } else {
+                setFabOffset(endValue);
+            }
+        };
+
+        requestAnimationFrame(step);
+    };
+
+    return (
+        <div>
+            <Fab
+                color="primary"
+                aria-label="add"
+                style={{ position: 'fixed', right: '25px', bottom: '25px' }}
+                onClick={animateFabOffset}
+            >
+                <FontAwesomeIcon icon={faChevronUp} />
+            </Fab>
+            <Fab
+                color="primary"
+                aria-label="add"
+                style={{
+                    position: 'fixed',
+                    right: `${25 + fabOffset}px`,
+                    bottom: '25px',
+                    zIndex: 1
+                }}
+                ref={fabRef}
+            >
+                <FontAwesomeIcon icon={faUpload} />
+            </Fab>
+            <Fab
+                color="primary"
+                aria-label="add"
+                style={{
+                    position: 'fixed',
+                    right: `${25 + fabOffset * 2}px`,
+                    bottom: '25px',
+                    zIndex: 1
+                }}
+            >
+                <FontAwesomeIcon icon={faSubscript} />
+            </Fab>
+        </div>
+    );
 }
 
 export default function SingleProject({ projects }) {
@@ -422,7 +484,9 @@ export default function SingleProject({ projects }) {
                             :
                             <MyDashboard title={''} projectVersions={projectVersions} />
                     }
-                    <div className="col-md-3 col-lg-2 p-md-4" style={{ height: '90vh' }}>
+                    <div className="col-12 col-md-4 col-lg-3 col-xxl-2 p-md-4" style={{ height: '90vh' }}>
+
+                        <ProjectActions />
                         <ProjectStatus version={currentProject} />
                     </div>
                 </div>
