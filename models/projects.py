@@ -26,7 +26,7 @@ class Project(db.Model):
     # TODO Fare error handling, try catch ecc !!!!!
 
     def submit(self):
-        window = EvaluationWindow.get_first_window()
+        window = EvaluationWindow.get_current_window()
         if window is None:
             raise CustomError("There are no evaluation windows at the moment, try again later",500) 
         self.status = ProjectStatus.SUBMITTED
@@ -69,13 +69,6 @@ class Project(db.Model):
     @staticmethod
     def get_project_by_id(project_id):
         project = Project.query.filter_by(id=project_id).first()
-        if project:
-            return project
-        return None
-
-    @staticmethod
-    def get_project_by_window_id(evaluation_window_id):
-        project = db.session.query(Project).filter_by(evaluation_window_id=evaluation_window_id).all()
         if project:
             return project
         return None
