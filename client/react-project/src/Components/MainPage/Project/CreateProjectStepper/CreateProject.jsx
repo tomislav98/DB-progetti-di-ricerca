@@ -16,6 +16,7 @@ import jwt_decode from 'jwt-decode';
 import { Success } from '../../../SuccessPage/Success';
 
 const steps = ['Create a project', 'Add info', 'Upload files'];
+
 function MySteps(props) {
     const [uploadedFiles, setUploadedFiles] = useState([]);
     const [stepperStatus, setStepperStatus] = useState(props.stepperStatus ? props.stepperStatus : { title: '', description: '' })

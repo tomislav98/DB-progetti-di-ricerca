@@ -2,14 +2,15 @@ import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import jwtDecode from "jwt-decode";
 import { useNavigate } from "react-router-dom";
-import { Breadcrumbs, Link, Typography, Fab } from "@mui/material";
+import { Breadcrumbs, Link, Typography, Fab, styled, Modal, useMediaQuery } from "@mui/material";
+import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAdjust, faAngleLeft, faCalendar, faFile, faLock, faNoteSticky, faStarHalfStroke, faGauge, faBoltLightning, faUpload, faSubscript, faAdd, faArrowLeft, faChevronLeft, faChevronUp } from "@fortawesome/free-solid-svg-icons";
+import { faAdjust, faAngleLeft, faCalendar, faFile, faLock, faNoteSticky, faGauge, faUpload, faSubscript, faChevronUp, faCheck } from "@fortawesome/free-solid-svg-icons";
 import feather from 'feather-icons';
 import 'chartjs-adapter-date-fns';
 import Chart from 'chart.js/auto';
 import { Line } from 'react-chartjs-2';
-import { RingProgress, Center, Group, Code, ScrollArea, Divider } from "@mantine/core";
+import { RingProgress, Center, Group, Code, ScrollArea, Divider, Paper, Text, CloseButton, Button } from "@mantine/core";
 import { LinksGroup } from "./LinksGroup";
 import {
     IconNotes,
@@ -99,16 +100,11 @@ function MyChart({ projectVersions }) {
     const [chartData, setChartData] = useState(null);
 
     useEffect(() => {
-        console.log(projectVersions.other_versions)
-
         if (projectVersions && projectVersions.other_versions) {
             const versionsData = projectVersions.other_versions.map((p) => {
                 return { x: new Date(p.created), y: stringToNumber(p.version) }
             });
 
-
-            console.log(createData(versionsData))
-            console.log(data)
             setChartData(createData(versionsData))
         }
 
@@ -222,9 +218,6 @@ function ProjectStatus({ version }) {
 
     const links = mockdata.map((item) => <LinksGroup {...item} key={item.label} />);
 
-    useEffect(() => {
-        console.log(version)
-    }, [])
 
     return (
         <div className="" >
@@ -286,14 +279,144 @@ function ProjectStatus({ version }) {
     )
 }
 
-function ProjectActions() {
+export function SubmitBanner({ onSubmit, onCancel }) {
+    const matches = useMediaQuery('(min-width:600px)', { noSsr: true });
+
+    const style = {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: matches ? '50vw' : '90vw',
+        bgcolor: 'background.paper',
+        borderRadius: '15px',
+        // border: '2px solid #000',
+        boxShadow: 24,
+        p: 4,
+    };
+
+    return (
+        <Paper withBorder p="lg" radius="md" shadow="md" style={style}>
+            <Group justify="space-between" mb="xs">
+                <Text fz="md" fw={500}>
+                    Submit project
+                </Text>
+                <CloseButton mr={-9} mt={-9} />
+            </Group>
+            <Text c="dimmed" fz="s">
+                So, here's the deal: we want to ensure that you're absolutely certain about submitting your project for evaluation.
+                By doing so, your project will be reviewed by our assessors in the upcoming evaluation round.
+                However, you can always cancel your submission until that time. <br />
+                Are you sure you want to proceed?
+            </Text>
+            <Group justify="flex-end" mt="md">
+                <Button variant="default" size="xs" onClick={onCancel}>
+                    Cancel
+                </Button>
+                <Button variant="outline" size="xs" onClick={onSubmit}>
+                    Submit
+                </Button>
+            </Group>
+        </Paper>
+    );
+}
+
+function ModalSubmit({ isOpen = false, onCloseModal, handleResponse, version }) {
+    const navigate = useNavigate();
+    const [open, setOpen] = useState(isOpen);
+
+    const handleClose = () => {
+        onCloseModal();
+        setOpen(false);
+    }
+
+    const handleOpen = () => {
+        // onOpenModal();
+        setOpen(true);
+    }
+
+    // TODO: handling della risposta, piu fare in modo che se un progetto e gia dia un errore visivo e mostrare il loading della risposta
+    function handleSubmit() {
+        let token;
+        let user_id;
+        try {
+            token = localStorage.getItem('token');
+            const decodedToken = jwtDecode(token,);
+            user_id = decodedToken.user_id;
+
+        } catch (error) {
+            navigate('/login')
+        }
+
+        if (!token) {
+            console.error('Token non trovato.');
+            return;
+        }
+
+        if (!version) {
+            console.error('Versione non esistente.');
+            return;
+        }
+
+        
+        const url = `http://localhost:5000/researchers/${user_id}/projects/${version.id}/submit`;
+
+        const headers = {
+            Authorization: `Bearer ${token}`
+        };
+
+        axios
+            .put(url, null, { headers })
+            .then(response => {
+                // handleResponse(response.data);
+                handleClose();
+            })
+            .catch(error => {
+                console.error('Errore nella richiesta HTTP:', error);
+            });
+
+    }
+
+    useEffect(() => {
+        setOpen(isOpen);
+    }, [isOpen])
+
+    return (
+        <Modal
+            open={open}
+            onClose={handleClose}
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+            centered='true'
+        >
+            <SubmitBanner onSubmit={handleSubmit} onCancel={handleClose} />
+        </Modal>
+    )
+}
+
+function ProjectActions({ version }) {
     const [fabOffset, setFabOffset] = useState(0);
+    const [fabActive, setFabActive] = useState(false);
+    const [isSubmitModalOpen, setSubmitModalOpen] = useState(false);
     const fabRef = useRef(null);
+
+    const BootstrapTooltip = styled(({ className, ...props }) => (
+        <Tooltip {...props} arrow classes={{ popper: className }} />
+    ))(({ theme }) => ({
+        [`& .${tooltipClasses.arrow}`]: {
+            color: theme.palette.common.black,
+        },
+        [`& .${tooltipClasses.tooltip}`]: {
+            backgroundColor: theme.palette.common.black,
+        },
+    }));
 
     const animateFabOffset = () => {
         let start = null;
         const endValue = fabOffset >= 100 ? 0 : 100;
-        
+        setFabActive(!fabActive);
+
+
         const step = (timestamp) => {
             if (!start) start = timestamp;
             const progress = (timestamp - start) / 300; // You can adjust the duration (300ms) as needed.
@@ -309,41 +432,62 @@ function ProjectActions() {
         requestAnimationFrame(step);
     };
 
+    function openSubmitModal() {
+        setSubmitModalOpen(true);
+    }
+
+    function closeSubmitModal() {
+        console.log('first');
+        setSubmitModalOpen(false);
+    }
+
     return (
         <div>
-            <Fab
-                color="primary"
-                aria-label="add"
-                style={{ position: 'fixed', right: '25px', bottom: '25px' }}
-                onClick={animateFabOffset}
-            >
-                <FontAwesomeIcon icon={faChevronUp} />
-            </Fab>
-            <Fab
-                color="primary"
-                aria-label="add"
-                style={{
-                    position: 'fixed',
-                    right: `${25 + fabOffset}px`,
-                    bottom: '25px',
-                    zIndex: 1
-                }}
-                ref={fabRef}
-            >
-                <FontAwesomeIcon icon={faUpload} />
-            </Fab>
-            <Fab
-                color="primary"
-                aria-label="add"
-                style={{
-                    position: 'fixed',
-                    right: `${25 + fabOffset * 2}px`,
-                    bottom: '25px',
-                    zIndex: 1
-                }}
-            >
-                <FontAwesomeIcon icon={faSubscript} />
-            </Fab>
+            <BootstrapTooltip title="Actions">
+                <Fab
+                    color="primary"
+                    aria-label="add"
+                    style={{ position: 'fixed', right: '25px', bottom: '25px' }}
+                    onClick={animateFabOffset}
+                >
+                    <FontAwesomeIcon icon={faChevronUp} className={fabActive ? "my-fab-animation" : ""} />
+                </Fab>
+            </BootstrapTooltip>
+            <BootstrapTooltip title="Submit">
+                <Fab
+                    color="secondary"
+                    aria-label="add"
+                    style={{
+                        position: 'fixed',
+                        right: `${30 + fabOffset}px`,
+                        bottom: '30px',
+                        zIndex: 1,
+                        boxShadow: !fabActive ? '2px 2px 4px rgba(0, 0, 0, 0.2)' : 'none'
+                    }}
+                    size="medium"
+                    ref={fabRef}
+                    onClick={openSubmitModal}
+                >
+                    <FontAwesomeIcon icon={faCheck} />
+                </Fab>
+            </BootstrapTooltip>
+            <BootstrapTooltip title="Update">
+                <Fab
+                    color="secondary"
+                    aria-label="add"
+                    style={{
+                        position: 'fixed',
+                        right: `${30 + fabOffset * 2}px`,
+                        bottom: '30px',
+                        zIndex: 1,
+                        boxShadow: !fabActive ? '2px 2px 4px rgba(0, 0, 0, 0.2)' : 'none'
+                    }}
+                    size="medium"
+                >
+                    <FontAwesomeIcon icon={faUpload} />
+                </Fab>
+            </BootstrapTooltip>
+            <ModalSubmit version={version} isOpen={isSubmitModalOpen} onCloseModal={closeSubmitModal} />
         </div>
     );
 }
@@ -443,7 +587,6 @@ export default function SingleProject({ projects }) {
 
     useEffect(() => {
         fetchVersions();
-        console.log(currentProject)
     }, []);
 
     useEffect(() => {
@@ -486,7 +629,7 @@ export default function SingleProject({ projects }) {
                     }
                     <div className="col-12 col-md-4 col-lg-3 col-xxl-2 p-md-4" style={{ height: '90vh' }}>
 
-                        <ProjectActions />
+                        <ProjectActions version={currentProject} />
                         <ProjectStatus version={currentProject} />
                     </div>
                 </div>

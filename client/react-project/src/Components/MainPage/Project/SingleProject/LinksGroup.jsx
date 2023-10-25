@@ -23,10 +23,6 @@ export function LinksGroup({ icon, label, initiallyOpened, links }) {
         </div>
     ));
 
-    useEffect(() => {
-        console.log(icon);
-    }, [])
-
     return (
         <div style={{ padding: '10px' }}>
             <UnstyledButton onClick={() => setOpened((o) => !o)} className={classes.mantinecontrol} style={{width: '100%'}}>

@@ -40,7 +40,7 @@ export default function BasicModal({updateProjects, isOpen, onCloseModal, onOpen
 
     useEffect(()=>{
         setOpen(isOpen);
-    })
+    },[isOpen])
 
     return (
         <div>
