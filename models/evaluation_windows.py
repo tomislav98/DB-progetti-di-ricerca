@@ -34,7 +34,7 @@ class EvaluationWindow(db.Model):
     def add_window(date_start, date_end):
         parsed_start = str2date(date_start)
         parsed_end = str2date(date_end)
-        current_evaluation_window = EvaluationWindow.get_first_window()
+        current_evaluation_window = EvaluationWindow.get_current_window()
         if hasattr(current_evaluation_window, "data_end"):
             if parsed_start < datetime.now().date():
                 raise CustomError("Invalid input, start date cannot be in the past", 400)
@@ -45,13 +45,20 @@ class EvaluationWindow(db.Model):
         db.session.commit()
 
     @staticmethod
-    def get_first_window():
-        windows = EvaluationWindow.query.order_by(EvaluationWindow.data_end.desc()).first()
+    def get_current_window():
+        now = datetime.now().date()
+        windows = EvaluationWindow.query.filter(EvaluationWindow.data_start <= now, EvaluationWindow.data_end >= now).first()
         return windows
-
+    
+    @classmethod
+    def get_evaluation_windows_projects(cls, evaluation_window_id):
+        projects = db.session.query(EvaluationWindow).get(evaluation_window_id).projects
+        if projects:
+            return projects
+        return None
     @classmethod
     def delete_first_window(cls):
-        evaluation_window = cls.get_first_window()
+        evaluation_window = cls.get_current_window()
         db.session.delete(evaluation_window)
         db.session.commit()
 
