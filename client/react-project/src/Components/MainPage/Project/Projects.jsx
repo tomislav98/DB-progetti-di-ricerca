@@ -1,13 +1,13 @@
 import './project.scss';
 import BasicModal from './CreateProjectStepper/Modal';
-import { IconSearch, IconArrowRight } from '@tabler/icons-react';
+import { IconSearch, IconArrowRight, IconX } from '@tabler/icons-react';
 import { useState, useEffect } from 'react';
 import { Card, Avatar, Text, Badge, Group, ActionIcon, TextInput, useMantineTheme, rem, UnstyledButton, Menu, RingProgress, Center, Container, Title, Button } from '@mantine/core';
 import { IconUpload } from '@tabler/icons-react';
 import axios from 'axios';
 import { IconChevronDown } from '@tabler/icons-react';
 import jwtDecode from 'jwt-decode';
-import { useMediaQuery } from '@mui/material';
+import { CircularProgress, useMediaQuery } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
@@ -17,6 +17,7 @@ import { Routes, Route } from 'react-router-dom';
 import SingleProject from './SingleProject/SingleProject';
 import classes from './NothingFoundBackground.module.css';
 import { Skeleton } from '@mui/material';
+import { submitProject, getDecodedToken, getToken, withdrawProject } from '../../../Utils/requests';
 
 const avatars = [
     'https://avatars.githubusercontent.com/u/10353856?s=460&u=88394dfd67727327c1f7670a1764dc38a8a24831&v=4',
@@ -84,7 +85,7 @@ function InputWithButton(props) {
     );
 }
 
-export function StatusBadge(status='ProjectStatus.TO_BE_SUBMITTED') {
+export function StatusBadge(status = 'ProjectStatus.TO_BE_SUBMITTED') {
     switch (status.status) {
         case 'ProjectStatus.TO_BE_SUBMITTED':
             return <Badge className='common-badge badge-2bsubmitted'> DRAFT </Badge>
@@ -113,40 +114,88 @@ const BootstrapTooltip = styled(({ className, ...props }) => (
 }));
 
 function ProjectCard({ name, description, id, status, version = 'v0.0.0', username }) {
+    const [loading, setLoading] = useState();
+
+    const navigate = useNavigate();
+
+    function handleCardClick(id) {
+        navigate('/mainpage/projects/' + id);
+    }
+
+    async function handleWithdraw() {
+        const token = getToken();
+        const decodedToken = getDecodedToken();
+
+        try {
+            await withdrawProject(decodedToken.user_id, id, token);
+        } catch (error) {
+            console.log(error)
+        }
+
+    }
+
+    async function handleSubmit() {
+        const token = getToken();
+        const decodedToken = getDecodedToken();
+
+        try {
+            setLoading(true)
+            await submitProject(decodedToken.user_id, id, token).then((e) => {
+                setLoading(false)
+            });
+        } catch (error) {
+            console.log(error)
+            setLoading(false)
+        }
+
+    }
+
     return (
-        <Card className='justify-content-around my-card' padding="lg" radius="md" style={{ height: '300px' }}>
-            <Group justify="space-between">
+        <Card className='justify-content-around my-card' padding="lg" radius="md" style={{ height: '300px' }} >
+            <div onClick={() => { handleCardClick(id) }}>
 
-                <div className='d-flex'>
-                    <Avatar src={avatars[0]} />
-                    <p className='text-dark' style={{ marginLeft: '10px' }}>{username} </p>
-                </div>
-                <StatusBadge status={status} />
-            </Group>
+                <Group justify="space-between">
+                    <div className='d-flex'>
+                        <Avatar src={avatars[0]} />
+                        <p className='text-dark' style={{ marginLeft: '10px' }}>{username} </p>
+                    </div>
+                    <StatusBadge status={status} />
+                </Group>
 
-            <Text lineClamp={2} fz="lg" fw={500} mt="md">
-                {name}
-            </Text>
+                <Text lineClamp={2} fz="lg" fw={500} mt="md">
+                    {name}
+                </Text>
 
-            <Text lineClamp={2} fz="sm" c="dimmed" mt={5}>
-                {description}
-            </Text>
+                <Text lineClamp={2} fz="sm" c="dimmed" mt={5}>
+                    {description}
+                </Text>
 
-            <Text c="dimmed" fz="sm" mt="md">
-                Version:{' '}
-                {version}
-            </Text>
+                <Text c="dimmed" fz="sm" mt="md">
+                    Version:{' '}
+                    {version}
+                </Text>
+            </div>
 
-            <Group justify="space-between" mt="md">
+            <Group justify="space-between" mt="md" style={{ cursor: 'default' }}>
                 <Avatar.Group spacing="sm">
                     <Avatar src={avatars[0]} radius="xl" />
                     <Avatar src={avatars[1]} radius="xl" />
                     <Avatar src={avatars[2]} radius="xl" />
                     <Avatar radius="xl">+5</Avatar>
                 </Avatar.Group>
-                <ActionIcon variant="default" size="lg" radius="md">
-                    <IconUpload size="1.1rem" />
-                </ActionIcon>
+                {status === 'ProjectStatus.SUBMITTED' ?
+                    <BootstrapTooltip title="Withdraw submission">
+                        <ActionIcon variant="filled" color="grey" size="lg" radius="md" onClick={handleWithdraw}>
+                            {loading ? <CircularProgress /> : <IconX size="1.1rem" />}
+                        </ActionIcon>
+                    </BootstrapTooltip>
+                    :
+                    <BootstrapTooltip title="Submit project">
+                        <ActionIcon variant="default" size="lg" radius="md" onClick={handleSubmit}>
+                            {loading ? <CircularProgress /> : <IconUpload size="1.1rem" />}
+                        </ActionIcon>
+                    </BootstrapTooltip>
+                }
             </Group>
         </Card>
     );
@@ -168,8 +217,8 @@ function ProjectsSkeleton() {
 
     for (let i = 0; i < 6; i++) {
         skeletonItems.push(
-            <div className='col-12 col-md-6 col-lg-4'  >
-                <Card key={i} style={{ height: '300px' }}>
+            <div className='col-12 col-md-6 col-lg-4' key={i} >
+                <Card style={{ height: '300px' }}>
                     <Skeleton variant="circular" width={40} height={40} />
                     <Skeleton variant="text" sx={{ fontSize: '1rem' }} width={100} />
                     <Skeleton variant="rectangular" width={'100%'} height={60} />
@@ -291,9 +340,6 @@ function ProjectContainer({ onProjectChange }) {
         setModalOpen(false);
     }
 
-    function handleCardClick(id) {
-        navigate('/mainpage/projects/' + id);
-    }
 
     useEffect(() => {
         fetchProjects();
@@ -342,7 +388,7 @@ function ProjectContainer({ onProjectChange }) {
                                 :
                                 projects.map((proj, i) => {
                                     return (
-                                        <div className='col-12 col-md-6 col-lg-4' key={i} pid={proj.id} onClick={() => { handleCardClick(proj.id) }}>
+                                        <div className='col-12 col-md-6 col-lg-4' key={i} pid={proj.id} >
                                             <ProjectCard name={proj.name} description={proj.description} id={proj.id} status={proj.status} username={username} version={proj.version} key={i} />
                                         </div>
                                     );

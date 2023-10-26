@@ -21,7 +21,7 @@ class VersionProject(db.Model):
     @classmethod
     def create_version(cls,status, project_id, version):
         if not re.match(r'^v\d+\.\d+\.\d+$', version):
-            raise CustomError("Il formato della versione deve essere 'vX.X.X'", 400)
+            raise CustomError("Il formato della versione deve essere 'vX.Y.Z'", 400)
         
         versions = VersionProject.query.filter_by(project_id=project_id).all()
 
@@ -46,7 +46,21 @@ class VersionProject(db.Model):
             return versions
         raise CustomError("Data not available", 404)
     
+    @staticmethod
+    def get_latest_version(proj_id):
+        versions = VersionProject.get_versions_by_project_id(proj_id)
+
+        return versions[0]
+
     def update_status(self,status):
         self.status = status
         db.session.commit()
         return self
+    
+    def delete(self):
+        try:
+            db.session.delete(self)
+            db.session.commit()
+            return self
+        except Exception as e:
+            raise CustomError(f"Errore: {type(e).__name__} - {e}", 500)

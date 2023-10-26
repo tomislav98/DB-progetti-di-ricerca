@@ -23,19 +23,37 @@ class Project(db.Model):
     version_project = db.relationship('VersionProject', backref='project')
     message = db.relationship('Message', backref='project')
 
-    # TODO Fare error handling, try catch ecc !!!!!
-
+    # TODO: latest
     def submit(self):
         window = EvaluationWindow.get_next_window()
         if window is None:
             raise CustomError("There are no evaluation windows at the moment, try again later",500) 
         self.status = ProjectStatus.SUBMITTED
         self.evaluation_window_id = window.id
-        version = VersionProject.get_versions_by_project_id(self.id)
-        version[0].update_status(self.status)
-        self.latest_version = version[0].version
+        
+        
+        current_version_parts = self.latest_version.split('.')
+        last_number = int(current_version_parts[-1])
+
+        new_last_number = last_number + 1
+
+        new_version_parts = current_version_parts[:-1]  # Mantieni tutte le parti tranne l'ultima
+        new_version_parts.append(str(new_last_number))  # Aggiungi il nuovo numero
+        new_version_string = '.'.join(new_version_parts)
+
+        VersionProject.create_version(ProjectStatus.SUBMITTED,self.id,new_version_string)
+        self.latest_version = new_version_string
         db.session.commit()
         return self
+
+    # TODO: fare il metodo
+    def withdraw(self):
+
+        version = VersionProject.get_latest_version(self.id)
+        version.delete()
+        db.session.commit()
+
+        return version
 
     def delete(self):
         try:

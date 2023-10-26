@@ -82,6 +82,28 @@ def submit_project(current_user,user_id,project_id):
         return Response(json.dumps({"message":"Error submitting the project"}), 200)
          
 
+@researcher_blueprint.route("<int:user_id>/projects/<int:project_id>/withdraw", methods=["PUT"])
+@researcher_required
+@error_handler
+def withdraw_project(current_user,user_id,project_id):
+    if request.method == 'PUT':
+        proj = Project.get_project_by_id(project_id)
+        researcher = Researcher.get_researcher_from_user_id(user_id)
+        if current_user.id != researcher.user_id and proj.researcher_id != researcher.id and current_user.type_user != UserType.ADMIN:
+            raise CustomError("Unauthorized, you can't submit another researcher's project", 401)
+
+        if proj.status != ProjectStatus.SUBMITTED:
+            return Response(json.dumps({"message": "Project cannot be withdrawn"}),409)
+        
+        if proj:
+            response = proj.withdraw()
+
+        if response is None:
+            return Response({"message":"Project succesfully withdrawn"}, 200)
+
+        return Response(json.dumps({"message":"Error withdrawing the project"}), 200)
+   
+
 @researcher_blueprint.route("<int:user_id>/projects/<int:project_id>/file", methods=["POST"])
 @researcher_required
 @error_handler
