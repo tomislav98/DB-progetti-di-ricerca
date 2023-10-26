@@ -1,6 +1,6 @@
 # Definizione della classe CustomError (se l'hai già definita altrove)
 from functools import wraps
-
+from sqlalchemy.exc import SQLAlchemyError
 
 class CustomError(Exception):
     def __init__(self, message, status_code):
@@ -15,6 +15,9 @@ def error_handler(f):
             return f(*args, **kwargs)
         except CustomError as err:
             print(err.message)
+            raise err
+        except SQLAlchemyError as err:
+            print(err.orig)
             raise err
         except Exception as err:
             print(err)
