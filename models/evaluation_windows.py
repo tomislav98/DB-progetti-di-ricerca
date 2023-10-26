@@ -35,12 +35,15 @@ class EvaluationWindow(db.Model):
     def add_window(date_start, date_end):
         parsed_start = str2date(date_start)
         parsed_end = str2date(date_end)
-        current_evaluation_window = EvaluationWindow.get_current_window()
-        if hasattr(current_evaluation_window, "data_end"):
-            if parsed_start < datetime.now().date():
+        if parsed_start < datetime.now().date():
                 raise CustomError("Invalid input, start date cannot be in the past", 400)
-            if parsed_start < current_evaluation_window.data_end:
-                raise CustomError("Invalid input, window is overlapping the current one", 400)
+        overlapping_windows = EvaluationWindow.query.filter(
+            ((parsed_start >= EvaluationWindow.data_start) & (parsed_start <= EvaluationWindow.data_end)) |
+            ((parsed_end >= EvaluationWindow.data_start) & (parsed_end <= EvaluationWindow.data_end)) |
+            ((parsed_start <= EvaluationWindow.data_start) & (parsed_end >= EvaluationWindow.data_end))
+        ).all()
+        if overlapping_windows:
+            raise CustomError("The new evaluation window overlaps with an existing window.", 400)
         window = EvaluationWindow(data_start=parsed_start, data_end=parsed_end)
         db.session.add(window)
         db.session.commit()
@@ -48,7 +51,13 @@ class EvaluationWindow(db.Model):
     @staticmethod
     def get_current_window():
         now = datetime.now().date()
-        windows = EvaluationWindow.query.filter(EvaluationWindow.data_start <= now).order_by(EvaluationWindow.data_end.desc()).first()
+        windows = EvaluationWindow.query.filter(EvaluationWindow.data_start <= now, EvaluationWindow.data_end >= now).first()
+        return windows
+    
+    @staticmethod
+    def get_next_window():
+        now = datetime.now().date()
+        windows = EvaluationWindow.query.filter(EvaluationWindow.data_start > now).order_by(EvaluationWindow.data_end.desc()).first()
         return windows
     
     @classmethod

@@ -26,7 +26,7 @@ class Project(db.Model):
     # TODO Fare error handling, try catch ecc !!!!!
 
     def submit(self):
-        window = EvaluationWindow.get_current_window()
+        window = EvaluationWindow.get_next_window()
         if window is None:
             raise CustomError("There are no evaluation windows at the moment, try again later",500) 
         self.status = ProjectStatus.SUBMITTED
