@@ -30,6 +30,7 @@ class EvaluationWindow(db.Model):
 
     # Crea la prima finestra indipendentemente dalla data messa, 
     # le altre solo se la data di inizio non è nel passato 
+    # TODO: fare in modo che non si possa creare una finestra nel passato o che get current window prenda proprio la prima anche se e nel passato
     @staticmethod
     def add_window(date_start, date_end):
         parsed_start = str2date(date_start)
@@ -47,7 +48,7 @@ class EvaluationWindow(db.Model):
     @staticmethod
     def get_current_window():
         now = datetime.now().date()
-        windows = EvaluationWindow.query.filter(EvaluationWindow.data_start <= now, EvaluationWindow.data_end >= now).first()
+        windows = EvaluationWindow.query.filter(EvaluationWindow.data_start <= now).order_by(EvaluationWindow.data_end.desc()).first()
         return windows
     
     @classmethod

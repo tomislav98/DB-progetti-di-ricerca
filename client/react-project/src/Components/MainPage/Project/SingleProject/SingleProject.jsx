@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Breadcrumbs, Link, Typography, Fab, styled, Modal, useMediaQuery } from "@mui/material";
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAdjust, faAngleLeft, faCalendar, faFile, faLock, faNoteSticky, faGauge, faUpload, faSubscript, faChevronUp, faCheck } from "@fortawesome/free-solid-svg-icons";
+import { faAdjust, faAngleLeft, faCalendar, faFile, faLock, faNoteSticky, faGauge, faUpload, faSubscript, faChevronUp, faCheck, faClose } from "@fortawesome/free-solid-svg-icons";
 import feather from 'feather-icons';
 import 'chartjs-adapter-date-fns';
 import Chart from 'chart.js/auto';
@@ -321,6 +321,121 @@ export function SubmitBanner({ onSubmit, onCancel }) {
     );
 }
 
+function WithdrawBanner({onSubmit, onCancel }){
+    const matches = useMediaQuery('(min-width:600px)', { noSsr: true });
+
+    const style = {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: matches ? '50vw' : '90vw',
+        bgcolor: 'background.paper',
+        borderRadius: '15px',
+        // border: '2px solid #000',
+        boxShadow: 24,
+        p: 4,
+    };
+
+    return (
+        <Paper withBorder p="lg" radius="md" shadow="md" style={style}>
+            <Group justify="space-between" mb="xs">
+                <Text fz="md" fw={500}>
+                    Submit project
+                </Text>
+                <CloseButton mr={-9} mt={-9} />
+            </Group>
+            <Text c="dimmed" fz="s">
+                So, here's the deal: we want to ensure that you're absolutely certain about submitting your project for evaluation.
+                By doing so, your project will be reviewed by our assessors in the upcoming evaluation round.
+                However, you can always cancel your submission until that time. <br />
+                Are you sure you want to proceed?
+            </Text>
+            <Group justify="flex-end" mt="md">
+                <Button variant="default" size="xs" onClick={onCancel}>
+                    Cancel
+                </Button>
+                <Button variant="outline" size="xs" onClick={onSubmit}>
+                    Submit
+                </Button>
+            </Group>
+        </Paper>
+    );
+}
+
+function ModalWithdraw({ isOpen = false, onCloseModal, handleResponse, version }) {
+    const navigate = useNavigate();
+    const [open, setOpen] = useState(isOpen);
+
+    const handleClose = () => {
+        onCloseModal();
+        setOpen(false);
+    }
+
+    const handleOpen = () => {
+        // onOpenModal();
+        setOpen(true);
+    }
+
+    // TODO: handling della risposta, piu fare in modo che se un progetto e gia dia un errore visivo e mostrare il loading della risposta
+    function handleSubmit() {
+        let token;
+        let user_id;
+        try {
+            token = localStorage.getItem('token');
+            const decodedToken = jwtDecode(token,);
+            user_id = decodedToken.user_id;
+
+        } catch (error) {
+            navigate('/login')
+        }
+
+        if (!token) {
+            console.error('Token non trovato.');
+            return;
+        }
+
+        if (!version) {
+            console.error('Versione non esistente.');
+            return;
+        }
+
+        
+        const url = `http://localhost:5000/researchers/${user_id}/projects/${version.id}/withdraw`;
+
+        const headers = {
+            Authorization: `Bearer ${token}`
+        };
+
+        axios
+            .put(url, null, { headers })
+            .then(response => {
+                // handleResponse(response.data);
+                handleClose();
+            })
+            .catch(error => {
+                console.error('Errore nella richiesta HTTP:', error);
+            });
+
+    }
+
+    useEffect(() => {
+        setOpen(isOpen);
+    }, [isOpen])
+
+    return (
+        <Modal
+            open={open}
+            onClose={handleClose}
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+            centered='true'
+        >
+            <WithdrawBanner onSubmit={handleSubmit} onCancel={handleClose} />
+        </Modal>
+    )
+}
+
 function ModalSubmit({ isOpen = false, onCloseModal, handleResponse, version }) {
     const navigate = useNavigate();
     const [open, setOpen] = useState(isOpen);
@@ -398,7 +513,15 @@ function ProjectActions({ version }) {
     const [fabOffset, setFabOffset] = useState(0);
     const [fabActive, setFabActive] = useState(false);
     const [isSubmitModalOpen, setSubmitModalOpen] = useState(false);
+    const [isSubmitted, setSubmitted] = useState(false);
+    const [isWithdrawModalOpen, setWithdrawModalOpen] = useState(false);
     const fabRef = useRef(null);
+
+
+    useEffect(()=>{
+        console.log(version)
+        setSubmitted(version? version.status === 'ProjectStatus.SUBMITTED' : false)
+    }, [version])
 
     const BootstrapTooltip = styled(({ className, ...props }) => (
         <Tooltip {...props} arrow classes={{ popper: className }} />
@@ -432,6 +555,10 @@ function ProjectActions({ version }) {
         requestAnimationFrame(step);
     };
 
+    function openWithdrawModal(){
+        setWithdrawModalOpen(true)
+    }
+
     function openSubmitModal() {
         setSubmitModalOpen(true);
     }
@@ -453,9 +580,9 @@ function ProjectActions({ version }) {
                     <FontAwesomeIcon icon={faChevronUp} className={fabActive ? "my-fab-animation" : ""} />
                 </Fab>
             </BootstrapTooltip>
-            <BootstrapTooltip title="Submit">
+            <BootstrapTooltip title={!isSubmitted?"Submit":"Withdraw"}>
                 <Fab
-                    color="secondary"
+                    color={!isSubmitted?"secondary":"error"}
                     aria-label="add"
                     style={{
                         position: 'fixed',
@@ -466,9 +593,9 @@ function ProjectActions({ version }) {
                     }}
                     size="medium"
                     ref={fabRef}
-                    onClick={openSubmitModal}
+                    onClick={!isSubmitted?openSubmitModal:openWithdrawModal}
                 >
-                    <FontAwesomeIcon icon={faCheck} />
+                    <FontAwesomeIcon icon={!isSubmitted?faCheck:faClose} />
                 </Fab>
             </BootstrapTooltip>
             <BootstrapTooltip title="Update">
@@ -483,6 +610,7 @@ function ProjectActions({ version }) {
                         boxShadow: !fabActive ? '2px 2px 4px rgba(0, 0, 0, 0.2)' : 'none'
                     }}
                     size="medium"
+                    disabled={isSubmitted}
                 >
                     <FontAwesomeIcon icon={faUpload} />
                 </Fab>
