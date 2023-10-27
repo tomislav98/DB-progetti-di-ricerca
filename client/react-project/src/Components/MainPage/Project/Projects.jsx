@@ -113,13 +113,17 @@ const BootstrapTooltip = styled(({ className, ...props }) => (
     },
 }));
 
-function ProjectCard({ name, description, id, status, version = 'v0.0.0', username }) {
+function ProjectCard({ name, description, id, status, version = 'v0.0.0', username, onUpdate }) {
     const [loading, setLoading] = useState();
 
     const navigate = useNavigate();
 
     function handleCardClick(id) {
         navigate('/mainpage/projects/' + id);
+    }
+
+    function handleUpdate(){
+        onUpdate()
     }
 
     async function handleWithdraw() {
@@ -130,12 +134,14 @@ function ProjectCard({ name, description, id, status, version = 'v0.0.0', userna
             setLoading(true)
             await withdrawProject(decodedToken.user_id, id, token).then((e)=>{
                 setLoading(false)
+                handleUpdate()
             });
         } catch (error) {
             console.log(error)
             setLoading(false)
         }
 
+        
     }
 
     async function handleSubmit() {
@@ -146,6 +152,7 @@ function ProjectCard({ name, description, id, status, version = 'v0.0.0', userna
             setLoading(true)
             await submitProject(decodedToken.user_id, id, token).then((e) => {
                 setLoading(false)
+                handleUpdate()
             });
         } catch (error) {
             console.log(error)
@@ -344,6 +351,9 @@ function ProjectContainer({ onProjectChange }) {
         setModalOpen(false);
     }
 
+    function handleSubmit(){
+        fetchProjects()
+    }
 
     useEffect(() => {
         fetchProjects();
@@ -393,7 +403,7 @@ function ProjectContainer({ onProjectChange }) {
                                 projects.map((proj, i) => {
                                     return (
                                         <div className='col-12 col-md-6 col-lg-4' key={i} pid={proj.id} >
-                                            <ProjectCard name={proj.name} description={proj.description} id={proj.id} status={proj.status} username={username} version={proj.version} key={i} />
+                                            <ProjectCard name={proj.name} description={proj.description} id={proj.id} status={proj.status} username={username} version={proj.version} key={i} onUpdate={handleSubmit}/>
                                         </div>
                                     );
                                 })
