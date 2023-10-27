@@ -46,11 +46,15 @@ class Project(db.Model):
         db.session.commit()
         return self
 
-    # TODO: fare il metodo
     def withdraw(self):
 
         version = VersionProject.get_latest_version(self.id)
         version.delete()
+        db.session.commit()
+
+        oldVersion = VersionProject.get_latest_version(self.id)
+        self.status = oldVersion.status
+        self.latest_version = oldVersion.version
         db.session.commit()
 
         return version

@@ -44,13 +44,14 @@ class VersionProject(db.Model):
 
         if versions:
             return versions
-        raise CustomError("Data not available", 404)
+        return None
     
     @staticmethod
     def get_latest_version(proj_id):
         versions = VersionProject.get_versions_by_project_id(proj_id)
-
-        return versions[0]
+        if versions:
+            return versions[0]
+        return None
 
     def update_status(self,status):
         self.status = status

@@ -127,9 +127,13 @@ function ProjectCard({ name, description, id, status, version = 'v0.0.0', userna
         const decodedToken = getDecodedToken();
 
         try {
-            await withdrawProject(decodedToken.user_id, id, token);
+            setLoading(true)
+            await withdrawProject(decodedToken.user_id, id, token).then((e)=>{
+                setLoading(false)
+            });
         } catch (error) {
             console.log(error)
+            setLoading(false)
         }
 
     }
@@ -186,7 +190,7 @@ function ProjectCard({ name, description, id, status, version = 'v0.0.0', userna
                 {status === 'ProjectStatus.SUBMITTED' ?
                     <BootstrapTooltip title="Withdraw submission">
                         <ActionIcon variant="filled" color="grey" size="lg" radius="md" onClick={handleWithdraw}>
-                            {loading ? <CircularProgress /> : <IconX size="1.1rem" />}
+                            {loading ? <CircularProgress color='inherit'/> : <IconX size="1.1rem" />}
                         </ActionIcon>
                     </BootstrapTooltip>
                     :

@@ -89,6 +89,8 @@ def withdraw_project(current_user,user_id,project_id):
     if request.method == 'PUT':
         proj = Project.get_project_by_id(project_id)
         researcher = Researcher.get_researcher_from_user_id(user_id)
+
+
         if current_user.id != researcher.user_id and proj.researcher_id != researcher.id and current_user.type_user != UserType.ADMIN:
             raise CustomError("Unauthorized, you can't submit another researcher's project", 401)
 
