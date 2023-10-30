@@ -9,8 +9,8 @@ import { IconChevronRight } from '@tabler/icons-react';
 export function LinksGroup({ icon, label, initiallyOpened, links }) {
     const hasLinks = Array.isArray(links);
     const [opened, setOpened] = useState(initiallyOpened || false);
-    const items = (hasLinks ? links : []).map((link) => (
-        <div>
+    const items = (hasLinks ? links : []).map((link,i) => (
+        <div key={i}>
             <Text
                 component="a"
                 className={classes.mantinelink}

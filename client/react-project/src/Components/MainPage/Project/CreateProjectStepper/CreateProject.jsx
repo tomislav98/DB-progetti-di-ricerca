@@ -143,8 +143,8 @@ export default function HorizontalLinearStepper({ closeEvent, updateProjects }) 
         projectData.append('description', stepperStatus.description); 
 
         // Add uploaded files to the FormData
-        uploadedFiles.forEach((file) => {
-            projectData.append('files', file);
+        uploadedFiles.forEach((file,i) => {
+            projectData.append('file'+i.toString(), file);
         });
 
         // Get the token from localStorage

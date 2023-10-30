@@ -48,3 +48,17 @@ export function getDecodedToken() {
     throw new Error('Token decoding error');
   }
 }
+
+export async function downloadDocumentsbyId(docId,token){
+  const url = `http://localhost:5000/documents/${docId}`;
+  try {
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data; 
+  } catch (error) {
+    throw error;
+  }
+}

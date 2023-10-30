@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Breadcrumbs, Link, Typography, Fab, styled, Modal, useMediaQuery } from "@mui/material";
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAdjust, faAngleLeft, faCalendar, faFile, faLock, faNoteSticky, faGauge, faUpload, faSubscript, faChevronUp, faCheck, faClose } from "@fortawesome/free-solid-svg-icons";
+import { faAdjust, faAngleLeft, faCalendar, faFile, faLock, faNoteSticky, faGauge, faUpload, faSubscript, faChevronUp, faCheck, faClose, faDownload } from "@fortawesome/free-solid-svg-icons";
 import feather from 'feather-icons';
 import 'chartjs-adapter-date-fns';
 import Chart from 'chart.js/auto';
@@ -24,6 +24,8 @@ import {
 // import Logo from '../../../../assets/unilogo.svg'
 import classes from './NavbarNested.module.scss';
 import { StatusBadge } from "../Projects";
+import { downloadDocumentsbyId, getToken } from "../../../../Utils/requests";
+import { saveAs } from 'file-saver';
 
 // Can be used to fake an input in the graph until the true data arrives  
 const skeletonInput = [
@@ -100,8 +102,8 @@ function MyChart({ projectVersions }) {
     const [chartData, setChartData] = useState(null);
 
     useEffect(() => {
-        if (projectVersions && projectVersions.other_versions) {
-            const versionsData = projectVersions.other_versions.map((p) => {
+        if (projectVersions && projectVersions.all_versions) {
+            const versionsData = projectVersions.all_versions.map((p) => {
                 return { x: new Date(p.created), y: stringToNumber(p.version) }
             });
 
@@ -122,6 +124,28 @@ function MyChart({ projectVersions }) {
 }
 
 function MyDashboard({ title = '', projectVersions }) {
+
+
+    async function downloadDocument() {
+        const token = getToken();
+
+        for (const v of projectVersions.all_versions) {
+            for (const doc of v.documents) {
+                console.log(doc)
+                await downloadDocumentsbyId(doc.doc_id, token).then(async (response) => {
+                    if (response) {
+                        const blob = await response.blob();
+                        const filename = doc.name;
+                        saveAs(blob, filename)
+                    }
+                    else {
+                        console.error('Download failed: ', response.status, response.statusText)
+                    }
+                });
+            }
+        }
+    }
+
     return (
         <main className="col-12 col-md-8 col-lg-9 col-xxl-10 px-md-5">
             <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
@@ -140,7 +164,7 @@ function MyDashboard({ title = '', projectVersions }) {
 
             <MyChart projectVersions={projectVersions} />
 
-            {projectVersions && projectVersions.other_versions ? (
+            {projectVersions && projectVersions.all_versions ? (
                 <h3>Project's versions</h3>
             ) : null}
 
@@ -151,18 +175,23 @@ function MyDashboard({ title = '', projectVersions }) {
                             <th scope="col">#</th>
                             <th scope="col">Version</th>
                             <th scope="col">Created</th>
-                            <th scope="col">Header</th>
-                            <th scope="col">Header</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Documents</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {projectVersions && projectVersions.other_versions ? (
-                            projectVersions.other_versions.map((version, index) => (
+                        {projectVersions && projectVersions.all_versions ? (
+                            projectVersions.all_versions.map((version, index) => (
                                 <tr key={index}>
                                     <td>{index + 1}</td>
                                     <td>{version.version}</td>
                                     <td>{version.created}</td>
-                                    {/* Include other relevant fields here */}
+                                    <td ><StatusBadge status={version.status} /></td>
+                                    <td >
+                                        <button type="button" className="btn btn-sm btn-outline-secondary mx-4" onClick={async () => { await downloadDocument() }}>
+                                            <FontAwesomeIcon icon={faDownload} />
+                                        </button>
+                                    </td>
                                 </tr>
                             ))
                         ) : (
@@ -359,7 +388,7 @@ function ModalSubmit({ isOpen = false, onCloseModal, handleResponse, version }) 
             return;
         }
 
-        
+
         const url = `http://localhost:5000/researchers/${user_id}/projects/${version.id}/submit`;
 
         const headers = {
@@ -404,9 +433,8 @@ function ProjectActions({ version }) {
     const fabRef = useRef(null);
 
 
-    useEffect(()=>{
-        console.log(version)
-        setSubmitted(version? version.status === 'ProjectStatus.SUBMITTED' : false)
+    useEffect(() => {
+        setSubmitted(version ? version.status === 'ProjectStatus.SUBMITTED' : false)
     }, [version])
 
     const BootstrapTooltip = styled(({ className, ...props }) => (
@@ -441,7 +469,7 @@ function ProjectActions({ version }) {
         requestAnimationFrame(step);
     };
 
-    function openWithdrawModal(){
+    function openWithdrawModal() {
         setWithdrawModalOpen(true)
     }
 
@@ -466,9 +494,9 @@ function ProjectActions({ version }) {
                     <FontAwesomeIcon icon={faChevronUp} className={fabActive ? "my-fab-animation" : ""} />
                 </Fab>
             </BootstrapTooltip>
-            <BootstrapTooltip title={!isSubmitted?"Submit":"Withdraw"}>
+            <BootstrapTooltip title={!isSubmitted ? "Submit" : "Withdraw"}>
                 <Fab
-                    color={!isSubmitted?"secondary":"error"}
+                    color={!isSubmitted ? "secondary" : "error"}
                     aria-label="add"
                     style={{
                         position: 'fixed',
@@ -479,27 +507,29 @@ function ProjectActions({ version }) {
                     }}
                     size="medium"
                     ref={fabRef}
-                    onClick={!isSubmitted?openSubmitModal:openWithdrawModal}
+                    onClick={!isSubmitted ? openSubmitModal : openWithdrawModal}
                 >
-                    <FontAwesomeIcon icon={!isSubmitted?faCheck:faClose} />
+                    <FontAwesomeIcon icon={!isSubmitted ? faCheck : faClose} />
                 </Fab>
             </BootstrapTooltip>
             <BootstrapTooltip title="Update">
-                <Fab
-                    color="secondary"
-                    aria-label="add"
-                    style={{
-                        position: 'fixed',
-                        right: `${30 + fabOffset * 2}px`,
-                        bottom: '30px',
-                        zIndex: 1,
-                        boxShadow: !fabActive ? '2px 2px 4px rgba(0, 0, 0, 0.2)' : 'none'
-                    }}
-                    size="medium"
-                    disabled={isSubmitted}
-                >
-                    <FontAwesomeIcon icon={faUpload} />
-                </Fab>
+                <span>
+                    <Fab
+                        color="secondary"
+                        aria-label="add"
+                        style={{
+                            position: 'fixed',
+                            right: `${30 + fabOffset * 2}px`,
+                            bottom: '30px',
+                            zIndex: 1,
+                            boxShadow: !fabActive ? '2px 2px 4px rgba(0, 0, 0, 0.2)' : 'none'
+                        }}
+                        size="medium"
+                        disabled={isSubmitted}
+                    >
+                        <FontAwesomeIcon icon={faUpload} />
+                    </Fab>
+                </span>
             </BootstrapTooltip>
             <ModalSubmit version={version} isOpen={isSubmitModalOpen} onCloseModal={closeSubmitModal} />
         </div>

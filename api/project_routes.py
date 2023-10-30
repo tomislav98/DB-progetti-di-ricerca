@@ -11,7 +11,8 @@ from utils.middleware import token_required
 
 proj_blueprint = Blueprint("proj", __name__)
 
-# Se lo user è un ricercatore, restituisce, se il ricercatore e se stesso, tutte le versioni, 
+
+# Se lo user è un ricercatore, restituisce, se il ricercatore e se stesso, tutte le versioni,
 # se uno é un valutatore restituisce le versioni se un progetto é SUBMITTED
 # (quindi è nell ultima finestra di valutazione) (tranne quelle in cui è TO_BE_SUBMITTED)
 # TODO: testare
@@ -19,33 +20,58 @@ proj_blueprint = Blueprint("proj", __name__)
 @token_required
 @error_handler
 def get_project_versions_by_id(current_user, project_id):
-    if request.method == 'GET':
+    if request.method == "GET":
         u = Project.get_user_from_project(project_id=project_id)
 
         project_versions = Project.get_project_versions_list(project_id)
         latest_version = project_versions[0]
 
-        if latest_version.status != ProjectStatus.SUBMITTED and current_user.type_user == UserType.EVALUATOR:
-            raise CustomError("The project is either inexistent or not submitted yet", 404)
-        
+        if (
+            latest_version.status != ProjectStatus.SUBMITTED
+            and current_user.type_user == UserType.EVALUATOR
+        ):
+            raise CustomError(
+                "The project is either inexistent or not submitted yet", 404
+            )
 
         if u.id != current_user.id:
-            data = [{"id": v.id, "status": str(v.status), "project_id": v.project_id, "version": v.version, "created":v.created} 
-                    for v in project_versions if v.status != ProjectStatus.TO_BE_SUBMITTED]
+            data = [
+                {
+                    "id": v.id,
+                    "status": str(v.status),
+                    "project_id": v.project_id,
+                    "version": v.version,
+                    "created": v.created,
+                    "documents": [{"doc_id": doc.id} for doc in v.document_project],
+                }
+                for v in project_versions
+                if v.status != ProjectStatus.TO_BE_SUBMITTED
+            ]
         else:
-            data = [{"id": v.id, "status": str(v.status), "project_id": v.project_id, "version": v.version,"created":v.created} for v in project_versions]
+            data = [
+                {
+                    "id": v.id,
+                    "status": str(v.status),
+                    "project_id": v.project_id,
+                    "version": v.version,
+                    "created": v.created,
+                    "documents": [{"doc_id": doc.id} for doc in v.document_project],
+                }
+                for v in project_versions
+            ]
 
         response_data = {
             "message": "Versions retrieved correctly!",
-            "other_versions": data,
-            "latest_version": latest_version.version
+            "all_versions": data,
+            "latest_version": latest_version.version,
         }
 
         return Response(json.dumps(response_data), 200)
-    
+
+
 # @proj_blueprint.route("/<int:project_id>/document", methods=["GET"])
 # @token_required
-# @error_handler       
+# @error_handler
 # # @proj_blueprint.route("/<int:project_id>/latest")
 # # def get_latest_versions_by_id():
 # #     if request.method == "GET":

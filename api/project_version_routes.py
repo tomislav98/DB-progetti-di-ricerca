@@ -22,6 +22,8 @@ def get_document_project_version(current_user, project_version_id):
         for docs in documents:
             response_data.append({"name" : docs.name, "type_document": docs.type_document, "pdf_data": docs.pdf_data })
         return Response(jsonify(response_data),200)
+    
+
 # @project_version_blueprint.route("/<int:project_version_id>", methods=["GET"])
 # # @token_required
 # # def get_version_of_specific_project(project_version_id):
