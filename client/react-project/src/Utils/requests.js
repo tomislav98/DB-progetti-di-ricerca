@@ -56,7 +56,9 @@ export async function downloadDocumentsbyId(docId,token){
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      responseType:'blob'
     });
+
     return response.data; 
   } catch (error) {
     throw error;

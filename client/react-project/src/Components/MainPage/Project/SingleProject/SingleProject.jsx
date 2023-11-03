@@ -131,20 +131,15 @@ function MyDashboard({ title = '', projectVersions }) {
 
 
         // TODO: e veramente da scorrere per tutte le versioni? secondo me no solo per ogni documento di una versione specifica,
-        // qua secondo me si scaricano tutti i documenti di tutte le versioni, in caso basta togliere il ciclo esterno suppongo e usare projectVersion
         for (const v of projectVersions.all_versions) {
             for (const doc of v.documents) {
-                // console.log(projectVersions)
-                // console.log(doc)
-                // console.log(v)
-
                 await downloadDocumentsbyId(doc.doc_id, token).then(async (response) => {
                     if (response) {
                         const blob = new Blob([response], { type: 'application/pdf' });
-                        console.log(blob)
                         // attualmente settato il nome al titolo del progetto + la versione
                         const filename = title +' '+ v.version + '.pdf';
                         saveAs(blob, filename)
+                        
                     }
                     else {
                         console.error('Download failed: ', response.status, response.statusText)
@@ -228,17 +223,12 @@ function ProjectStatus({ version }) {
             initiallyOpened: true,
             links: [
                 { label: 'Project data', link: '/' },
-                { label: 'Single document', link: '/' },
+                { label: 'Single document', link: '/' },  
             ],
         },
         {
             label: 'Documents',
             icon: faCalendar,
-            links: [
-                { label: 'Upcoming releases', link: '/' },
-                { label: 'Previous releases', link: '/' },
-                { label: 'Releases schedule', link: '/' },
-            ],
         },
         { label: 'Contracts', icon: faFile },
         { label: 'Settings', icon: faAdjust },

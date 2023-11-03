@@ -16,6 +16,7 @@ documents_blueprint = Blueprint("documents", __name__)
 
 # TODO: aggiungere sicurezza a questo endpoint, per adesso chiunque puo prendere i documenti di chiunque semplicemente selezionando a caso un numero
 # TODO: verificare che sta roba del temp_document.pdf sia giusta mi sembra un po sus che ci sia bisogno di salvare un file temporaneo
+
 @documents_blueprint.route('/<int:document_id>', methods=['GET'])
 @token_required
 @error_handler
