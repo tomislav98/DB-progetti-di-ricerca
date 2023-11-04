@@ -39,15 +39,15 @@ def add_researcher_project(current_user, user_id):
         researcher = Researcher.get_researcher_from_user_id(current_user.id)
         body = request.form
         files = request.files # in caso non venga fornito un file np viene handlato dentro l'addproject
-        p = Project.add_project(body["name"], body["description"], datetime.now(), researcher.id, files)
+        project = Project.add_project(body["name"], body["description"], datetime.now(), researcher.id, files)
         
         return Response(json.dumps({    
             "message": "Project created successfully",
             "project": {
-                "id": p.id, 
-                "status": str(p.status),
-                "name": p.name,
-                "description": p.description,
+                "id": project.id, 
+                "status": str(project.status),
+                "name": project.name,
+                "description": project.description,
             } 
         }), 200)
     

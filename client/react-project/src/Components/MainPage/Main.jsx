@@ -7,6 +7,7 @@ import Project from './Project/Projects';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useMediaQuery } from '@mui/material';
+import AdminPanel from './Admin/AdminPanel';
 
 const element = <FontAwesomeIcon icon={faCoffee} />
 const home = <FontAwesomeIcon icon={faHome} />
@@ -96,6 +97,7 @@ function Main() {
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/projects/*" element={<Project onClick={closeSidebar} />} />
+                <Route path="/admin/*" element={<AdminPanel/>} />
             </Routes>
         </main>
     )
