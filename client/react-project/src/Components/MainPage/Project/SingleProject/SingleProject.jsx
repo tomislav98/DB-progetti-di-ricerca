@@ -21,11 +21,14 @@ import {
     IconAdjustments,
     IconLock,
 } from '@tabler/icons-react';
-// import Logo from '../../../../assets/unilogo.svg'
 import classes from './NavbarNested.module.scss';
 import { StatusBadge } from "../Projects";
 import { downloadDocumentsbyId, getToken } from "../../../../Utils/requests";
 import { saveAs } from 'file-saver';
+import { Routes, Route } from "react-router-dom";
+import { Reports } from "./Reports";
+import UpdateProjectModal from "./UpdateProject";
+import DocumentsModal  from "./Documents";
 
 // Can be used to fake an input in the graph until the true data arrives  
 const skeletonInput = [
@@ -214,9 +217,17 @@ function MyDashboard({ title = '', projectVersions }) {
     )
 }
 
-function ProjectStatus({ version }) {
+// Questi Link a fianco del grafico nel SingleProject devono avere queste funzioni
+// REPORTS --- Mostra tutti i report di tutte le versioni
+// DOCUMENTS --- Mostra tutti i documenti dell'ultima versione 
+// UPDATE --- Permette di aggiornare il titolo del progetto e la descrizione, aggiornare il nome dei documenti o aggiungere/ rimuovere documenti
+
+function ProjectStatus({ version, onOpenModal, onCloseModal }) {
+    const navigate = useNavigate();
+    const [modalIndex, setModalIndex] = useState(null);
+
     const mockdata = [
-        { label: 'Reports', icon: faGauge },
+        { label: 'Reports', icon: faGauge, onClickedLink: ()=>{ setModalIndex(0) } }, // per vedere i report dell ultima versione, senno fare un tasto sulla versione
         {
             label: 'Update',
             icon: faNoteSticky,
@@ -229,7 +240,10 @@ function ProjectStatus({ version }) {
         {
             label: 'Documents',
             icon: faCalendar,
-        },
+            onClickedLink: ()=>{
+               setModalIndex(1)
+            }
+        }, 
         { label: 'Contracts', icon: faFile },
         { label: 'Settings', icon: faAdjust },
         {
@@ -302,6 +316,8 @@ function ProjectStatus({ version }) {
                     <div className={classes.mantineLinksInner}>{links}</div>
                 </ScrollArea>
             </div>
+            <UpdateProjectModal isOpen={modalIndex === 0} onCloseModal={()=>setModalIndex(null)}/>
+            <DocumentsModal isOpen={modalIndex === 1} onCloseModal={()=>setModalIndex(null)} />
         </div>
     )
 }
@@ -534,6 +550,9 @@ function ProjectActions({ version }) {
     );
 }
 
+
+// TODO: fare in modo che se il progetto del link non esiste restituisce 404
+
 export default function SingleProject({ projects }) {
     const [projectVersions, setProjectVersions] = useState([]);
     const [projectList, setProjectList] = useState([]);
@@ -542,12 +561,14 @@ export default function SingleProject({ projects }) {
 
     const navigate = useNavigate();
 
+    // funzione che fa slidare progressivamente il container
+
     const updateRightValue = () => {
         if (rightValue > 0) {
             if (rightValue > 0.1)
                 setRightValue(rightValue * 0.90);
             else if (rightValue > 0.1)
-                setRightValue(rightValue * 0.66); // Riduci gradualmente il valore di "right"
+                setRightValue(rightValue * 0.66);
             else
                 setRightValue(0);
         }
@@ -560,6 +581,10 @@ export default function SingleProject({ projects }) {
         const current = projects.find((proj) => { return proj.id === projectId })
         setCurrentProject(current);
     }
+
+
+    // TODO : fare un metodo in utils, come negli altri componenti, per non avere tutto sto codice con axios
+    // TODO: fare in modo che se la get projects non restituisce un progetto valido, venga stampata la pagina 404
 
     function fetchProjects() {
         let token = null;
@@ -588,6 +613,8 @@ export default function SingleProject({ projects }) {
             });
     }
 
+
+    // TODO: fare una funzione per la chiamata axios in utils invece che tutto sto codice
     function fetchVersions() {
         let token = null;
 

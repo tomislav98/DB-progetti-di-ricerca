@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Icon } from '@mui/material';
 import { IconChevronRight } from '@tabler/icons-react';
 
-export function LinksGroup({ icon, label, initiallyOpened, links }) {
+export function LinksGroup({ icon, label, initiallyOpened, links, onClickedLink }) {
     const hasLinks = Array.isArray(links);
     const [opened, setOpened] = useState(initiallyOpened || false);
     const items = (hasLinks ? links : []).map((link,i) => (
@@ -24,7 +24,7 @@ export function LinksGroup({ icon, label, initiallyOpened, links }) {
     ));
 
     return (
-        <div style={{ padding: '10px' }}>
+        <div style={{ padding: '10px' }} onClick={onClickedLink}>
             <UnstyledButton onClick={() => setOpened((o) => !o)} className={classes.mantinecontrol} style={{width: '100%'}}>
                 <Group justify="space-between" gap={0}>
                     <Box style={{ display: 'flex', alignItems: 'center' }}>

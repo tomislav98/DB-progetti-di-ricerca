@@ -206,11 +206,20 @@
     margin-left:10px;
     margin-top:10px;
     padding-left:10px;
-    border-left:1px solid gainsboro
+    border-left:1px solid gainsboro;
 }
 
 
 .my-fab-animation {
     transition: transform 0.3s ease; /* Regola la durata e l'effetto di transizione desiderati. */
     transform: rotate(-90deg);
+}
+
+.full-action-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: antiquewhite;
+    top:0;
+    padding: 25px
 }
