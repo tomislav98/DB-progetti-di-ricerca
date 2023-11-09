@@ -9,6 +9,7 @@ import { LinksGroup } from '../Project/SingleProject/LinksGroup';
 
 
 export default function AdminPanel() {
+    const [index, setIndex] = useState(0)
     const mockdata = [
       { label: 'Reports', icon: faGauge, onClickedLink: ()=> {console.log("mimmo fiocosa")}  }, // per vedere i report dell ultima versione, senno fare un tasto sulla versione
       {
@@ -28,8 +29,8 @@ export default function AdminPanel() {
           }
       }
   ];
-
-    const links = mockdata.map((item) => <LinksGroup {...item} key={item.label} />);
+    //TODO devi aggiungere un onclick che quando viene cliccato setta lo stato (setIndex(i))
+    const links = mockdata.map((item, i) => <LinksGroup {...item} key={item.label} />);
    
     return <div className='admin-panel-container'>
     <div className='row navbar-row'> 
