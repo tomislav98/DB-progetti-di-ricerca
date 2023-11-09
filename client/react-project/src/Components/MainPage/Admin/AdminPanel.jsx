@@ -33,14 +33,14 @@ export default function AdminPanel() {
    
     return <div className='admin-panel-container'>
     <div className='row navbar-row'> 
-        <div className='col-3 sidebar'>
+        <div className='col-2 sidebar'>
           <ScrollArea>
             <div>
             {links}
             </div>
           </ScrollArea>
         </div>
-        <div className='col-9 content'>
+        <div className='col-10 content'>
         </div>
       </div>
     </div>
