@@ -24,8 +24,8 @@ export function LinksGroup({ icon, label, initiallyOpened, links, onClickedLink 
     ));
 
     return (
-        <div style={{ padding: '10px' }} onClick={onClickedLink}>
-            <UnstyledButton onClick={() => setOpened((o) => !o)} className={classes.mantinecontrol} style={{width: '100%'}}>
+        <div style={{ padding: '10px' }} className={classes.mantinecontrol} onClick={onClickedLink}>
+            <UnstyledButton onClick={() => setOpened((o) => !o)}  style={{width: '100%'}}>
                 <Group justify="space-between" gap={0}>
                     <Box style={{ display: 'flex', alignItems: 'center' }}>
                         <ThemeIcon variant="light" size={30}>

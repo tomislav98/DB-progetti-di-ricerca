@@ -56,47 +56,12 @@ function Main() {
     const [selectedItem, setSelectedItem] = useState(0);
     const matches = useMediaQuery('(min-width:600px)', { noSsr: true });
 
-    function closeSidebar(){
-
-    }
-
-    // TODO fixare il fatto che quando premo freccia indietro del browser lo stato non viene cambiato a quello precedente 
-    function handleButton(label) {
-        switch (label) {
-            case "Home":
-                setSelectedItem(0);
-                navigate('/mainpage/')
-                break;
-            case "Dashboard":
-                setSelectedItem(1);
-                navigate('/mainpage/dashboard')
-                break;
-            case "Orders":
-                setSelectedItem(2);
-                navigate('/mainpage/orders')
-                break;
-            case "Projects":
-                setSelectedItem(3);
-                navigate('/mainpage/projects')
-                break;
-            case "Customers":
-                setSelectedItem(4);
-                navigate('/mainpage/customers')
-                break;
-            default:
-                break;
-        }
-    }
-
-    /* TODO cos'e sta schifezza, fare la toolbar meglio e responsive*/ 
-    // {matches?<Toolbar/>:null}
-
     return (
         
         <main className='d-flex flex-nowrap main-container'>
             <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/projects/*" element={<Project onClick={closeSidebar} />} />
+                <Route path="/projects/*" element={<Project />} />
                 <Route path="/admin/*" element={<AdminPanel/>} />
             </Routes>
         </main>

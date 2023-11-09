@@ -64,3 +64,8 @@ export async function downloadDocumentsbyId(docId,token){
     throw error;
   }
 }
+
+// export async function getLatestDocuments(){
+//   const url = `http://localhost:5000/documents/${docId}`
+
+// }

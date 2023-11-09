@@ -28,7 +28,7 @@ import { saveAs } from 'file-saver';
 import { Routes, Route } from "react-router-dom";
 import { Reports } from "./Reports";
 import UpdateProjectModal from "./UpdateProject";
-import DocumentsModal  from "./Documents";
+import DocumentsModal  from "./Documents/Documents";
 
 // Can be used to fake an input in the graph until the true data arrives  
 const skeletonInput = [
@@ -317,7 +317,7 @@ function ProjectStatus({ version, onOpenModal, onCloseModal }) {
                 </ScrollArea>
             </div>
             <UpdateProjectModal isOpen={modalIndex === 0} onCloseModal={()=>setModalIndex(null)}/>
-            <DocumentsModal isOpen={modalIndex === 1} onCloseModal={()=>setModalIndex(null)} />
+            <DocumentsModal projectVersion={version} isOpen={modalIndex === 1} onCloseModal={()=>setModalIndex(null)} />
         </div>
     )
 }

@@ -7,7 +7,7 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { TextField } from '@mui/material';
 import img from '../../../../assets/flat2.jpg'
-import DropzoneButton from '../../../Dropzone/DropzoneButton';
+import DropzoneButton from '../../../../Reusable Components/Dropzone/DropzoneButton';
 import { useState } from 'react';
 import '../project.scss'
 import { Chip } from '@mui/material';
@@ -142,7 +142,6 @@ export default function HorizontalLinearStepper({ closeEvent, updateProjects }) 
         projectData.append('name', stepperStatus.title); 
         projectData.append('description', stepperStatus.description); 
 
-        // Add uploaded files to the FormData
         uploadedFiles.forEach((file,i) => {
             projectData.append('file'+i.toString(), file);
         });

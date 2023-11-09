@@ -1,0 +1,33 @@
+.documents-modal-container {
+    width: 100%;
+    height: 100%;
+
+    .row-title{
+        height: 10%;
+    }
+
+    .row-documents {
+        width: 100%;
+        height: 90%;
+
+    }
+
+    .row-dropzone {
+
+        height: 100%;
+
+        .col-dropzone {
+            height: 60% !important;
+            text-align: center;
+
+            .youngest-flexer{
+                height: 70%;
+            }
+        }
+
+        .col-uploaded-files {
+            height: 40%;
+        }
+    }
+
+}

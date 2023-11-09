@@ -1,20 +1,17 @@
 import { useRef, useState } from 'react';
-import { Text, Group, Button, rem} from '@mantine/core';
+import { Text, Group, Button, rem } from '@mantine/core';
 import { Chip } from '@mui/material';
 import { Dropzone, MIME_TYPES } from '@mantine/dropzone';
 import { IconCloudUpload, IconX, IconDownload } from '@tabler/icons-react';
 import classes from './dropzone.scss';
 
-function DropzoneButton({ onFilesUploaded, uploadedFilesprops }) {
+function DropzoneButton({ onFilesUploaded, uploadedFilesprops, showUploadedFiles = true }) {
   const openRef = useRef(null);
   const [uploadedFiles, setUploadedFiles] = useState(uploadedFilesprops);
 
 
   const handleDrop = (files) => {
-    // Aggiungi i file caricati allo stato
     setUploadedFiles(uploadedFiles.concat(files));
-
-    // Call the onFilesUploaded function to pass the files up to MySteps
     onFilesUploaded(uploadedFiles.concat(files));
   };
 
@@ -24,20 +21,20 @@ function DropzoneButton({ onFilesUploaded, uploadedFilesprops }) {
     newUploadedFiles.splice(index, 1);
     setUploadedFiles(newUploadedFiles);
   };
-  
-  
+
+  // TODO: 
   return (
-    <div className={classes.wrapper}>
-      <div className='row '>
+    <div className='wrapper'>
+      <div className='row dropzone-area' style={{ height: '100%', width: '100%' }}>
         <Dropzone
           openRef={openRef}
           onDrop={handleDrop}
-          className={classes.dropzone}
+          className='dropzone'
           radius="md"
           accept={[MIME_TYPES.pdf]}
           maxSize={30 * 1024 ** 2}
         >
-          <div style={{ pointerEvents: 'none' }}>
+          <div className='youngest-flexer' style={{ pointerEvents: 'none' }}>
             <Group justify="center">
               <Dropzone.Accept>
                 <IconDownload
@@ -61,7 +58,7 @@ function DropzoneButton({ onFilesUploaded, uploadedFilesprops }) {
               <Dropzone.Reject>Pdf file less than 30mb</Dropzone.Reject>
               <Dropzone.Idle>Upload resume</Dropzone.Idle>
             </Text>
-            <Text ta="center" fz="sm" mt="xs" c="dimmed">
+            <Text className="dropzone-text" ta="center" fz="sm" mt="xs" c="dimmed">
               Drag&apos;n&apos;drop files here to upload. We can accept only <i>.pdf</i> files that
               are less than 30mb in size.
             </Text>
@@ -71,13 +68,15 @@ function DropzoneButton({ onFilesUploaded, uploadedFilesprops }) {
           </div>
         </Dropzone>
       </div>
-      <div className='row dropzone-row'>
-        <div className='col-12'>
-          {uploadedFiles.map((file, index) => (
-            <Chip key={index} label={file.name}  onDelete={() => handleFileDelete(index)} />
-          ))}
+      {showUploadedFiles ?
+        <div className='row dropzone-row'>
+          <div className='col-12'>
+            {uploadedFiles.map((file, index) => (
+              <Chip key={index} label={file.name} onDelete={() => handleFileDelete(index)} />
+            ))}
+          </div>
         </div>
-      </div>
+        : null}
     </div >
   );
 }

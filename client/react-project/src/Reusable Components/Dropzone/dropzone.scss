@@ -1,0 +1,32 @@
+.wrapper {
+    position: relative;
+    margin-bottom: 1.5rem;
+    height: 100%;
+}
+
+.dropzone-area {
+    height: 100%;
+}
+
+.dropzone{
+    height: 100% !important;
+}
+
+.m-b85f7144{
+    height: 100% !important;
+}
+
+.dropzone-text{
+    margin-bottom: 25px;
+}
+
+.icon {
+    color: light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-3));
+}
+
+.youngest-flexer{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: space-around;
+}
