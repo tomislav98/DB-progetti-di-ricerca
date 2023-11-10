@@ -19,7 +19,7 @@ class VersionProject(db.Model):
     # controlla se la versione che sto provando ad aggiungere sia maggiore di tutte le altre versioni 
     # esistenti
     @classmethod
-    def create_version(cls,status, project_id, version):
+    def create_version(cls,status, project_id, version, document_project = []):
         if not re.match(r'^v\d+\.\d+\.\d+$', version):
             raise CustomError("Il formato della versione deve essere 'vX.Y.Z'", 400)
         
@@ -33,6 +33,7 @@ class VersionProject(db.Model):
         else:
             project_version = cls(status=ProjectStatus.TO_BE_SUBMITTED ,project_id=project_id,version="v0.0.0" )    
         project_version.created = datetime.utcnow()  # Imposta created all'ora corrente
+        project_version.document_project = document_project
         db.session.add(project_version)
         db.session.commit()
 

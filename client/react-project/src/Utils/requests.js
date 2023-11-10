@@ -49,8 +49,23 @@ export function getDecodedToken() {
   }
 }
 
-export async function downloadDocumentsbyId(docId,token){
+export async function getDocumentsbyId(docId,token){
   const url = `http://localhost:5000/documents/${docId}`;
+  try {
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data; 
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function downloadDocumentsbyId(docId,token){
+  const url = `http://localhost:5000/documents/downloads/${docId}`;
   try {
     const response = await axios.get(url, {
       headers: {
@@ -65,7 +80,32 @@ export async function downloadDocumentsbyId(docId,token){
   }
 }
 
-// export async function getLatestDocuments(){
-//   const url = `http://localhost:5000/documents/${docId}`
+export async function getVersionsByProjectId(projId,token){
+  const url = `http://localhost:5000/projects/${projId}/versions`;
+  try {
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-// }
+    return response.data; 
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function getLatestVersionByProjectId(projId,token){
+  const url = `http://localhost:5000/projects/${projId}/versions`;
+  try {
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data.all_versions[0]; 
+  } catch (error) {
+    throw error;
+  }
+}

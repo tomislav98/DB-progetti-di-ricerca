@@ -1,6 +1,5 @@
 import './home.scss'
 import Post from './Post/Post';
-import { NavbarSimple } from '../../../Reusable Components/NavbarSimple/NavbarSimple';
 import {
     IconBellRinging,
     IconFingerprint,
@@ -12,6 +11,7 @@ import {
     IconSwitchHorizontal,
     IconLogout,
 } from '@tabler/icons-react';
+import { NavbarSearch } from '../../../Reusable Components/NavbarHome/NavbarHome';
 
 const data = [
     { link: '', label: 'Notifications', icon: IconBellRinging },
@@ -30,7 +30,7 @@ function Home() {
         <div className='home-container'>
             <div className='row row-home'>
                 <div className='col-12 col-md-6 col-lg-2 col-navbar'>
-                    <NavbarSimple mockData={data} isLogoutShown={true} />
+                    <NavbarSearch />
                 </div>
                 <div className='col-12 col-md-6 col-lg-10'>
                 </div>

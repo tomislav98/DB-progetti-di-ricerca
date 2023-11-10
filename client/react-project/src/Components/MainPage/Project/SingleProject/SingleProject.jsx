@@ -28,7 +28,7 @@ import { saveAs } from 'file-saver';
 import { Routes, Route } from "react-router-dom";
 import { Reports } from "./Reports";
 import UpdateProjectModal from "./UpdateProject";
-import DocumentsModal  from "./Documents/Documents";
+import DocumentsModal from "./Documents/Documents";
 
 // Can be used to fake an input in the graph until the true data arrives  
 const skeletonInput = [
@@ -140,9 +140,9 @@ function MyDashboard({ title = '', projectVersions }) {
                     if (response) {
                         const blob = new Blob([response], { type: 'application/pdf' });
                         // attualmente settato il nome al titolo del progetto + la versione
-                        const filename = title +' '+ v.version + '.pdf';
+                        const filename = title + ' ' + v.version + '.pdf';
                         saveAs(blob, filename)
-                        
+
                     }
                     else {
                         console.error('Download failed: ', response.status, response.statusText)
@@ -222,28 +222,34 @@ function MyDashboard({ title = '', projectVersions }) {
 // DOCUMENTS --- Mostra tutti i documenti dell'ultima versione 
 // UPDATE --- Permette di aggiornare il titolo del progetto e la descrizione, aggiornare il nome dei documenti o aggiungere/ rimuovere documenti
 
-function ProjectStatus({ version, onOpenModal, onCloseModal }) {
+function ProjectStatus({ projectData, onOpenModal, onCloseModal }) {
     const navigate = useNavigate();
     const [modalIndex, setModalIndex] = useState(null);
+    const [project, setProject] = useState(projectData)
+
+    useEffect(() => { 
+        setProject(projectData);
+
+    }, [projectData]);
 
     const mockdata = [
-        { label: 'Reports', icon: faGauge, onClickedLink: ()=>{ setModalIndex(0) } }, // per vedere i report dell ultima versione, senno fare un tasto sulla versione
+        { label: 'Reports', icon: faGauge, onClickedLink: () => { setModalIndex(0) } }, // per vedere i report dell ultima versione, senno fare un tasto sulla versione
         {
             label: 'Update',
             icon: faNoteSticky,
             initiallyOpened: true,
             links: [
                 { label: 'Project data', link: '/' },
-                { label: 'Single document', link: '/' },  
+                { label: 'Single document', link: '/' },
             ],
         },
         {
             label: 'Documents',
             icon: faCalendar,
-            onClickedLink: ()=>{
-               setModalIndex(1)
+            onClickedLink: () => {
+                setModalIndex(1)
             }
-        }, 
+        },
         { label: 'Contracts', icon: faFile },
         { label: 'Settings', icon: faAdjust },
         {
@@ -273,7 +279,7 @@ function ProjectStatus({ version, onOpenModal, onCloseModal }) {
                                 <span className="text-muted small fw-bold">Title: </span>
                             </div>
                             <div className="col-12" style={{ marginBottom: '20px' }}>
-                                <span> {version ? version.name : ''} </span>
+                                <span> {project ? project.name : ''} </span>
                             </div>
                         </div>
                         <div className="row" >
@@ -281,15 +287,15 @@ function ProjectStatus({ version, onOpenModal, onCloseModal }) {
                                 <span className="text-muted small fw-bold">Description: </span>
                             </div>
                             <div className="col-12" style={{ marginBottom: '20px' }}>
-                                <span> {version ? version.description : ''} </span>
+                                <span> {project ? project.description : ''} </span>
                             </div>
                         </div>
                         <div className="row" >
                             <div className="col-8">
-                                <span className="text-muted small fw-bold">Latest version: </span>
+                                <span className="text-muted small fw-bold">Latest project: </span>
                             </div>
                             <div className="col-4">
-                                <span> {version ? version.version : 'v0.0.0'} </span>
+                                <span> {project ? project.version : 'v0.0.0'} </span>
                             </div>
                         </div>
                         <div className="row">
@@ -297,7 +303,7 @@ function ProjectStatus({ version, onOpenModal, onCloseModal }) {
                                 <span className="text-muted small fw-bold">Latest status: </span>
                             </div>
                             <div className="col-4" >
-                                <StatusBadge status={version ? version.status : null} />
+                                <StatusBadge status={project ? project.status : null} />
                             </div>
                         </div>
                     </div>
@@ -316,8 +322,10 @@ function ProjectStatus({ version, onOpenModal, onCloseModal }) {
                     <div className={classes.mantineLinksInner}>{links}</div>
                 </ScrollArea>
             </div>
-            <UpdateProjectModal isOpen={modalIndex === 0} onCloseModal={()=>setModalIndex(null)}/>
-            <DocumentsModal projectVersion={version} isOpen={modalIndex === 1} onCloseModal={()=>setModalIndex(null)} />
+            <UpdateProjectModal isOpen={modalIndex === 0} onCloseModal={() => setModalIndex(null)} />
+
+            { project ? <DocumentsModal projectData={project} isOpen={modalIndex === 1} onCloseModal={() => setModalIndex(null)} /> : null  }
+            
         </div>
     )
 }
@@ -438,7 +446,7 @@ function ModalSubmit({ isOpen = false, onCloseModal, handleResponse, version }) 
     )
 }
 
-function ProjectActions({ version }) {
+function ProjectActions({ projectData }) {
     const [fabOffset, setFabOffset] = useState(0);
     const [fabActive, setFabActive] = useState(false);
     const [isSubmitModalOpen, setSubmitModalOpen] = useState(false);
@@ -448,8 +456,8 @@ function ProjectActions({ version }) {
 
 
     useEffect(() => {
-        setSubmitted(version ? version.status === 'ProjectStatus.SUBMITTED' : false)
-    }, [version])
+        setSubmitted(projectData ? projectData.status === 'ProjectStatus.SUBMITTED' : false)
+    }, [projectData])
 
     const BootstrapTooltip = styled(({ className, ...props }) => (
         <Tooltip {...props} arrow classes={{ popper: className }} />
@@ -526,26 +534,8 @@ function ProjectActions({ version }) {
                     <FontAwesomeIcon icon={!isSubmitted ? faCheck : faClose} />
                 </Fab>
             </BootstrapTooltip>
-            <BootstrapTooltip title="Update">
-                <span>
-                    <Fab
-                        color="secondary"
-                        aria-label="add"
-                        style={{
-                            position: 'fixed',
-                            right: `${30 + fabOffset * 2}px`,
-                            bottom: '30px',
-                            zIndex: 1,
-                            boxShadow: !fabActive ? '2px 2px 4px rgba(0, 0, 0, 0.2)' : 'none'
-                        }}
-                        size="medium"
-                        disabled={isSubmitted}
-                    >
-                        <FontAwesomeIcon icon={faUpload} />
-                    </Fab>
-                </span>
-            </BootstrapTooltip>
-            <ModalSubmit version={version} isOpen={isSubmitModalOpen} onCloseModal={closeSubmitModal} />
+
+            <ModalSubmit version={projectData} isOpen={isSubmitModalOpen} onCloseModal={closeSubmitModal} />
         </div>
     );
 }
@@ -699,7 +689,7 @@ export default function SingleProject({ projects }) {
                     <div className="col-12 col-md-4 col-lg-3 col-xxl-2 p-md-4" style={{ height: '90vh' }}>
 
                         <ProjectActions version={currentProject} />
-                        <ProjectStatus version={currentProject} />
+                        <ProjectStatus projectData={currentProject} />
                     </div>
                 </div>
             </div>

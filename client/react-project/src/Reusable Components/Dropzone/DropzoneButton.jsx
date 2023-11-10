@@ -1,18 +1,18 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Text, Group, Button, rem } from '@mantine/core';
 import { Chip } from '@mui/material';
 import { Dropzone, MIME_TYPES } from '@mantine/dropzone';
 import { IconCloudUpload, IconX, IconDownload } from '@tabler/icons-react';
 import classes from './dropzone.scss';
 
-function DropzoneButton({ onFilesUploaded, uploadedFilesprops, showUploadedFiles = true }) {
+function DropzoneButton({ onFilesUploaded, onFilesDeleted, uploadedFilesprops = [] }) {
   const openRef = useRef(null);
   const [uploadedFiles, setUploadedFiles] = useState(uploadedFilesprops);
 
-
   const handleDrop = (files) => {
-    setUploadedFiles(uploadedFiles.concat(files));
-    onFilesUploaded(uploadedFiles.concat(files));
+    const newFiles = uploadedFiles.concat(files);
+    setUploadedFiles(newFiles);
+    onFilesUploaded(newFiles);
   };
 
   const handleFileDelete = (index) => {
@@ -20,9 +20,13 @@ function DropzoneButton({ onFilesUploaded, uploadedFilesprops, showUploadedFiles
     const newUploadedFiles = [...uploadedFiles];
     newUploadedFiles.splice(index, 1);
     setUploadedFiles(newUploadedFiles);
+    onFilesDeleted(newUploadedFiles)
   };
 
-  // TODO: 
+  useEffect(() => {
+    console.log(uploadedFiles)
+  },[uploadedFiles])
+
   return (
     <div className='wrapper'>
       <div className='row dropzone-area' style={{ height: '100%', width: '100%' }}>
@@ -68,15 +72,13 @@ function DropzoneButton({ onFilesUploaded, uploadedFilesprops, showUploadedFiles
           </div>
         </Dropzone>
       </div>
-      {showUploadedFiles ?
-        <div className='row dropzone-row'>
-          <div className='col-12'>
-            {uploadedFiles.map((file, index) => (
-              <Chip key={index} label={file.name} onDelete={() => handleFileDelete(index)} />
-            ))}
-          </div>
+      <div className='row dropzone-row'>
+        <div className='col-12'>
+          {uploadedFiles.map((file, index) => (
+            <Chip key={index} label={file.name} onDelete={() => handleFileDelete(index)} />
+          ))}
         </div>
-        : null}
+      </div>
     </div >
   );
 }

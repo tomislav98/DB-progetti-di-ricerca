@@ -1,23 +1,23 @@
 import { useState, useEffect } from "react";
-import { useMediaQuery, Fab, Box, Chip, Divider } from "@mui/material";
+import { useMediaQuery, Fab, Box, Chip, Divider, Card } from "@mui/material";
 import Modal from '@mui/material/Modal';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAdd } from '@fortawesome/free-solid-svg-icons';
 import DropzoneButton from "../../../../../Reusable Components/Dropzone/DropzoneButton";
+import { FeaturesCard } from "./FeaturesCard";
 import './documents.scss'
+import { getDocumentsbyId, getLatestVersionByProjectId, getToken } from "../../../../../Utils/requests";
 
-const add = <FontAwesomeIcon icon={faAdd} />
-
-function DocumentCard(){
-
-}
-
-function ProjectDocuments() {
+function ProjectDocuments({ documents = [] }) {
     const [addedFiles, setAddedFiles] = useState([]);
+    const [fetchedDocs, setFetchedDocs] = useState(documents);
+    
+    useEffect(() => {
+        // console.log(addedFiles);
+        // console.log(fetchedDocs);
+    }, [addedFiles])
 
-    // to be implemented
     function handleFilesUpload(files) {
-        setAddedFiles(files)
+        console.log(files)
+        setAddedFiles(files);
     }
 
     const handleFileDelete = (index) => {
@@ -30,22 +30,40 @@ function ProjectDocuments() {
         <div className="full-page-container" >
             <div className="documents-modal-container">
                 <div className="row row-title">
-                    <h2>Download and update documents</h2>
+                    <h2>Your documents</h2>
                 </div>
-                <div className="row row-documents">
-                    <div className="col-7">
-                        ciao
+                <div className="row row-documents p-3">
+                    <div className="col-7 h-100 overflow-auto">
+                        <div className="row ">
+                            <h5>Old documents</h5>
+                            {
+                                fetchedDocs.map(() => {
+                                    return (
+                                        <div className="col-3"> <FeaturesCard /> </div>
+                                    )
+                                })
+                            }
+                        </div>
+                        {
+                            addedFiles.length > 0?
+                            <div className="row pt-5">
+                                <h5>Newly added</h5>
+                                {
+                                    addedFiles.map(() => {
+                                        return (
+                                            <div className="col-3"> <FeaturesCard /> </div>
+                                        )
+                                    })
+                                }
+                            </div>
+                            :
+                            null
+                        }
                     </div>
                     <div className="col-5">
-                        <div className="row row-dropzone">
+                        <div className="row row-dropzone" style={{alignItems:addedFiles.length===0?'center':'baseline'}}>
                             <div className="col-12 col-dropzone">
-                                <DropzoneButton uploadedFilesprops={[]} onFilesUploaded={handleFilesUpload} showUploadedFiles={false} style={{ justifyContent: 'center' }} />
-                            </div>
-
-                            <div className="col-12 col-uploaded-files" style={{paddingTop: '25px'}}>
-                                {addedFiles.map((file, index) => (
-                                    <Chip key={index} label={file.name} onDelete={() => handleFileDelete(index)} />
-                                ))}
+                                <DropzoneButton onFilesUploaded={handleFilesUpload} onFilesDeleted={handleFileDelete} showUploadedFiles={false} style={{ justifyContent: 'center' }} />
                             </div>
                         </div>
                     </div>
@@ -55,16 +73,45 @@ function ProjectDocuments() {
     )
 }
 
-export default function DocumentsModal({projectData, updateProjects, isOpen, onCloseModal, onOpenModal }) {
+export default function DocumentsModal({ projectData, updateProjects, isOpen, onCloseModal, onOpenModal }) {
     const [open, setOpen] = useState(isOpen);
-    // const handleProjectsUpdate = () => updateProjects();
+    const [docsList, setDocsList] = useState([]);
+    const [dropzoneActive, setDropzoneActive] = useState(false);
+
     const matches = useMediaQuery('(min-width:600px)', { noSsr: true });
 
-    useEffect(()=>{
-        console.log(projectData)
-        // TODO: projectData.id fornisce l'id del progetto, prendere l'ultima versione associata ad e prendere i documenti della stessa 
+    // TODO: projectData.id fornisce l'id del progetto, prendere l'ultima versione associata ad esso e prendere i documenti della stessa 
+    useEffect(() => {
+        const fetchAndSetDocsList = async () => {
+            const fetchedProjects = [];
 
-    },[projectData])
+            if (projectData) {
+                const token = getToken();
+
+                try {
+                    const latestVersionRes = await getLatestVersionByProjectId(projectData.id, token);
+                    const documentPromises = latestVersionRes.documents.map(async (doc) => {
+                        const documentRes = await getDocumentsbyId(doc.doc_id, token);
+
+                        fetchedProjects.push({
+                            image_preview: documentRes.image_preview,
+                            metadata: documentRes.metadata,
+                            id: doc.doc_id,
+                        });
+                    });
+
+                    await Promise.all(documentPromises);
+                } catch (e) {
+                    console.error(e);
+                } finally {
+                    setDocsList(fetchedProjects);
+                }
+            }
+        };
+
+        fetchAndSetDocsList();
+    }, [projectData]);
+
 
     const handleClose = () => {
         onCloseModal();
@@ -102,7 +149,7 @@ export default function DocumentsModal({projectData, updateProjects, isOpen, onC
                 aria-describedby="modal-modal-description"
             >
                 <Box sx={style}>
-                    <ProjectDocuments />
+                    <ProjectDocuments documents={docsList} />
                 </Box>
             </Modal>
         </div>
