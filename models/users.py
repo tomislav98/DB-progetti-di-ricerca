@@ -172,7 +172,7 @@ class Evaluator(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), unique=True,
                         nullable=False)  # sistemare ondelete='CASCADE',
     message = db.relationship('Message', backref='evaluator')
-    assessment_reports = db.relationship('AssessmentReport', backref='evaluator')
+    report = db.relationship('Report', backref='evaluator')
 
     @classmethod
     def add_evaluator(cls, user_id):

@@ -1,7 +1,7 @@
 from flask import Blueprint
 from config import bcrypt
 from flask import request, jsonify, Response, json
-from models.reports import AssessmentReport
+from models.reports import Report
 from utils.exceptions import CustomError
 from datetime import datetime, timedelta
 import jwt
@@ -19,7 +19,7 @@ def get_reports_of_specific_project(project_id):
         if request.method == "GET":
             reports_json = []
             # Take all reports that have that project_id
-            report_query = AssessmentReport.query.filter_by(project_id=project_id)
+            report_query = Report.query.filter_by(project_id=project_id)
 
             if report_query is None:
                 raise ValueError("Unknown or invalid project_id(can not find reports of project)")
@@ -52,7 +52,7 @@ def update_reports_of_specific_project(report_id):
             # Get data to be updated
             new_data = request.get_json()
             # Take all reports that have that report_id
-            report_query = AssessmentReport.query.filter_by(id=report_id)
+            report_query = Report.query.filter_by(id=report_id)
 
             if report_query is None:
                 raise ValueError("Unknown or invalid report_id")
@@ -73,7 +73,7 @@ def update_reports_of_specific_project(report_id):
 def delete_report(report_id):
     try:
         if request.method == "DELETE":
-            report = AssessmentReport.query.get(report_id).first()
+            report = Report.query.get(report_id).first()
             if not report:
                 raise CustomError("Unknown or invalid report_id", 404)
             db.session.delete(report)

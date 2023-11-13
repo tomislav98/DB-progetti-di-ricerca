@@ -19,11 +19,9 @@ class Project(db.Model):
     status = db.Column(db.Enum(ProjectStatus), nullable=False)
     researcher_id = db.Column(db.Integer, db.ForeignKey('researchers.id'), nullable=False)
     evaluation_window_id = db.Column(db.Integer, db.ForeignKey('evaluation_windows.id'))
-    assessment_reports = db.relationship('AssessmentReport', backref='project')
     version_project = db.relationship('VersionProject', backref='project')
-    message = db.relationship('Message', backref='project')
 
-    # TODO: latest
+    # TODO: per adesso si submitta nella prossima finestra di valutazione(quella che ci sta subito dopo) 
     def submit(self):
         window = EvaluationWindow.get_next_window()
         if window is None:

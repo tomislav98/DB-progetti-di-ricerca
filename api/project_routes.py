@@ -3,11 +3,12 @@ from config import bcrypt
 from flask import request, jsonify, Response, json
 from models.users import User, Evaluator, Researcher, UserType
 from models.projects import Project, ProjectStatus
+from models.reports import Report
 from utils.exceptions import CustomError, error_handler
 from datetime import datetime, timedelta
 import jwt
 import os
-from utils.middleware import token_required
+from utils.middleware import token_required, evaluator_required
 
 proj_blueprint = Blueprint("proj", __name__)
 
@@ -67,6 +68,29 @@ def get_project_versions_by_id(current_user, project_id):
         }
 
         return Response(json.dumps(response_data), 200)
+
+@proj_blueprint.route("/<int:project_id>/report", methods=["POST"])
+@evaluator_required
+@error_handler
+def create_report(current_user, project_id):
+    if request.method == "POST":
+        body = request.form
+        file = request.files
+        vote = body.get("vote")
+        if not vote or not file:
+            raise CustomError("Vote and file are required", 400)
+        project = Project.get_project_by_id(project_id)
+        
+        if(project.status != ProjectStatus.SUBMITTED):
+            raise CustomError("Cannot evaluate this project", 400)
+        
+        report = Report.create_new_report(project_id, current_user.id, file ,vote)
+        response_data = {
+            "message": "Report Created Succesfully",
+            "id" : report.id
+        }
+        return Response(json.dumps(response_data), 201)
+
 
 # @proj_blueprint.route("/<int:project_id>/document", methods=["GET"])
 # @token_required

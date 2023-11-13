@@ -2,7 +2,7 @@ from flask import Blueprint
 from config import bcrypt
 from flask import request, jsonify, Response, json
 from models.project_documents import DocumentProject
-from models.reports import AssessmentReport
+from models.reports import Report
 from utils.exceptions import CustomError
 from datetime import datetime, timedelta
 import jwt
@@ -32,7 +32,7 @@ def get_document_project_version(current_user, project_version_id):
 # #         if request.method == "GET":
 # #             project_version_id_json = []
 # #             # Take all reports that have that project_id
-# #             project_version_query = AssessmentReport.query.filter_by(id=project_version_id).first()
+# #             project_version_query = Report.query.filter_by(id=project_version_id).first()
 
 # #             if not project_version_query:
 # #                 raise ValueError("Unknown or invalid project_version_id.")
@@ -63,7 +63,7 @@ def get_document_project_version(current_user, project_version_id):
 #             # Get data to be updated
 #             new_data = request.get_json()
 #             # Take all reports that have that report_id
-#             project_version_query = AssessmentReport.query.filter_by(id=project_version_id).first()
+#             project_version_query = Report.query.filter_by(id=project_version_id).first()
 
 #             if not project_version_query:
 #                 raise ValueError("Unknown or invalid project_version_id")
@@ -83,7 +83,7 @@ def get_document_project_version(current_user, project_version_id):
 # def delete_report(project_version_id):
 #     try:
 #         if request.method == "DELETE":
-#             project_version_query = AssessmentReport.query.filter_by(id=project_version_id).first()
+#             project_version_query = Report.query.filter_by(id=project_version_id).first()
 #             if not project_version_query:
 #                 raise CustomError("Unknown or invalid project_version_id", 404)
 #             db.session.delete(project_version_query)

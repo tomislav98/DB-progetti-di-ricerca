@@ -12,6 +12,8 @@ from api.documents_routes import documents_blueprint
 from utils.exceptions import CustomError
 from flask import request, jsonify
 from models.users import User, Researcher, Evaluator
+# TODO creare uno scheduler(cron job) per quando scade un'evaluation window(date_end)
+# from apscheduler.schedulers.background import BackgroundScheduler
 import jwt
 
 # Metodo	Endpoint	Descrizione
