@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useMediaQuery, Fab, Box, Chip, Divider, Card } from "@mui/material";
+import { useMediaQuery, Fab, Box, Chip, Divider, Card, Button } from "@mui/material";
 import Modal from '@mui/material/Modal';
 import DropzoneButton from "../../../../../Reusable Components/Dropzone/DropzoneButton";
 import { FeaturesCard } from "./FeaturesCard";
@@ -9,15 +9,17 @@ import { getDocumentsbyId, getLatestVersionByProjectId, getToken } from "../../.
 function ProjectDocuments({ documents = [] }) {
     const [addedFiles, setAddedFiles] = useState([]);
     const [fetchedDocs, setFetchedDocs] = useState(documents);
-    
-    useEffect(() => {
-        // console.log(addedFiles);
-        // console.log(fetchedDocs);
-    }, [addedFiles])
+    const [hasChanged, setHasChanged] = useState(false)
+
+
+    useEffect(()=>{
+        setFetchedDocs(documents)
+    }, [fetchedDocs, documents])
 
     function handleFilesUpload(files) {
         console.log(files)
         setAddedFiles(files);
+        setHasChanged(true);
     }
 
     const handleFileDelete = (index) => {
@@ -32,14 +34,14 @@ function ProjectDocuments({ documents = [] }) {
                 <div className="row row-title">
                     <h2>Your documents</h2>
                 </div>
-                <div className="row row-documents p-3">
-                    <div className="col-7 h-100 overflow-auto">
+                <div className="row row-documents p-3 overflow-auto justify-content-between">
+                    <div className="col-12 col-lg-7 h-100 overflow-auto">
                         <div className="row ">
                             <h5>Old documents</h5>
                             {
-                                fetchedDocs.map(() => {
+                                fetchedDocs.map((val,i) => {
                                     return (
-                                        <div className="col-3"> <FeaturesCard /> </div>
+                                        <div className="col-12 col-md-4 col-lg-3"> <FeaturesCard document={fetchedDocs[i]}/> </div>
                                     )
                                 })
                             }
@@ -49,9 +51,9 @@ function ProjectDocuments({ documents = [] }) {
                             <div className="row pt-5">
                                 <h5>Newly added</h5>
                                 {
-                                    addedFiles.map(() => {
+                                    addedFiles.map((val,i) => {
                                         return (
-                                            <div className="col-3"> <FeaturesCard /> </div>
+                                            <div className="col-12 col-md-4 col-lg-3"> <FeaturesCard document={addedFiles[i]} isNewlyAdded={true} /> </div>
                                         )
                                     })
                                 }
@@ -60,11 +62,21 @@ function ProjectDocuments({ documents = [] }) {
                             null
                         }
                     </div>
-                    <div className="col-5">
+                    <div className="col-12 col-lg-4">
                         <div className="row row-dropzone" style={{alignItems:addedFiles.length===0?'center':'baseline'}}>
                             <div className="col-12 col-dropzone">
                                 <DropzoneButton onFilesUploaded={handleFilesUpload} onFilesDeleted={handleFileDelete} showUploadedFiles={false} style={{ justifyContent: 'center' }} />
                             </div>
+                            {
+                                hasChanged? 
+                                <div className="col-12 ">
+                                    <Button >
+                                        ciao
+                                    </Button>
+                                </div>
+                                :
+                                null
+                            }
                         </div>
                     </div>
                 </div>

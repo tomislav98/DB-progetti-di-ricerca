@@ -32,7 +32,8 @@ def get_document(current_user, document_id):
             "name": doc.name,
             "type_document": doc.type_document,
             "version_project_id": doc.version_project_id,
-            # "page_count": pdf_document.page_count,
+            "created": doc.created,
+            "page_count": pdf_document.page_count,
         }
 
         # Get the first page as an image for preview

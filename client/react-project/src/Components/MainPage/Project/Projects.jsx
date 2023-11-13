@@ -196,7 +196,7 @@ function ProjectCard({ name, description, id, status, version = 'v0.0.0', userna
                 </Avatar.Group>
                 {status === 'ProjectStatus.SUBMITTED' ?
                     <BootstrapTooltip title="Withdraw submission">
-                        <ActionIcon variant="filled" color="grey" size="lg" radius="md" onClick={handleWithdraw}>
+                        <ActionIcon variant="filled" color="red" size="lg" radius="md" onClick={handleWithdraw}>
                             {loading ? <CircularProgress color='inherit'/> : <IconX size="1.1rem" />}
                         </ActionIcon>
                     </BootstrapTooltip>
