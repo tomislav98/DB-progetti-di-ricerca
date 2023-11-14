@@ -388,6 +388,7 @@ function ModalSubmit({ isOpen = false, onCloseModal, handleResponse, version }) 
     }
 
     // TODO: handling della risposta, piu fare in modo che se un progetto e gia dia un errore visivo e mostrare il loading della risposta
+    // TODO: aggiungere funzione a utils per pulire il codice qui
     function handleSubmit() {
         let token;
         let user_id;

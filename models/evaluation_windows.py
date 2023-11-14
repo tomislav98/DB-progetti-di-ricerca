@@ -4,11 +4,6 @@ from utils.exceptions import CustomError
 from utils.dates import str2date
 from datetime import datetime
 
-
-# TODO controllare (con un check forse?) prima di creare un evaluation window che la data non sia precedente alla
-#  data di oggi controllare anche alla creazione che non ci siano finestre di valutazione sovrapposte btw il check
-#  date_end > data_start non sembra funzionare
-
 class EvaluationWindow(db.Model):
     __tablename__ = 'evaluation_windows'
 
@@ -30,7 +25,6 @@ class EvaluationWindow(db.Model):
 
     # Crea la prima finestra indipendentemente dalla data messa, 
     # le altre solo se la data di inizio non è nel passato 
-    # TODO: fare in modo che non si possa creare una finestra nel passato o che get current window prenda proprio la prima anche se e nel passato
     @staticmethod
     def add_window(date_start, date_end):
         parsed_start = str2date(date_start)

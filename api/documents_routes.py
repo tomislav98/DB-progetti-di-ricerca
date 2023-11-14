@@ -26,7 +26,7 @@ def get_document(current_user, document_id):
         # Extract metadata and image preview from the PDF
         pdf_buffer = io.BytesIO(doc.pdf_data)
         pdf_document = fitz.open(stream=pdf_buffer, filetype="pdf")
-        print(doc.name)
+        print(pdf_document.metadata)  
 
         metadata = {
             "name": doc.name,
@@ -52,7 +52,6 @@ def get_document(current_user, document_id):
         return response
 
 # TODO: aggiungere sicurezza a questo endpoint, per adesso chiunque puo prendere i documenti di chiunque semplicemente selezionando a caso un numero
-# TODO: verificare che sta roba del temp_document.pdf sia giusta mi sembra un po sus che ci sia bisogno di salvare un file temporaneo
 
 @documents_blueprint.route("/downloads/<int:document_id>", methods=["GET"])
 @token_required

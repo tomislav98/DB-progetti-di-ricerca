@@ -11,7 +11,7 @@ import { NavbarSimple } from '../../../Reusable Components/NavbarSimple/NavbarSi
 export default function AdminPanel() {
   const [index, setIndex] = useState(0)
 
-  //TODO devi aggiungere un onclick che quando viene cliccato setta lo stato (setIndex(i))
+  // TODO devi aggiungere un onclick che quando viene cliccato setta lo stato (setIndex(i))
 
   return <div className='admin-panel-container'>
     <div className='row navbar-row'>

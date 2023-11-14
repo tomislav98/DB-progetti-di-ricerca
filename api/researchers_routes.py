@@ -6,6 +6,7 @@ from models.users import User, Evaluator, Researcher, UserType
 from models.projects import Project, ProjectStatus
 from models.evaluation_windows import EvaluationWindow
 from utils.exceptions import CustomError, error_handler
+from utils.enums import DocumentType
 from datetime import datetime, date, timedelta
 import jwt
 import os
@@ -51,9 +52,6 @@ def add_researcher_project(current_user, user_id):
             } 
         }), 200)
     
-# TODO: usare le join per unire Users, Researchers, Projects 
-# anche per vedere se ce un user associato a quel progetto, senno uno puo cheattare e 
-# submittare qualsiasi progetto 
 @researcher_blueprint.route("<int:user_id>/projects/<int:project_id>/submit", methods=["PUT"])
 @researcher_required
 @error_handler
@@ -105,25 +103,6 @@ def withdraw_project(current_user,user_id,project_id):
 
         return Response(json.dumps({"message":"Error withdrawing the project"}), 200)
    
-
-@researcher_blueprint.route("<int:user_id>/projects/<int:project_id>/file", methods=["POST"])
-@researcher_required
-@error_handler
-def save_file(current_user, user_id, project_id):
-    if request.method == 'POST':
-        if 'file' not in request.files:
-            return CustomError("No file apart",400)
-        file = request.files['file']
-
-        if file.filename == '':
-            return CustomError("No selected file",400)
-        
-
-        file_data = file.read()
-        document = DocumentProject.create_document(name=file.filename, type_document="Deliverables", project_id=project_id, pdf_data=file_data)
-        return document,200
-
-
 @researcher_blueprint.route("<int:user_id>/projects/<int:project_id>", methods=["DELETE"])
 @researcher_required
 @error_handler
@@ -144,25 +123,29 @@ def delete_project(current_user,user_id,project_id):
             proj.delete()
             return Response(json.dumps({"message":"Project deleted successfully"}), 200)
 
-# Per adesso, puo modificare la versione di un progetto, aggiungendo una nuova versione con vX.X.X maggiore di quella piu recente
+# Per adesso, puo modificare la versione di un progetto, aggiungendo una nuova versione con vX.X.X maggiore di quella piu recente,
 # TODO continuare a testare il file da mettere, da finire completamente
 @researcher_blueprint.route("<int:user_id>/projects/<int:project_id>", methods=["PUT"])
 @researcher_required
 @error_handler
 def update_project_version(current_user, user_id, project_id):
+    doctype = request.form.get('type')
+
     if request.method == "PUT":
         if current_user.id == user_id:
-            #body = request.get_json()
             project = Project.get_user_projects(user_id,project_id)
             if project is None:
                 raise CustomError("There are no projects with such parameters", 404)
             version = request.form.get('version')
+
+            if not any(doctype.lower() == item.name.lower() for item in DocumentType):
+                raise CustomError("You provided a wrong document type", 400)
+            
             file = request.files.get('file')
 
             updated = project[0].update_project_version(version)
-            #if there's a file then it create and associate it
             if file:
-                DocumentProject.create_document(name=file.filename,type_document="Mimmo", version_project_id= updated.id, pdf_data=file.read())
+                DocumentProject.create_document(name=file.filename,type_document=doctype, version_project_id= updated.id, pdf_data=file.read())
             
 
             response_json = {

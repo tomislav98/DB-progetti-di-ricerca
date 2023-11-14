@@ -29,8 +29,6 @@ admin_blueprint = Blueprint("admin", __name__)
 #             raise CustomError(err.message, err.status_code)
 #         raise CustomError("Internal server error", 500)
 
-# TODO capire, se dopo che un utente è stato promosso ad es. da RESEARCHER a ADMIN, se l'utente resta dentro alla tabella researchers 
-
 @admin_blueprint.route("/op/<int:user_id>", methods=["POST"])
 @admin_required
 @error_handler

@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { useMediaQuery, Fab, Box, Chip, Divider, Card, Button } from "@mui/material";
+import { useMediaQuery, Fab, Box, Chip, Card, Button } from "@mui/material";
 import Modal from '@mui/material/Modal';
 import DropzoneButton from "../../../../../Reusable Components/Dropzone/DropzoneButton";
 import { FeaturesCard } from "./FeaturesCard";
 import './documents.scss'
+import { Divider } from '@mantine/core'
 import { getDocumentsbyId, getLatestVersionByProjectId, getToken } from "../../../../../Utils/requests";
 
 function ProjectDocuments({ documents = [] }) {
@@ -12,7 +13,7 @@ function ProjectDocuments({ documents = [] }) {
     const [hasChanged, setHasChanged] = useState(false)
 
 
-    useEffect(()=>{
+    useEffect(() => {
         setFetchedDocs(documents)
     }, [fetchedDocs, documents])
 
@@ -36,46 +37,54 @@ function ProjectDocuments({ documents = [] }) {
                 </div>
                 <div className="row row-documents p-3 overflow-auto justify-content-between">
                     <div className="col-12 col-lg-7 h-100 overflow-auto">
-                        <div className="row ">
+                        <div className="row row-docs-title">
                             <h5>Old documents</h5>
+                        </div>
+                        <div className="row row-docs-docs">
                             {
-                                fetchedDocs.map((val,i) => {
+                                fetchedDocs.map((val, i) => {
                                     return (
-                                        <div className="col-12 col-md-4 col-lg-3"> <FeaturesCard document={fetchedDocs[i]}/> </div>
+                                        <div className="col-12 col-md-4 col-lg-3"> <FeaturesCard document={fetchedDocs[i]} /> </div>
                                     )
                                 })
                             }
                         </div>
                         {
-                            addedFiles.length > 0?
-                            <div className="row pt-5">
-                                <h5>Newly added</h5>
-                                {
-                                    addedFiles.map((val,i) => {
-                                        return (
-                                            <div className="col-12 col-md-4 col-lg-3"> <FeaturesCard document={addedFiles[i]} isNewlyAdded={true} /> </div>
-                                        )
-                                    })
-                                }
-                            </div>
-                            :
-                            null
+                            addedFiles.length > 0 ?
+                                <div className="row pt-5">
+                                    <h5>Newly added</h5>
+                                    {
+                                        addedFiles.map((val, i) => {
+                                            return (
+                                                <div className="col-12 col-md-4 col-lg-3"> <FeaturesCard document={addedFiles[i]} isNewlyAdded={true} /> </div>
+                                            )
+                                        })
+                                    }
+                                </div>
+                                :
+                                null
                         }
                     </div>
+                    <div className="col-12 col-lg-1 d-flex justify-content-center">
+                        <Divider className="h-100 w-25" orientation="vertical" />
+                    </div>
                     <div className="col-12 col-lg-4">
-                        <div className="row row-dropzone" style={{alignItems:addedFiles.length===0?'center':'baseline'}}>
+                        <div className="row row-title">
+                            <h5>Upload new files</h5>
+                        </div>
+                        <div className="row row-dropzone" >
                             <div className="col-12 col-dropzone">
                                 <DropzoneButton onFilesUploaded={handleFilesUpload} onFilesDeleted={handleFileDelete} showUploadedFiles={false} style={{ justifyContent: 'center' }} />
                             </div>
                             {
-                                hasChanged? 
-                                <div className="col-12 ">
-                                    <Button >
-                                        ciao
-                                    </Button>
-                                </div>
-                                :
-                                null
+                                hasChanged ?
+                                    <div className="col-12 ">
+                                        <Button >
+                                            ciao
+                                        </Button>
+                                    </div>
+                                    :
+                                    null
                             }
                         </div>
                     </div>

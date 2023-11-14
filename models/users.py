@@ -32,22 +32,6 @@ class User(db.Model):
     researcher = db.relationship('Researcher', backref='user', uselist=False, cascade='all, delete-orphan')
     evaluator = db.relationship('Evaluator', backref='user', uselist=False, cascade='all, delete-orphan')
 
-
-    # TODO bisogna fare in modo che quando un utente viene promosso ad admin, venga eliminata la sua corrispondenza in researchers o evaluators
-    # TODO fare sta cosa per evaluators funzione delete_evaluators()
-    def op_user(self):
-        try:
-            if(self.type_user == UserType.RESEARCHER):
-                self.researcher.delete_researcher()
-            if(self.type_user == UserType.RESEARCHER):
-                self.researcher.delete_evaluator()
-
-            self.type_user = UserType.ADMIN
-            db.session.commit()
-        
-        except Exception as e:
-            raise CustomError(f"Errore: {type(e).__name__} - {e}", 500)
-
     @classmethod
     def check_user_role(cls, type_user):
         for user in UserType:

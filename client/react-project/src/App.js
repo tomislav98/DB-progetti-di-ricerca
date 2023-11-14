@@ -26,8 +26,8 @@ const theme = createTheme({
   }
 });
 
-//TODO da proteggere le PRIVATE route, in base al ruolo dell'utente (admin researcher evaluator)
-//TODO nell'handling di queste route o in tutte le components, redirectare in caso di jwt fallato, scaduto, non giusto per le routes
+// TODO da proteggere le PRIVATE route, in base al ruolo dell'utente (admin researcher evaluator)
+// TODO nell'handling di queste route o in tutte le components, redirectare in caso di jwt fallato, scaduto, non giusto per le routes
 function App() {
   return (
     <div className="App">

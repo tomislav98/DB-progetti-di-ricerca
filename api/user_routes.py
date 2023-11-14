@@ -125,8 +125,6 @@ def login():
         else:
             raise CustomError("Credentials are not valid.", 401)
 
-# TODO: Error handling and status codes
-# Retrieves data of a specific user.
 @user_blueprint.route("/<int:user_id>", methods=["GET"])
 @token_required
 @error_handler
