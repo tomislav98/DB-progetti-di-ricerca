@@ -20,9 +20,9 @@ const mockdata = [
   { label: 'Electric', icon: IconGasStation },
 ];
 
-export function FeaturesCard({ document, isNewlyAdded = false }) {
+export function FeaturesCard({ document, isNewlyAdded = false, onChange }) {
   const [deleteLoading, setDeleteLoading] = useState(false);
-  const [docType, setDocType] = useState( DocumentType[document.metadata.type_document] );
+  const [docType, setDocType] = useState(DocumentType[document.metadata ? document.metadata.type_document : 'UNDEFINED']);
   const [isBeingEdited, setIsBeingEdited] = useState(false);
   const [hasChanged, setHasChanged] = useState(false);
 
@@ -45,11 +45,14 @@ export function FeaturesCard({ document, isNewlyAdded = false }) {
 
   const handleChange = (event) => {
     setDocType(event.target.value);
+    setHasChanged(true);
+    onChange();
   };
 
 
   useEffect(() => {
-    console.log(document.metadata.type_document);
+    // console.log(document.metadata.type_document);
+    console.log(docType)
   }, []);
 
   const documentTypes = [
@@ -68,29 +71,14 @@ export function FeaturesCard({ document, isNewlyAdded = false }) {
   ];
 
   return (
-    <Card withBorder radius="md" className={!isBeingEdited ? classes.card : classes.cardActive}>
+    <Card withBorder radius="md" className={!hasChanged ? classes.card : classes.cardActive}>
       <Card.Section className={classes.imageSection}>
         <Image src={document.image_preview ? `data:image/png;base64,${document.image_preview}` : "https://img.freepik.com/premium-vector/pdf-file-icon-flat-design-graphic-illustration-vector-pdf-icon_676691-2007.jpg?w=826"} alt="Tesla Model S" />
       </Card.Section>
 
       <Group justify="space-between" mt="md">
-        {
-          !isBeingEdited ?
-            <IconPencil onClick={() => setIsBeingEdited(true)} style={{ cursor: 'pointer' }}></IconPencil>
-            :
-            <IconPencilOff onClick={() => setIsBeingEdited(false)} style={{ cursor: 'pointer' }} ></IconPencilOff>
-        }
         <div>
-          {
-            !isBeingEdited ?
-              <Text fw={500}>{isNewlyAdded ? document.name : document.metadata.name}</Text>
-              :
-              <TextInput
-                size="s"
-                radius="s"
-                placeholder={document.metadata.name}
-              />
-          }
+          <Text fw={500}>{isNewlyAdded ? document.name : document.metadata.name}</Text>
           <Text fz="xs" c="dimmed">
             Today: {document.metadata ? document.metadata.created : getCurrentTime()}
           </Text>
@@ -101,7 +89,7 @@ export function FeaturesCard({ document, isNewlyAdded = false }) {
             <FormControl fullWidth size='small'>
               <InputLabel id="demo-simple-select-label">Type</InputLabel>
               <Select
-                disabled={!isBeingEdited}
+                disabled={docType === 11 ? false : true}
                 labelId="demo-simple-select-label"
                 id="demo-select-small"
                 value={docType}

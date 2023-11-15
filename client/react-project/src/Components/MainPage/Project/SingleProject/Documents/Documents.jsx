@@ -1,17 +1,17 @@
 import { useState, useEffect } from "react";
-import { useMediaQuery, Fab, Box, Chip, Card, Button } from "@mui/material";
+import { useMediaQuery, Fab, Box, Chip, Card } from "@mui/material";
 import Modal from '@mui/material/Modal';
 import DropzoneButton from "../../../../../Reusable Components/Dropzone/DropzoneButton";
 import { FeaturesCard } from "./FeaturesCard";
 import './documents.scss'
-import { Divider } from '@mantine/core'
+import { Divider, Button, Group } from '@mantine/core'
 import { getDocumentsbyId, getLatestVersionByProjectId, getToken } from "../../../../../Utils/requests";
 
 function ProjectDocuments({ documents = [] }) {
     const [addedFiles, setAddedFiles] = useState([]);
     const [fetchedDocs, setFetchedDocs] = useState(documents);
-    const [hasChanged, setHasChanged] = useState(false)
-
+    const [hasUploaded, setHasUploaded] = useState(false);
+    const [hasChanged, setHasChanged] = useState(false);
 
     useEffect(() => {
         setFetchedDocs(documents)
@@ -20,7 +20,7 @@ function ProjectDocuments({ documents = [] }) {
     function handleFilesUpload(files) {
         console.log(files)
         setAddedFiles(files);
-        setHasChanged(true);
+        setHasUploaded(true);
     }
 
     const handleFileDelete = (index) => {
@@ -30,7 +30,7 @@ function ProjectDocuments({ documents = [] }) {
     };
 
     return (
-        <div className="full-page-container" >
+        <div className="full-page-container">
             <div className="documents-modal-container">
                 <div className="row row-title">
                     <h2>Your documents</h2>
@@ -44,7 +44,7 @@ function ProjectDocuments({ documents = [] }) {
                             {
                                 fetchedDocs.map((val, i) => {
                                     return (
-                                        <div className="col-12 col-md-4 col-lg-3"> <FeaturesCard document={fetchedDocs[i]} /> </div>
+                                        <div className="col-12 col-md-4 col-lg-3"> <FeaturesCard document={fetchedDocs[i]} onChange={()=>setHasChanged(true)} /> </div>
                                     )
                                 })
                             }
@@ -56,7 +56,7 @@ function ProjectDocuments({ documents = [] }) {
                                     {
                                         addedFiles.map((val, i) => {
                                             return (
-                                                <div className="col-12 col-md-4 col-lg-3"> <FeaturesCard document={addedFiles[i]} isNewlyAdded={true} /> </div>
+                                                <div className="col-12 col-md-4 col-lg-3"> <FeaturesCard document={addedFiles[i]} isNewlyAdded={true}  onChange={()=>setHasChanged(true)} /> </div>
                                             )
                                         })
                                     }
@@ -77,11 +77,11 @@ function ProjectDocuments({ documents = [] }) {
                                 <DropzoneButton onFilesUploaded={handleFilesUpload} onFilesDeleted={handleFileDelete} showUploadedFiles={false} style={{ justifyContent: 'center' }} />
                             </div>
                             {
-                                hasChanged ?
+                                hasUploaded || hasChanged ?
                                     <div className="col-12 ">
-                                        <Button >
-                                            ciao
-                                        </Button>
+                                        <Group justify="center">
+                                            <Button size="md">Update project</Button>
+                                        </Group>
                                     </div>
                                     :
                                     null
