@@ -69,7 +69,9 @@ class Project(db.Model):
     def update_project_version(self, version):
         if self.status in [ProjectStatus.APPROVED,ProjectStatus.NOT_APPROVED,ProjectStatus.SUBMITTED]:
             raise CustomError("You can't update the project",403)
-        v = VersionProject.create_version(self.status, self.id, version)
+        # TODO controllare se c'e un metodo piu sound per fare sta cosa, sto cercando la latest version del progetto attraverso get_latest_version(self.id) e fornendo latest_version.document_project
+        latest_version = VersionProject.get_latest_version(self.id)
+        v = VersionProject.create_version(self.status, self.id, version, document_project=latest_version.document_project)
         self.latest_version = v.version
         db.session.commit()
         return v

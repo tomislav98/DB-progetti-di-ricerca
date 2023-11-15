@@ -147,7 +147,6 @@ def update_project_version(current_user, user_id, project_id):
             if file:
                 DocumentProject.create_document(name=file.filename,type_document=doctype, version_project_id= updated.id, pdf_data=file.read())
             
-
             response_json = {
                 "message": "Project updated correctly to version "+ updated.version
             }
