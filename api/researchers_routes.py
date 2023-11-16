@@ -7,6 +7,7 @@ from models.projects import Project, ProjectStatus
 from models.evaluation_windows import EvaluationWindow
 from utils.exceptions import CustomError, error_handler
 from utils.enums import DocumentType
+from utils.json_find import find_json_by_value
 from datetime import datetime, date, timedelta
 import jwt
 import os
@@ -139,17 +140,28 @@ def update_project_version(current_user, user_id, project_id):
             if project is None:
                 raise CustomError("There are no projects with such parameters", 404)
             version = request.form.get('version')
-
-            if not any(doctype.lower() == item.name.lower() for item in DocumentType):
-                raise CustomError("You provided a wrong document type", 400)
-            
-            file = request.files.get('file')
+            files = request.files.getlist('files')
+            files_metadata = json.loads(request.form.get('files_metadata'))
+            if len(files_metadata) != len(files): 
+                raise CustomError("Invalid Boby",400)
+            file_associated = []
+            #Format check del body
+            for file in files:
+                file_metadata = find_json_by_value(files_metadata, 'filename' ,file.filename)
+                if file_metadata is None:
+                    raise CustomError("Invalid body", 400)
+                file_title = file_metadata.get("title")
+                file_type = file_metadata.get("type")
+                
+                print(file_metadata)
+                if file_title is None or file_type is None:
+                    raise CustomError("Invalid body", 400)
+                file_metadata.append('pdf_data', file.read())
+                file_associated.append(file_metadata)
 
             updated = project[0].update_project_version(version)
-            if file:
-                DocumentProject.create_document(name=file.filename,type_document=doctype, version_project_id= updated.id, pdf_data=file.read())
-            
-
+                
+                
             response_json = {
                 "message": "Project updated correctly to version "+ updated.version
             }
