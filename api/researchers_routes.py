@@ -39,7 +39,9 @@ def add_researcher_project(current_user, user_id):
 
         researcher = Researcher.get_researcher_from_user_id(current_user.id)
         body = request.form
-        files = request.files # in caso non venga fornito un file np viene handlato dentro l'addproject
+        files = request.files.getlist('files')
+        
+        
         project = Project.add_project(body["name"], body["description"], datetime.now(), researcher.id, files)
         
         return Response(json.dumps({    
@@ -147,6 +149,7 @@ def update_project_version(current_user, user_id, project_id):
             if file:
                 DocumentProject.create_document(name=file.filename,type_document=doctype, version_project_id= updated.id, pdf_data=file.read())
             
+
             response_json = {
                 "message": "Project updated correctly to version "+ updated.version
             }

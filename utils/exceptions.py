@@ -16,9 +16,9 @@ def error_handler(f):
         except CustomError as err:
             print(err.message)
             raise err
-        except SQLAlchemyError as err:
-            print(err.orig)
-            raise err
+        except SQLAlchemyError as err: 
+            print(err.orig)          
+            raise CustomError('Internal db error', 500)
         except Exception as err:
             print(err)
             raise CustomError("Internal server error", 500)

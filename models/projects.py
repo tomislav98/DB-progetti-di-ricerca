@@ -84,8 +84,9 @@ class Project(db.Model):
         db.session.add(project)
         db.session.commit()
         version = VersionProject.create_version(project.status,project.id,"v0.0.0")
+        
         if files:
-            for key, file in files.items(): #TODO qui handliamo piu file, dobbiamo cambiare il typedocument e il nome, il nome potremmo metterlo anche come key maybe 
+            for file in files: #TODO qui handliamo piu file, dobbiamo cambiare il typedocument e il nome, il nome potremmo metterlo anche come key maybe 
                 DocumentProject.create_document(name = file.filename, type_document='UNDEFINED',version_project_id=version.id, pdf_data=file.read() )
         return project
 
