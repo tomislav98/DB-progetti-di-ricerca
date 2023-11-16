@@ -156,11 +156,11 @@ def update_project_version(current_user, user_id, project_id):
                 print(file_metadata)
                 if file_title is None or file_type is None:
                     raise CustomError("Invalid body", 400)
-                file_metadata.append('pdf_data', file.read())
+                file_metadata['pdf_data'] = file.read()
                 file_associated.append(file_metadata)
 
             updated = project[0].update_project_version(version)
-                
+            print(file_associated)
                 
             response_json = {
                 "message": "Project updated correctly to version "+ updated.version
