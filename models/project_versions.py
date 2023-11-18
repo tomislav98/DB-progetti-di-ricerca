@@ -13,6 +13,7 @@ class VersionProject(db.Model):
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
     version = db.Column(db.String, nullable=False)
     document_project = db.relationship('DocumentProject', backref = "version_project")
+    reports_project = db.relationship('Report', backref = "version_project")
     created = db.Column(DateTime, default=datetime.utcnow, nullable=False)
 
     # Crea una versione associata ad un progetto, se il progetto non esiste con version = "v0.0.0"

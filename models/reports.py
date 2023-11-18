@@ -1,6 +1,6 @@
 from datetime import datetime
 from config import db
-from sqlalchemy import DateTime, CheckConstraint
+from sqlalchemy import DateTime, CheckConstraint, UniqueConstraint
 from .project_versions import VersionProject
 
 class Report(db.Model):
@@ -12,6 +12,8 @@ class Report(db.Model):
     vote = db.Column(db.Integer, CheckConstraint('vote >= 0 AND vote <= 10'), nullable=False)
     evaluator_id = db.Column(db.Integer, db.ForeignKey('evaluators.id'))
     version_project_id = db.Column(db.Integer, db.ForeignKey('version_projects.id'))
+
+    __table_args__ = (UniqueConstraint('evaluator_id', 'version_project_id'), )
 
     @classmethod
     def create_new_report(cls, project_id, evaluator_id, file, vote):

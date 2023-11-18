@@ -128,7 +128,7 @@ export default function HorizontalLinearStepper({ closeEvent, updateProjects }) 
         return skipped.has(step);
     };
 
-    function handleChildrenChange(status){
+    function handleChildrenChange(status) {
         let newStatus = status;
         setButtonDisabled(isFormCompleted(activeStep));
         setStepperStatus(newStatus);
@@ -137,11 +137,11 @@ export default function HorizontalLinearStepper({ closeEvent, updateProjects }) 
     const handleSubmit = () => {
         // Prepare the data to be sent in the POST request
         const projectData = new FormData();
-        projectData.append('name', stepperStatus.title); 
-        projectData.append('description', stepperStatus.description); 
+        projectData.append('name', stepperStatus.title);
+        projectData.append('description', stepperStatus.description);
 
-        uploadedFiles.forEach((file,i) => {
-            projectData.append('file'+i.toString(), file);
+        uploadedFiles.forEach((file, i) => {
+            projectData.append('files', file);
         });
 
         // Get the token from localStorage
@@ -187,7 +187,7 @@ export default function HorizontalLinearStepper({ closeEvent, updateProjects }) 
 
     const handleNext = (e) => {
         let newSkipped = skipped;
-        
+
         if (isStepSkipped(activeStep)) {
             newSkipped = new Set(newSkipped.values());
             newSkipped.delete(activeStep);
@@ -195,9 +195,9 @@ export default function HorizontalLinearStepper({ closeEvent, updateProjects }) 
         if (e.target.innerText === 'FINISH') {
             handleSubmit();
         }
-        
+
         setActiveStep((prevActiveStep) => prevActiveStep + 1);
-        setButtonDisabled(isFormCompleted(activeStep+1));
+        setButtonDisabled(isFormCompleted(activeStep + 1));
         setSkipped(newSkipped);
     };
 
@@ -224,9 +224,9 @@ export default function HorizontalLinearStepper({ closeEvent, updateProjects }) 
         else {
             if (stepperStatus.title === '' || stepperStatus.description === '')
                 return true;
-            return false; 
+            return false;
         }
-    } 
+    }
 
     return (
         <Box sx={{ width: '100%' }}>

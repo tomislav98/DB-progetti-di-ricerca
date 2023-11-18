@@ -12,9 +12,13 @@ from api.documents_routes import documents_blueprint
 from utils.exceptions import CustomError
 from flask import request, jsonify
 from models.users import User, Researcher, Evaluator
+from models.evaluation_windows import EvaluationWindow
+from utils.scheduler import evaluate_current_window_projects
 # TODO creare uno scheduler(cron job) per quando scade un'evaluation window(date_end)
-# from apscheduler.schedulers.background import BackgroundScheduler
 import jwt
+from apscheduler.schedulers.background import BackgroundScheduler
+
+
 
 # Metodo	Endpoint	Descrizione
 
@@ -91,7 +95,7 @@ app.register_blueprint(report_blueprint, url_prefix='/report')
 app.register_blueprint(project_version_blueprint, url_prefix='/version_project')
 app.register_blueprint(unauth_user_blueprint, url_prefix='/unauth-user' )
 app.register_blueprint(documents_blueprint, url_prefix='/documents')
-
+scheduler = BackgroundScheduler()
 
 # Definizione della funzione di gestione degli errori
 @app.errorhandler(CustomError)
@@ -107,6 +111,11 @@ def getAllEndpoints():
     return jsonify({'/': 'Route that returns a list of every endpoint ',
                     '/register': 'Route that registers a user'})
 
+#scheduler.add_job(lambda : evaluate_current_window_projects(), 'interval', seconds = 3)
+
+scheduler.add_job(lambda : EvaluationWindow.evaluate_current_window_projects(), 'cron', hour = 0, minute = 0 )
+scheduler.start() 
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0")
+    

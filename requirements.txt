@@ -7,3 +7,4 @@ psycopg2
 pyjwt
 flask-cors
 PyMuPDF
+apscheduler
