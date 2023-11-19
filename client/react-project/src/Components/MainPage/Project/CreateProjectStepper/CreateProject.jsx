@@ -14,7 +14,7 @@ import { Chip } from '@mui/material';
 import axios from 'axios';
 import jwt_decode from 'jwt-decode';
 import { Success } from '../../../SuccessPage/Success';
-
+import { createProject, getDecodedToken, getToken } from '../../../../Utils/requests'
 const steps = ['Create a project', 'Add info', 'Upload files'];
 
 function MySteps(props) {
@@ -134,53 +134,33 @@ export default function HorizontalLinearStepper({ closeEvent, updateProjects }) 
         setStepperStatus(newStatus);
     }
 
-    const handleSubmit = () => {
-        // Prepare the data to be sent in the POST request
+    const handleSubmit = async () => {
         const projectData = new FormData();
         projectData.append('name', stepperStatus.title);
         projectData.append('description', stepperStatus.description);
 
-        uploadedFiles.forEach((file, i) => {
+        uploadedFiles.forEach((file) => {
             projectData.append('files', file);
         });
 
-        // Get the token from localStorage
-        const token = localStorage.getItem('token');
+        const token = getToken();
 
-        // Check if the token exists in localStorage
         if (token) {
-            const decodedToken = jwt_decode(token);
-
-            // Make the Axios POST request with the token
+            const decodedToken = getDecodedToken();
             setLoading(true);
-            axios
-                .post(
-                    `http://localhost:5000/researchers/${decodedToken.user_id}/projects`,
-                    projectData,
-                    {
-                        headers: {
-                            'Authorization': `Bearer ${token}`, // Use the token from localStorage
-                            'Content-Type': 'multipart/form-data',
-                        },
-                    }
-                )
-                .then((response) => {
-                    // Handle the response here
-
-                    if (response.status === 200) {
-                        setResponseOk(true);
-                    }
-                    console.log(response.data);
-                }).finally(() => {
-                    setLoading(false);
-                })
+            await createProject(decodedToken.user_id, token, projectData).then((response) => {
+                if (response.status === 200) {
+                    setResponseOk(true);
+                    updateProjects();
+                }
+            }).finally(() => {
+                setLoading(false);
+            })
                 .catch((error) => {
-                    // Handle errors here
                     console.error(error);
                 });
 
         } else {
-            // Handle the case where the token is not found in localStorage
             console.error('Token not found in localStorage');
         }
     };

@@ -227,7 +227,7 @@ function ProjectStatus({ projectData, onOpenModal, onCloseModal }) {
     const [modalIndex, setModalIndex] = useState(null);
     const [project, setProject] = useState(projectData)
 
-    useEffect(() => { 
+    useEffect(() => {
         setProject(projectData);
 
     }, [projectData]);
@@ -324,8 +324,8 @@ function ProjectStatus({ projectData, onOpenModal, onCloseModal }) {
             </div>
             <UpdateProjectModal isOpen={modalIndex === 0} onCloseModal={() => setModalIndex(null)} />
 
-            { project ? <DocumentsModal projectData={project} isOpen={modalIndex === 1} onCloseModal={() => setModalIndex(null)} /> : null  }
-            
+            {project ? <DocumentsModal projectData={project} isOpen={modalIndex === 1} onCloseModal={() => { setModalIndex(null); }} /> : null}
+
         </div>
     )
 }
@@ -373,13 +373,13 @@ export function SubmitBanner({ onSubmit, onCancel }) {
 }
 
 
-function ModalSubmit({ isOpen = false, onCloseModal, handleResponse, version }) {
+function ModalSubmit({ isOpen = false, onCloseModal, version }) {
     const navigate = useNavigate();
     const [open, setOpen] = useState(isOpen);
 
     const handleClose = () => {
-        onCloseModal();
         setOpen(false);
+        onCloseModal();
     }
 
     const handleOpen = () => {
@@ -407,6 +407,7 @@ function ModalSubmit({ isOpen = false, onCloseModal, handleResponse, version }) 
         }
 
         if (!version) {
+            console.log(version)
             console.error('Versione non esistente.');
             return;
         }
@@ -447,7 +448,7 @@ function ModalSubmit({ isOpen = false, onCloseModal, handleResponse, version }) 
     )
 }
 
-function ProjectActions({ projectData }) {
+function ProjectActions({ version, onSubmit }) {
     const [fabOffset, setFabOffset] = useState(0);
     const [fabActive, setFabActive] = useState(false);
     const [isSubmitModalOpen, setSubmitModalOpen] = useState(false);
@@ -455,10 +456,9 @@ function ProjectActions({ projectData }) {
     const [isWithdrawModalOpen, setWithdrawModalOpen] = useState(false);
     const fabRef = useRef(null);
 
-
     useEffect(() => {
-        setSubmitted(projectData ? projectData.status === 'ProjectStatus.SUBMITTED' : false)
-    }, [projectData])
+        setSubmitted(version ? version.status === 'ProjectStatus.SUBMITTED' : false)
+    }, [version])
 
     const BootstrapTooltip = styled(({ className, ...props }) => (
         <Tooltip {...props} arrow classes={{ popper: className }} />
@@ -501,8 +501,8 @@ function ProjectActions({ projectData }) {
     }
 
     function closeSubmitModal() {
-        console.log('first');
         setSubmitModalOpen(false);
+        onSubmit();
     }
 
     return (
@@ -536,11 +536,10 @@ function ProjectActions({ projectData }) {
                 </Fab>
             </BootstrapTooltip>
 
-            <ModalSubmit version={projectData} isOpen={isSubmitModalOpen} onCloseModal={closeSubmitModal} />
+            <ModalSubmit version={version} isOpen={isSubmitModalOpen} onCloseModal={closeSubmitModal} />
         </div>
     );
 }
-
 
 // TODO: fare in modo che se il progetto del link non esiste restituisce 404
 
@@ -550,9 +549,11 @@ export default function SingleProject({ projects }) {
     const [currentProject, setCurrentProject] = useState(null);
     const [rightValue, setRightValue] = useState(100);
 
-    const navigate = useNavigate();
+    useEffect(() => {
+        console.log(currentProject)
+    }, [currentProject])
 
-    // funzione che fa slidare progressivamente il container
+    const navigate = useNavigate();
 
     const updateRightValue = () => {
         if (rightValue > 0) {
@@ -688,9 +689,8 @@ export default function SingleProject({ projects }) {
                             <MyDashboard title={''} projectVersions={projectVersions} />
                     }
                     <div className="col-12 col-md-4 col-lg-3 col-xxl-2 p-md-4" style={{ height: '90vh' }}>
-
-                        <ProjectActions version={currentProject} />
-                        <ProjectStatus projectData={currentProject} />
+                        <ProjectActions version={currentProject ? currentProject : null} onSubmit={() => {fetchVersions()} }/>
+                        <ProjectStatus projectData={currentProject ? currentProject : null}  />
                     </div>
                 </div>
             </div>

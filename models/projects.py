@@ -40,7 +40,17 @@ class Project(db.Model):
         new_version_parts.append(str(new_last_number))  # Aggiungi il nuovo numero
         new_version_string = '.'.join(new_version_parts)
 
-        VersionProject.create_version(ProjectStatus.SUBMITTED,self.id,new_version_string)
+        
+        # testare se la submit crea una copia dei docs associati alla nuova versione
+
+        latest_version = VersionProject.get_latest_version(self.id)
+        v = VersionProject.create_version(ProjectStatus.SUBMITTED,self.id,new_version_string)
+
+        for proj in latest_version.document_project:
+            DocumentProject.create_document(proj.name, proj.type_document, v.id, proj.pdf_data, proj.created )
+
+        # fine test qui 
+
         self.latest_version = new_version_string
         db.session.commit()
         return self
@@ -66,12 +76,23 @@ class Project(db.Model):
         except Exception as e:
             raise CustomError(f"Errore: {type(e).__name__} - {e}", 500)
 
-    def update_project_version(self, version):
+
+    #   documentsForm = { files_metadata: [{"filename":"mimmo","title": "Mimmo", "type":"DATA_MANAGEMENT_PLAN", pdf_data:"dfkjahdfkjahsdfkjhas"}] }
+    def update_project_version(self, version, documentsForm ):
         if self.status in [ProjectStatus.APPROVED,ProjectStatus.NOT_APPROVED,ProjectStatus.SUBMITTED]:
             raise CustomError("You can't update the project",403)
         # TODO controllare se c'e un metodo piu sound per fare sta cosa, sto cercando la latest version del progetto attraverso get_latest_version(self.id) e fornendo latest_version.document_project
+       
+        # testare
         latest_version = VersionProject.get_latest_version(self.id)
+        
         v = VersionProject.create_version(self.status, self.id, version, document_project=latest_version.document_project)
+
+        for doc in documentsForm:
+            DocumentProject.create_document(doc.title, doc.type, v.id, doc.pdf_data)
+
+        # fine test
+
         self.latest_version = v.version
         db.session.commit()
         return v

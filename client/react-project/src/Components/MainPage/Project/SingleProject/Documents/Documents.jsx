@@ -5,28 +5,46 @@ import DropzoneButton from "../../../../../Reusable Components/Dropzone/Dropzone
 import { FeaturesCard } from "./FeaturesCard";
 import './documents.scss'
 import { Divider, Button, Group } from '@mantine/core'
-import { getDocumentsbyId, getLatestVersionByProjectId, getToken } from "../../../../../Utils/requests";
+import { getDecodedToken, getDocumentsbyId, getLatestVersionByProjectId, getToken, updateProject } from "../../../../../Utils/requests";
 
-function ProjectDocuments({ documents = [] }) {
+function ProjectDocuments({ documents = [], projectId }) {
     const [addedFiles, setAddedFiles] = useState([]);
-    const [fetchedDocs, setFetchedDocs] = useState(documents);
+    const [fetchedFiles, setFetchedFiles] = useState(documents);
     const [hasUploaded, setHasUploaded] = useState(false);
     const [hasChanged, setHasChanged] = useState(false);
+    const [loading, setLoading] = useState(false)
+
+    useEffect(()=>{
+        console.log(addedFiles)
+        console.log(fetchedFiles)
+    }, [fetchedFiles, addedFiles])
 
     useEffect(() => {
-        setFetchedDocs(documents)
-    }, [fetchedDocs, documents])
+        setFetchedFiles(documents)
+    }, [fetchedFiles, documents])
 
     function handleFilesUpload(files) {
         console.log(files)
         setAddedFiles(files);
         setHasUploaded(true);
-    }
+    };
 
     const handleFileDelete = (index) => {
         const newUploadedFiles = [...addedFiles];
         newUploadedFiles.splice(index, 1);
         setAddedFiles(newUploadedFiles);
+    };
+
+    const handleUpdateButton = async () => {
+        const token = getToken();
+        const decodedToken = getDecodedToken();
+        // const uploadedFiles = 
+
+        setLoading(true);
+        // add files
+        // await updateProject(decodedToken.user_id,projectId,token, uploadedFiles).then((res)=>{
+
+        // })
     };
 
     return (
@@ -42,9 +60,9 @@ function ProjectDocuments({ documents = [] }) {
                         </div>
                         <div className="row row-docs-docs">
                             {
-                                fetchedDocs.map((val, i) => {
+                                fetchedFiles.map((val, i) => {
                                     return (
-                                        <div className="col-12 col-md-4 col-lg-3"> <FeaturesCard document={fetchedDocs[i]} onChange={()=>setHasChanged(true)} /> </div>
+                                        <div className="col-12 col-md-4 col-lg-3"> <FeaturesCard document={fetchedFiles[i]} onChange={()=>setHasChanged(true)} /> </div>
                                     )
                                 })
                             }
@@ -80,7 +98,7 @@ function ProjectDocuments({ documents = [] }) {
                                 hasUploaded || hasChanged ?
                                     <div className="col-12 ">
                                         <Group justify="center">
-                                            <Button size="md">Update project</Button>
+                                            <Button size="md" onClick={handleUpdateButton} loading={loading}>Update project</Button>
                                         </Group>
                                     </div>
                                     :
@@ -94,14 +112,11 @@ function ProjectDocuments({ documents = [] }) {
     )
 }
 
-export default function DocumentsModal({ projectData, updateProjects, isOpen, onCloseModal, onOpenModal }) {
+export default function DocumentsModal({ projectData, isOpen, onCloseModal }) {
     const [open, setOpen] = useState(isOpen);
     const [docsList, setDocsList] = useState([]);
-    const [dropzoneActive, setDropzoneActive] = useState(false);
 
-    const matches = useMediaQuery('(min-width:600px)', { noSsr: true });
-
-    // TODO: projectData.id fornisce l'id del progetto, prendere l'ultima versione associata ad esso e prendere i documenti della stessa 
+    // DONE: projectData.id fornisce l'id del progetto, prendere l'ultima versione associata ad esso e prendere i documenti della stessa 
     useEffect(() => {
         const fetchAndSetDocsList = async () => {
             const fetchedProjects = [];
@@ -113,10 +128,18 @@ export default function DocumentsModal({ projectData, updateProjects, isOpen, on
                     const latestVersionRes = await getLatestVersionByProjectId(projectData.id, token);
                     const documentPromises = latestVersionRes.documents.map(async (doc) => {
                         const documentRes = await getDocumentsbyId(doc.doc_id, token);
+                        
+                        console.log({
+                            image_preview: documentRes.image_preview,
+                            metadata: documentRes.metadata,
+                            pdf_data: documentRes.pdf_data,
+                            id: doc.doc_id,
+                        })
 
                         fetchedProjects.push({
                             image_preview: documentRes.image_preview,
                             metadata: documentRes.metadata,
+                            pdf_data: documentRes.pdf_data,
                             id: doc.doc_id,
                         });
                     });
@@ -139,7 +162,6 @@ export default function DocumentsModal({ projectData, updateProjects, isOpen, on
         setOpen(false);
     }
     const handleOpen = () => {
-        // onOpenModal();
         setOpen(true);
     }
 
@@ -170,7 +192,7 @@ export default function DocumentsModal({ projectData, updateProjects, isOpen, on
                 aria-describedby="modal-modal-description"
             >
                 <Box sx={style}>
-                    <ProjectDocuments documents={docsList} />
+                    <ProjectDocuments documents={docsList} projectId={projectData.id} />
                 </Box>
             </Modal>
         </div>

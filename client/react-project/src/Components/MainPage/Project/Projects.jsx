@@ -153,6 +153,7 @@ function ProjectCard({ name, description, id, status, version = 'v0.0.0', userna
             await submitProject(decodedToken.user_id, id, token).then((e) => {
                 setLoading(false)
                 handleUpdate()
+                console.log(e)
             });
         } catch (error) {
             console.log(error)

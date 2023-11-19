@@ -11,9 +11,9 @@ class VersionProject(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     status = db.Column(db.Enum(ProjectStatus), nullable=False)
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
-    version = db.Column(db.String, nullable=False)
-    document_project = db.relationship('DocumentProject', backref = "version_project")
     reports_project = db.relationship('Report', backref = "version_project")
+    version = db.Column(db.String, nullable=False)
+    document_project = db.relationship('DocumentProject', backref = "version_project", cascade="all, delete-orphan")
     created = db.Column(DateTime, default=datetime.utcnow, nullable=False)
 
     # Crea una versione associata ad un progetto, se il progetto non esiste con version = "v0.0.0"
@@ -34,7 +34,9 @@ class VersionProject(db.Model):
         else:
             project_version = cls(status=ProjectStatus.TO_BE_SUBMITTED ,project_id=project_id,version="v0.0.0" )    
         project_version.created = datetime.utcnow()  # Imposta created all'ora corrente
+
         project_version.document_project = document_project
+        
         db.session.add(project_version)
         db.session.commit()
 

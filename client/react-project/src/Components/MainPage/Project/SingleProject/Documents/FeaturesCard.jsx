@@ -23,6 +23,7 @@ const mockdata = [
 export function FeaturesCard({ document, isNewlyAdded = false, onChange }) {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [docType, setDocType] = useState(DocumentType[document.metadata ? document.metadata.type_document : 'UNDEFINED']);
+  const [initialType, setInitialType] = useState(DocumentType[document.metadata ? document.metadata.type_document : 'UNDEFINED'])
   const [isBeingEdited, setIsBeingEdited] = useState(false);
   const [hasChanged, setHasChanged] = useState(false);
 
@@ -41,6 +42,8 @@ export function FeaturesCard({ document, isNewlyAdded = false, onChange }) {
   const handleDownload = () => {
     const token = getToken();
     downloadDocumentsbyId(document.id, token);
+
+    //.then((res)=>{})
   }
 
   const handleChange = (event) => {
@@ -52,8 +55,8 @@ export function FeaturesCard({ document, isNewlyAdded = false, onChange }) {
 
   useEffect(() => {
     // console.log(document.metadata.type_document);
-    console.log(docType)
-  }, []);
+    console.log(hasChanged)
+  }, [hasChanged]);
 
   const documentTypes = [
     { value: 0, label: 'Data management plan' },
@@ -71,7 +74,7 @@ export function FeaturesCard({ document, isNewlyAdded = false, onChange }) {
   ];
 
   return (
-    <Card withBorder radius="md" className={!hasChanged ? classes.card : classes.cardActive}>
+    <Card withBorder radius="md" className={!hasChanged ? classes.card : classes.cardActive} style={{borderColor: initialType !== docType ? 'cornflowerblue' : null}}>
       <Card.Section className={classes.imageSection}>
         <Image src={document.image_preview ? `data:image/png;base64,${document.image_preview}` : "https://img.freepik.com/premium-vector/pdf-file-icon-flat-design-graphic-illustration-vector-pdf-icon_676691-2007.jpg?w=826"} alt="Tesla Model S" />
       </Card.Section>
@@ -89,13 +92,13 @@ export function FeaturesCard({ document, isNewlyAdded = false, onChange }) {
             <FormControl fullWidth size='small'>
               <InputLabel id="demo-simple-select-label">Type</InputLabel>
               <Select
-                disabled={docType === 11 ? false : true}
+                disabled={initialType === 11 ? false : true}
                 labelId="demo-simple-select-label"
                 id="demo-select-small"
                 value={docType}
                 label="Type"
                 onChange={handleChange}
-                style={{ opacity: isBeingEdited ? 1 : 0.5 }}
+                // style={{ opacity: isBeingEdited ? 1 : 0.5 }}
               >
                 {documentTypes.map((documentType) => (
                   <MenuItem key={documentType.value} value={documentType.value}>
