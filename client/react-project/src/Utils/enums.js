@@ -19,4 +19,9 @@ export const DocumentType = {
   LEGAL_DOCUMENTS: 9,
   PROGRESS_REPORTS: 10,
   UNDEFINED: 11,
+
+  getStringFromValue: function (value) {
+    const key = Object.keys(this).find(key => this[key] === value);
+    return key || null;
+  },
 };
