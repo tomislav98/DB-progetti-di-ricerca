@@ -21,7 +21,6 @@ function MySteps(props) {
     const [uploadedFiles, setUploadedFiles] = useState([]);
     const [stepperStatus, setStepperStatus] = useState(props.stepperStatus ? props.stepperStatus : { title: '', description: '' })
 
-
     // Function to handle new files being uploaded
     const handleFilesUploaded = (files) => {
         setUploadedFiles(files);

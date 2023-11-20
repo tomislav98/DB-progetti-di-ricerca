@@ -13,7 +13,6 @@ class DocumentProject(db.Model):
 
     @classmethod
     def create_document(cls, name, type_document, version_project_id, pdf_data, created=datetime.now().date()):
-        print(type_document)
         document = cls(name=name, type_document=type_document, version_project_id=version_project_id, pdf_data=pdf_data, created=created)
         db.session.add(document)
         db.session.commit()

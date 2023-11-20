@@ -85,7 +85,7 @@ class Project(db.Model):
         # testare
         latest_version = VersionProject.get_latest_version(self.id)
             
-    
+
         v = VersionProject.create_version(self.status, self.id, version)
 
         for doc in documentsForm:
@@ -136,17 +136,16 @@ class Project(db.Model):
             raise CustomError(f"Errore: {type(e).__name__} - {e}", 500)
     
     @staticmethod
-    def get_user_projects(user_id, project_id):
+    def get_user_project_by_id(user_id, project_id):
         project =   ( 
                         db.session.query(Project)
                         .join(Researcher, Researcher.id == Project.researcher_id)
                         .join(User, User.id == Researcher.user_id)
                         .filter(User.id == user_id, Project.id == project_id)
-                        .all()
+                        .first()
                     )
         if project:
             return project
-        print(project)
         return None
 
     @staticmethod

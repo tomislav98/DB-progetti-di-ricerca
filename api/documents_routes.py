@@ -26,7 +26,6 @@ def get_document(current_user, document_id):
         # Extract metadata and image preview from the PDF
         pdf_buffer = io.BytesIO(doc.pdf_data)
         pdf_document = fitz.open(stream=pdf_buffer, filetype="pdf")
-        print(pdf_document.metadata)  
 
         metadata = {
             "name": doc.name,

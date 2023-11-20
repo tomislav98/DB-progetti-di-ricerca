@@ -12,6 +12,7 @@ from datetime import datetime, date, timedelta
 import jwt
 import os
 from utils.middleware import token_required, researcher_required
+from models.project_versions import VersionProject
 
 researcher_blueprint = Blueprint("researcher", __name__)
 
@@ -132,27 +133,38 @@ def delete_project(current_user,user_id,project_id):
 @researcher_required
 @error_handler
 def update_project_version(current_user, user_id, project_id):
-    doctype = request.form.get('type')
-
     if request.method == "PUT":
         if current_user.id == user_id:
-            project = Project.get_user_projects(user_id,project_id)
+            project = Project.get_user_project_by_id(user_id,project_id)
             if project is None:
                 raise CustomError("There are no projects with such parameters", 404)
+            
             version = request.form.get('version')
+
             if project.status in [ProjectStatus.APPROVED,ProjectStatus.NOT_APPROVED,ProjectStatus.SUBMITTED]:
                 raise CustomError("You can't update the project",403)
             #Handle forms and files
             files = request.files.getlist('files')
-            files_metadata = json.loads(request.form.get('files_metadata'))
-            if len(files_metadata) != len(files): 
-                raise CustomError("Invalid Boby",400)
+
+            new_files_metadata = json.loads(request.form.get('new_files_metadata'))
+            
             file_associated = []
+            
+            latest_version_files = VersionProject.get_latest_version(project_id).document_project
+
             #Format check del body
+
+            # scorrere i new_files e vedere se un new_file.name e' presente in mezzo alla lista di tutti gli attributi x.name dove x e un elemento di old_files,
+            # se presente, eliminare quel file da old_files 
+
+            # caricare i new_files, prendendo i metadati da new_files_metadata
+
+            # caricare gli old_files, in cui non servono old_files_metadata
+
+            # modificare o rimuovere il seguente codice 
+
             for file in files:
-                file_metadata = find_json_by_value(files_metadata, 'filename' ,file.filename)
-                print(type(file_metadata))
-                print(file_metadata)
+                file_metadata = find_json_by_value(new_files_metadata, 'filename' ,file.filename)
                 if file_metadata is None:
                     raise CustomError("Invalid body", 400)
                 file_title = file_metadata.get("title")
@@ -162,11 +174,20 @@ def update_project_version(current_user, user_id, project_id):
                     raise CustomError("Invalid body", 400)
                 file_metadata['pdf_data'] = file.read()
                 file_associated.append(file_metadata)
+                new_files_metadata.remove(file_metadata)
+            
+            for file in latest_version_files:
+                file_metadata = find_json_by_value(new_files_metadata, 'id', file.id)
+                if file_metadata is not None:
+                    file_metadata['pdf_data'] = file.pdf_data
+                    file_associated.append(file_metadata)
+                    # print(file_metadata) 
 
-            updated = project[0].update_project_version(file_associated,version)
+            updated = project.update_project_version(file_associated,version)
                             
             response_json = {
                 "message": "Project updated correctly to version "+ updated.version
             }
             return Response(json.dumps(response_json),200)
         raise CustomError("You cannot update somebody else's project",403)
+    
