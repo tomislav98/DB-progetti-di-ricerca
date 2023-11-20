@@ -140,6 +140,9 @@ def update_project_version(current_user, user_id, project_id):
             if project is None:
                 raise CustomError("There are no projects with such parameters", 404)
             version = request.form.get('version')
+            if project.status in [ProjectStatus.APPROVED,ProjectStatus.NOT_APPROVED,ProjectStatus.SUBMITTED]:
+                raise CustomError("You can't update the project",403)
+            #Handle forms and files
             files = request.files.getlist('files')
             files_metadata = json.loads(request.form.get('files_metadata'))
             if len(files_metadata) != len(files): 
@@ -148,6 +151,8 @@ def update_project_version(current_user, user_id, project_id):
             #Format check del body
             for file in files:
                 file_metadata = find_json_by_value(files_metadata, 'filename' ,file.filename)
+                print(type(file_metadata))
+                print(file_metadata)
                 if file_metadata is None:
                     raise CustomError("Invalid body", 400)
                 file_title = file_metadata.get("title")
@@ -158,7 +163,7 @@ def update_project_version(current_user, user_id, project_id):
                 file_metadata['pdf_data'] = file.read()
                 file_associated.append(file_metadata)
 
-            updated = project[0].update_project_version(version,file_associated)
+            updated = project[0].update_project_version(file_associated,version)
                             
             response_json = {
                 "message": "Project updated correctly to version "+ updated.version
