@@ -36,7 +36,6 @@ export function FeaturesCard({ document, isNewlyAdded = false, onChange }) {
 
   const handleDelete = () => {
     console.log('handleDelete');
-
   }
 
   const handleDownload = () => {
@@ -49,14 +48,14 @@ export function FeaturesCard({ document, isNewlyAdded = false, onChange }) {
   const handleChange = (event) => {
     setDocType(event.target.value);
     setHasChanged(true);
-    onChange();
+
+    if(document.metadata)
+      onChange(event.target.value, document.metadata.name, document.id);
+
+    else
+      onChange(event.target.value, document.name)
+
   };
-
-
-  useEffect(() => {
-    // console.log(document.metadata.type_document);
-    console.log(hasChanged)
-  }, [hasChanged]);
 
   const documentTypes = [
     { value: 0, label: 'Data management plan' },

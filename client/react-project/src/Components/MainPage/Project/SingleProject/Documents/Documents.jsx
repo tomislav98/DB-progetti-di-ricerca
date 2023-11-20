@@ -6,6 +6,7 @@ import { FeaturesCard } from "./FeaturesCard";
 import './documents.scss'
 import { Divider, Button, Group } from '@mantine/core'
 import { getDecodedToken, getDocumentsbyId, getLatestVersionByProjectId, getToken, updateProject } from "../../../../../Utils/requests";
+import { DocumentType } from "../../../../../Utils/enums";
 
 function ProjectDocuments({ documents = [], projectId }) {
     const [addedFiles, setAddedFiles] = useState([]);
@@ -14,17 +15,11 @@ function ProjectDocuments({ documents = [], projectId }) {
     const [hasChanged, setHasChanged] = useState(false);
     const [loading, setLoading] = useState(false)
 
-    useEffect(()=>{
-        console.log(addedFiles)
-        console.log(fetchedFiles)
-    }, [fetchedFiles, addedFiles])
-
     useEffect(() => {
         setFetchedFiles(documents)
     }, [fetchedFiles, documents])
 
     function handleFilesUpload(files) {
-        console.log(files)
         setAddedFiles(files);
         setHasUploaded(true);
     };
@@ -38,7 +33,26 @@ function ProjectDocuments({ documents = [], projectId }) {
     const handleUpdateButton = async () => {
         const token = getToken();
         const decodedToken = getDecodedToken();
-        // const uploadedFiles = 
+
+        const new_files_metadata = [];
+
+        new_files_metadata.push(
+            ...fetchedFiles.map(x => ({
+                title: x.metadata.name,
+                type: x.metadata.type_document,
+                id: x.id
+            }))
+        );
+
+        new_files_metadata.push(
+            ...addedFiles.map(x => ({
+                filename: x.path,
+                title: x.name,
+                type: x.docType
+            }))
+        );
+
+        console.log('new_files_metadata (from addedFiles):', new_files_metadata);
 
         setLoading(true);
         // add files
@@ -46,6 +60,26 @@ function ProjectDocuments({ documents = [], projectId }) {
 
         // })
     };
+
+    const handleChangeProject = (type, title, id = undefined) => {
+        setHasChanged(true)
+
+        if (id) {
+            for (const x of fetchedFiles) {
+                if (x.id === id) {
+                    x.metadata.type_document = DocumentType.getStringFromValue(type);
+                }
+            }
+        }
+        else {
+            for (const x of addedFiles) {
+                if (x.name === title) {
+                    x.docType = DocumentType.getStringFromValue(type);
+                }
+            }
+        }
+
+    }
 
     return (
         <div className="full-page-container">
@@ -62,7 +96,7 @@ function ProjectDocuments({ documents = [], projectId }) {
                             {
                                 fetchedFiles.map((val, i) => {
                                     return (
-                                        <div className="col-12 col-md-4 col-lg-3"> <FeaturesCard document={fetchedFiles[i]} onChange={()=>setHasChanged(true)} /> </div>
+                                        <div className="col-12 col-md-4 col-lg-3"> <FeaturesCard document={fetchedFiles[i]} onChange={handleChangeProject} /> </div>
                                     )
                                 })
                             }
@@ -74,7 +108,7 @@ function ProjectDocuments({ documents = [], projectId }) {
                                     {
                                         addedFiles.map((val, i) => {
                                             return (
-                                                <div className="col-12 col-md-4 col-lg-3"> <FeaturesCard document={addedFiles[i]} isNewlyAdded={true}  onChange={()=>setHasChanged(true)} /> </div>
+                                                <div className="col-12 col-md-4 col-lg-3"> <FeaturesCard document={addedFiles[i]} isNewlyAdded={true} onChange={handleChangeProject} /> </div>
                                             )
                                         })
                                     }
@@ -128,13 +162,6 @@ export default function DocumentsModal({ projectData, isOpen, onCloseModal }) {
                     const latestVersionRes = await getLatestVersionByProjectId(projectData.id, token);
                     const documentPromises = latestVersionRes.documents.map(async (doc) => {
                         const documentRes = await getDocumentsbyId(doc.doc_id, token);
-                        
-                        console.log({
-                            image_preview: documentRes.image_preview,
-                            metadata: documentRes.metadata,
-                            pdf_data: documentRes.pdf_data,
-                            id: doc.doc_id,
-                        })
 
                         fetchedProjects.push({
                             image_preview: documentRes.image_preview,

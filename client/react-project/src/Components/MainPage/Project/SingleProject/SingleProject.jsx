@@ -407,7 +407,6 @@ function ModalSubmit({ isOpen = false, onCloseModal, version }) {
         }
 
         if (!version) {
-            console.log(version)
             console.error('Versione non esistente.');
             return;
         }
@@ -548,10 +547,6 @@ export default function SingleProject({ projects }) {
     const [projectList, setProjectList] = useState([]);
     const [currentProject, setCurrentProject] = useState(null);
     const [rightValue, setRightValue] = useState(100);
-
-    useEffect(() => {
-        console.log(currentProject)
-    }, [currentProject])
 
     const navigate = useNavigate();
 

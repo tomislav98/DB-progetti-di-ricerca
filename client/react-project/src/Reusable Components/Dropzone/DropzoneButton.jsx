@@ -23,10 +23,6 @@ function DropzoneButton({ onFilesUploaded, onFilesDeleted, uploadedFilesprops = 
     onFilesDeleted(newUploadedFiles)
   };
 
-  useEffect(() => {
-    console.log(uploadedFiles)
-  },[uploadedFiles])
-
   return (
     <div className='wrapper'>
       <div className='row dropzone-area' style={{ height: '100%', width: '100%' }}>
