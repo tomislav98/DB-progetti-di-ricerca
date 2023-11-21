@@ -165,24 +165,18 @@ def update_project_version(current_user, user_id, project_id):
 
             for file in files:
                 file_metadata = find_json_by_value(new_files_metadata, 'filename' ,file.filename)
-                if file_metadata is None:
-                    raise CustomError("Invalid body", 400)
-                file_title = file_metadata.get("title")
-                file_type = file_metadata.get("type")
-                
-                if file_title is None or file_type is None:
-                    raise CustomError("Invalid body", 400)
+                _validate_file_form(file_metadata)
                 file_metadata['pdf_data'] = file.read()
                 file_associated.append(file_metadata)
                 new_files_metadata.remove(file_metadata)
             
             for file in latest_version_files:
+                print(file.id)
                 file_metadata = find_json_by_value(new_files_metadata, 'id', file.id)
-                if file_metadata is not None:
-                    file_metadata['pdf_data'] = file.pdf_data
-                    file_associated.append(file_metadata)
-                    # print(file_metadata) 
-
+                _validate_file_form(file_metadata)
+                file_metadata['pdf_data'] = file.pdf_data
+                file_associated.append(file_metadata)
+                # print(file_metadata) 
             updated = project.update_project_version(file_associated,version)
                             
             response_json = {
@@ -190,4 +184,7 @@ def update_project_version(current_user, user_id, project_id):
             }
             return Response(json.dumps(response_json),200)
         raise CustomError("You cannot update somebody else's project",403)
-    
+
+def _validate_file_form(file_metadata):
+    if file_metadata is None or file_metadata.get("title") is None or file_metadata.get("type") is None:
+        raise CustomError("Invalid body", 400)  
