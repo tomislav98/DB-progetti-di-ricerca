@@ -4,6 +4,7 @@ from utils.exceptions import CustomError
 import re
 from datetime import datetime
 from sqlalchemy import DateTime
+from packaging import version as package_version
 
 class VersionProject(db.Model):
     __tablename__ = 'version_projects'
@@ -25,10 +26,9 @@ class VersionProject(db.Model):
             raise CustomError("Il formato della versione deve essere 'vX.Y.Z'", 400)
         
         versions = VersionProject.query.filter_by(project_id=project_id).all()
-
         if versions:
             for v in versions:
-                if v.version >= version:
+                if package_version.parse(v.version[1:]) >= package_version.parse(version[1:]):
                     raise CustomError("You can't create a version lower than the latest",400)
             project_version = cls(status=status,project_id=project_id, version=version)
         else:
