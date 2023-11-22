@@ -13,17 +13,12 @@
         .row-docs-title{
             height: 10%;
         }
-
         .row-docs-docs{
-            // height: 80%;
+            row-gap: 50px;
         }
-
     }
 
     .row-dropzone {
-
-        height: 90%;
-
         .col-dropzone {
             height: 60% !important;
             text-align: center;

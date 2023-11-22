@@ -5,7 +5,7 @@ from models.project_versions import VersionProject
 from models.users import Researcher, User
 from utils.exceptions import CustomError
 from utils.enums import ProjectStatus
-
+from packaging import version as package_version
 
 # aggiungere anche un attributo latest_version che ad ogni aggiornamento viene aggiornato
 class Project(db.Model):
@@ -27,9 +27,9 @@ class Project(db.Model):
         window = EvaluationWindow.get_next_window()
         if window is None:
             raise CustomError("There are no evaluation windows at the moment, try again later",500) 
+        
         self.status = ProjectStatus.SUBMITTED
         self.evaluation_window_id = window.id
-        
         
         current_version_parts = self.latest_version.split('.')
         last_number = int(current_version_parts[-1])
@@ -40,7 +40,6 @@ class Project(db.Model):
         new_version_parts.append(str(new_last_number))  # Aggiungi il nuovo numero
         new_version_string = '.'.join(new_version_parts)
 
-        
         # testare se la submit crea una copia dei docs associati alla nuova versione
 
         latest_version = VersionProject.get_latest_version(self.id)
@@ -128,8 +127,11 @@ class Project(db.Model):
     def get_project_versions_list(id):
         try:
             projects = VersionProject.query.filter_by(project_id=id).order_by(VersionProject.version.desc()).all()
+            
+            sorted_projects = sorted(projects, key=lambda x: package_version.parse(x.version[1:]), reverse=True)
+            
             if projects:
-                return projects
+                return sorted_projects
             raise CustomError("There are no projects with that id", 404) 
 
         except Exception as e:

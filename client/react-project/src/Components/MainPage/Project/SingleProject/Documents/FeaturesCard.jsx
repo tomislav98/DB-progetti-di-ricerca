@@ -53,7 +53,7 @@ export function FeaturesCard({ document, isNewlyAdded = false, onChange }) {
       onChange(event.target.value, document.metadata.name, document.id);
 
     else
-      onChange(event.target.value, document.name)
+      onChange(event.target.value, document.name);
 
   };
 
@@ -73,9 +73,9 @@ export function FeaturesCard({ document, isNewlyAdded = false, onChange }) {
   ];
 
   return (
-    <Card withBorder radius="md" className={!hasChanged ? classes.card : classes.cardActive} style={{borderColor: initialType !== docType ? 'cornflowerblue' : null}}>
+    <Card withBorder radius="md" className={!hasChanged ? classes.card : classes.cardActive} style={{borderColor: initialType !== docType ? 'cornflowerblue' : null, height: '500px'}}>
       <Card.Section className={classes.imageSection}>
-        <Image src={document.image_preview ? `data:image/png;base64,${document.image_preview}` : "https://img.freepik.com/premium-vector/pdf-file-icon-flat-design-graphic-illustration-vector-pdf-icon_676691-2007.jpg?w=826"} alt="Tesla Model S" />
+        <Image style={{height: '300px'}} src={document.image_preview ? `data:image/png;base64,${document.image_preview}` : "https://img.freepik.com/premium-vector/pdf-file-icon-flat-design-graphic-illustration-vector-pdf-icon_676691-2007.jpg?w=826"} alt="Tesla Model S" />
       </Card.Section>
 
       <Group justify="space-between" mt="md">

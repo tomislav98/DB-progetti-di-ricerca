@@ -131,8 +131,6 @@ function MyDashboard({ title = '', projectVersions }) {
 
     async function downloadDocument() {
         const token = getToken();
-
-
         // TODO: e veramente da scorrere per tutte le versioni? secondo me no solo per ogni documento di una versione specifica,
         for (const v of projectVersions.all_versions) {
             for (const doc of v.documents) {
@@ -324,7 +322,7 @@ function ProjectStatus({ projectData, onOpenModal, onCloseModal }) {
             </div>
             <UpdateProjectModal isOpen={modalIndex === 0} onCloseModal={() => setModalIndex(null)} />
 
-            {project ? <DocumentsModal projectData={project} isOpen={modalIndex === 1} onCloseModal={() => { setModalIndex(null); }} /> : null}
+            {project ? <DocumentsModal projectData={project} isOpen={modalIndex === 1} onCloseModal={() => { setModalIndex(null); onCloseModal(); }} /> : null}
 
         </div>
     )
@@ -421,7 +419,6 @@ function ModalSubmit({ isOpen = false, onCloseModal, version }) {
         axios
             .put(url, null, { headers })
             .then(response => {
-                // handleResponse(response.data);
                 handleClose();
             })
             .catch(error => {
@@ -684,8 +681,8 @@ export default function SingleProject({ projects }) {
                             <MyDashboard title={''} projectVersions={projectVersions} />
                     }
                     <div className="col-12 col-md-4 col-lg-3 col-xxl-2 p-md-4" style={{ height: '90vh' }}>
-                        <ProjectActions version={currentProject ? currentProject : null} onSubmit={() => {fetchVersions()} }/>
-                        <ProjectStatus projectData={currentProject ? currentProject : null}  />
+                        <ProjectActions version={currentProject ? currentProject : null} onSubmit={() => fetchVersions()}/>
+                        <ProjectStatus projectData={currentProject ? currentProject : null} onCloseModal={()=>fetchVersions()} />
                     </div>
                 </div>
             </div>

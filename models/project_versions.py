@@ -45,9 +45,10 @@ class VersionProject(db.Model):
     @staticmethod
     def get_versions_by_project_id(proj_id):
         versions = VersionProject.query.filter_by(project_id=proj_id).order_by(VersionProject.version.desc()).all()
+        sorted_projects = sorted(versions, key=lambda x: package_version.parse(x.version[1:]), reverse=True)
 
         if versions:
-            return versions
+            return sorted_projects
         return None
     
     @staticmethod

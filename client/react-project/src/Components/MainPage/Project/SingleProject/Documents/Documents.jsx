@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useMediaQuery, Fab, Box, Chip, Card } from "@mui/material";
+import { useState, useEffect, version } from "react";
+import { Box, TextField } from "@mui/material";
 import Modal from '@mui/material/Modal';
 import DropzoneButton from "../../../../../Reusable Components/Dropzone/DropzoneButton";
 import { FeaturesCard } from "./FeaturesCard";
@@ -8,12 +8,20 @@ import { Divider, Button, Group } from '@mantine/core'
 import { getDecodedToken, getDocumentsbyId, getLatestVersionByProjectId, getToken, updateProject } from "../../../../../Utils/requests";
 import { DocumentType } from "../../../../../Utils/enums";
 
-function ProjectDocuments({ documents = [], projectId }) {
+function ProjectDocuments({ documents = [], projectId, nameProp, descriptionProp, versionProp, onSuccess, onFailure }) {
     const [addedFiles, setAddedFiles] = useState([]);
     const [fetchedFiles, setFetchedFiles] = useState(documents);
     const [hasUploaded, setHasUploaded] = useState(false);
     const [hasChanged, setHasChanged] = useState(false);
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(false);
+    const [name, setName] = useState(nameProp ? nameProp : '');
+    const [description, setDescription] = useState(descriptionProp ? descriptionProp : '');
+    const [version, setVersion] = useState(versionProp ? versionProp : '');
+
+
+    useEffect(() => {
+        setName(nameProp);
+    }, [nameProp])
 
     useEffect(() => {
         setFetchedFiles(documents)
@@ -31,35 +39,52 @@ function ProjectDocuments({ documents = [], projectId }) {
     };
 
     const handleUpdateButton = async () => {
-        const token = getToken();
-        const decodedToken = getDecodedToken();
+        try {
+            const token = getToken();
+            const decodedToken = getDecodedToken();
 
-        const new_files_metadata = [];
+            const new_files_metadata = [];
 
-        new_files_metadata.push(
-            ...fetchedFiles.map(x => ({
-                title: x.metadata.name,
-                type: x.metadata.type_document,
-                id: x.id
-            }))
-        );
+            new_files_metadata.push(
+                ...fetchedFiles.map(x => ({
+                    title: x.metadata.name,
+                    type: x.metadata.type_document,
+                    id: x.id
+                }))
+            );
 
-        new_files_metadata.push(
-            ...addedFiles.map(x => ({
-                filename: x.path,
-                title: x.name,
-                type: x.docType
-            }))
-        );
+            new_files_metadata.push(
+                ...addedFiles.map(x => ({
+                    filename: x.path,
+                    title: x.name,
+                    type: x.docType ? x.docType : 'UNDEFINED'
+                }))
+            );
 
-        console.log('new_files_metadata (from addedFiles):', new_files_metadata);
 
-        setLoading(true);
-        // add files
-        // await updateProject(decodedToken.user_id,projectId,token, uploadedFiles).then((res)=>{
+            setLoading(true);
 
-        // })
+            const formData = new FormData();
+            formData.append('version', version);
+            addedFiles.forEach((file) => {
+                formData.append('files', file);
+            });
+            formData.append('new_files_metadata', JSON.stringify(new_files_metadata));
+
+            const res = await updateProject(decodedToken.user_id, projectId, token, formData);
+
+            console.log(res)
+
+            if (res.status === 200) 
+                onSuccess();
+
+        } catch (error ) {
+            onFailure(error.response.status, error.response.data.error);
+        } finally {
+            setLoading(false);
+        }
     };
+
 
     const handleChangeProject = (type, title, id = undefined) => {
         setHasChanged(true)
@@ -120,7 +145,23 @@ function ProjectDocuments({ documents = [], projectId }) {
                     <div className="col-12 col-lg-1 d-flex justify-content-center">
                         <Divider className="h-100 w-25" orientation="vertical" />
                     </div>
-                    <div className="col-12 col-lg-4">
+                    <div className="col-12 col-lg-4 overflow-auto">
+                        <div className="row row-info">
+                            <h5> Update project info </h5>
+                        </div>
+                        <div className="row row-inputs p-3">
+
+                            <div className="col-8">
+                                <TextField className="w-100" id="standard-basic" label="Title" variant="standard" placeholder={name} onChange={(event) => { setName(event.target.value); setHasChanged(true) }} />
+                            </div>
+                            <div className="col-4 ">
+                                <TextField className="w-100" id="standard-basic" label="Version" variant="standard" autoFocus placeholder={version} onChange={(event) => { setVersion(event.target.value); setHasChanged(true) }} />
+                            </div>
+                            <div className="col-12 ">
+                                <TextField className="w-100" id="standard-basic" label="Description" variant="standard" placeholder={description} multiline rows={4} onChange={(event) => { setDescription(event.target.value); setHasChanged(true) }} />
+                            </div>
+                        </div>
+
                         <div className="row row-title">
                             <h5>Upload new files</h5>
                         </div>
@@ -149,8 +190,17 @@ function ProjectDocuments({ documents = [], projectId }) {
 export default function DocumentsModal({ projectData, isOpen, onCloseModal }) {
     const [open, setOpen] = useState(isOpen);
     const [docsList, setDocsList] = useState([]);
+    const [updateFailed, setUpdateFailed] = useState(false);
+    const [failedStatusCode, setFailedStatusCode] = useState(0);
+    const [failureMessage, setFailureMessage] = useState('')
 
-    // DONE: projectData.id fornisce l'id del progetto, prendere l'ultima versione associata ad esso e prendere i documenti della stessa 
+    // startup effects
+    useEffect(() => {
+        setOpen(isOpen);
+        setUpdateFailed(false);
+    }, [isOpen])
+
+
     useEffect(() => {
         const fetchAndSetDocsList = async () => {
             const fetchedProjects = [];
@@ -188,16 +238,13 @@ export default function DocumentsModal({ projectData, isOpen, onCloseModal }) {
         onCloseModal();
         setOpen(false);
     }
-    const handleOpen = () => {
-        setOpen(true);
-    }
 
     const style = {
         position: 'absolute',
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
-        width: '90vw',
+        width: updateFailed?'50vw':'90vw',
         height: '90vh',
         bgcolor: 'background.paper',
         borderRadius: '15px',
@@ -206,9 +253,11 @@ export default function DocumentsModal({ projectData, isOpen, onCloseModal }) {
         p: 4,
     };
 
-    useEffect(() => {
-        setOpen(isOpen);
-    }, [isOpen])
+    const handleFailedUpdate = (status, message) => {
+        setUpdateFailed(true);
+        setFailedStatusCode(status);
+        setFailureMessage(message)
+    }
 
     return (
         <div>
@@ -218,10 +267,63 @@ export default function DocumentsModal({ projectData, isOpen, onCloseModal }) {
                 aria-labelledby="modal-modal-title"
                 aria-describedby="modal-modal-description"
             >
-                <Box sx={style}>
-                    <ProjectDocuments documents={docsList} projectId={projectData.id} />
-                </Box>
+                {updateFailed ?
+                    <Box sx={style}>
+                        <UpdateFailed status={failedStatusCode} message={failureMessage} onCloseModal={onCloseModal}/>
+                    </Box>
+                    :
+                    <Box sx={style}>
+                        <ProjectDocuments documents={docsList}
+                            projectId={projectData.id}
+                            nameProp={projectData.name}
+                            descriptionProp={projectData.description}
+                            versionProp={projectData.version}
+                            onSuccess={()=> onCloseModal()}
+                            onFailure={handleFailedUpdate}
+                        />
+
+                    </Box>
+                }
+
             </Modal>
         </div>
     );
+}
+
+function UpdateFailed({status, message, onCloseModal}) {
+
+    useEffect(()=>{
+        setTimeout(()=>{
+            onCloseModal()
+        }, 6000)
+    })
+
+    return (
+        <div className="container py-5">
+            <div className="p-5 text-center bg-body-tertiary">
+                <svg className="bi mt-5 mb-3" width="48" height="48">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" className="bi bi-check2-circle" viewBox="0 0 16 16">
+                        <path d="M2.5 8a5.5 5.5 0 0 1 8.25-4.764.5.5 0 0 0 .5-.866A6.5 6.5 0 1 0 14.5 8a.5.5 0 0 0-1 0 5.5 5.5 0 1 1-11 0z" />
+                        <path d="M15.354 3.354a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l7-7z" />
+                    </svg>
+                </svg>
+                <h1 className="text-body-emphasis">Update non effettuato</h1>
+                <p className="col-lg-6 mx-auto mb-4 text-muted">
+                    Ci dispiace ma c'è stato un errore, questo modale verrà automaticamente chiuso fra qualche secondo. 
+                    Codice errore {status}. 
+                    <br />
+                    <p className="text-danger">{message}</p> 
+                </p>
+                <div className="spinner-grow spinner-grow-sm" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                </div>
+                <div className="spinner-grow spinner-grow-sm" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                </div>
+                <div className="spinner-grow spinner-grow-sm" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        </div>
+    )
 }
