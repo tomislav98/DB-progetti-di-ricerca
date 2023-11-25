@@ -3,6 +3,7 @@ from models import EvaluationWindow
 from models.project_documents import DocumentProject
 from models.project_versions import VersionProject
 from models.users import Researcher, User
+from utils.db_utils import add_instance, add_instance_no_commit, commit, flush
 from utils.exceptions import CustomError
 from utils.enums import ProjectStatus
 from packaging import version as package_version
@@ -51,26 +52,29 @@ class Project(db.Model):
         # fine test qui 
 
         self.latest_version = new_version_string
-        db.session.commit()
+        commit()
+
         return self
 
     def withdraw(self):
 
         version = VersionProject.get_latest_version(self.id)
         version.delete()
-        db.session.commit()
+        commit()
+
 
         oldVersion = VersionProject.get_latest_version(self.id)
         self.status = oldVersion.status
         self.latest_version = oldVersion.version
-        db.session.commit()
+        commit()
+
 
         return version
 
     def delete(self):
         try:
             db.session.delete(self)
-            db.session.commit()
+            commit()
             return self
         except Exception as e:
             raise CustomError(f"Errore: {type(e).__name__} - {e}", 500)
@@ -86,14 +90,14 @@ class Project(db.Model):
             
 
         v = VersionProject.create_version(self.status, self.id, version)
-
+        flush()
         for doc in documentsForm:
+            print(v)
             DocumentProject.create_document(doc['title'], doc['type'], v.id, doc['pdf_data'])
-
         # fine test
 
         self.latest_version = v.version
-        db.session.commit()
+        commit()
         return v
 
     @classmethod
@@ -101,13 +105,13 @@ class Project(db.Model):
         project = cls(name=name, description=description, data_creation=data_creation,
                         researcher_id=creator_user_id, latest_version="v0.0.0")
         project.status = ProjectStatus.TO_BE_SUBMITTED
-        db.session.add(project)
-        db.session.commit()
+        add_instance(project)
         version = VersionProject.create_version(project.status,project.id,"v0.0.0")
-        
+        flush()
         if files:
             for file in files: #TODO qui handliamo piu file, dobbiamo cambiare il typedocument e il nome, il nome potremmo metterlo anche come key maybe 
-                DocumentProject.create_document(name = file.filename, type_document='UNDEFINED',version_project_id=version.id, pdf_data=file.read() )
+               DocumentProject.create_document(name = file.filename, type_document='UNDEFINED',version_project_id=version.id, pdf_data=file.read() )
+        commit()
         return project
 
     @staticmethod
@@ -159,7 +163,7 @@ class Project(db.Model):
                         .filter(Project.id == project_id)
                         .one()
                     )
-        db.session.commit()
+        commit()
         return user
     
       

@@ -1,5 +1,6 @@
 from datetime import datetime
 from config import db
+from utils.db_utils import *
 
 class DocumentProject(db.Model):
     __tablename__ = 'documents_projects'
@@ -14,8 +15,7 @@ class DocumentProject(db.Model):
     @classmethod
     def create_document(cls, name, type_document, version_project_id, pdf_data, created=datetime.now().date()):
         document = cls(name=name, type_document=type_document, version_project_id=version_project_id, pdf_data=pdf_data, created=created)
-        db.session.add(document)
-        db.session.commit()
+        add_instance(document)
     
     @staticmethod
     def get_documents_by_version_project_id(version_project_id):

@@ -2,6 +2,7 @@ from flask import Blueprint
 from config import bcrypt
 from flask import request, jsonify, Response, json
 from models.reports import Report
+from utils.db_utils import commit
 from utils.exceptions import CustomError
 from datetime import datetime, timedelta
 import jwt
@@ -61,7 +62,7 @@ def update_reports_of_specific_project(report_id):
                 for key, value in new_data.items():
                     setattr(report_query, key, value)
                 # Need to do the commit before exit the function
-                db.session.commit()
+                commit()
 
                 return jsonify({"message": "Report updated successfully"}), 200
     except Exception as e:
@@ -77,7 +78,7 @@ def delete_report(report_id):
             if not report:
                 raise CustomError("Unknown or invalid report_id", 404)
             db.session.delete(report)
-            db.session.commit()
+            commit()
             return jsonify({"message": "Report deleted successfully"}), 200
 
     except Exception:

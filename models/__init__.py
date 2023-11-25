@@ -5,9 +5,7 @@ from .evaluation_windows import EvaluationWindow
 from .project_versions import VersionProject
 from .projects import Project
 from  utils.populate import populate_users
-from .messages import Message
 from .project_documents import DocumentProject
-from . import events
 
 with app.app_context():
     # db.drop_all()

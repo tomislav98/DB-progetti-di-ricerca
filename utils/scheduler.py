@@ -3,6 +3,7 @@ from models.evaluation_windows import EvaluationWindow
 from models.project_documents import DocumentProject
 from models.project_versions import VersionProject
 from models.projects import ProjectStatus
+from utils.db_utils import commit
 from utils.exceptions import error_handler 
 
 
@@ -12,12 +13,10 @@ def evaluate_current_window_projects():
         window = EvaluationWindow.get_next_window()
         if window: 
             for project in window.project:
-                latest_version_project = project.version_project[-1] #get latest version project, da fare meglio
+                latest_version_project = VersionProject.get_latest_version(project.id) #get latest version project, da fare meglio
                 reports = latest_version_project.reports_project
-                documents = latest_version_project.document_project
-                # print(project.id)
-                # print(latest_version_project)
-                # print(reports)
+                print(project.id)
+                print(project.latest_version)
 
                 evaluated_status = ProjectStatus.REQUIRES_CHANGES
                 if reports: 
@@ -32,7 +31,6 @@ def evaluate_current_window_projects():
                 patch += 1
                 new_version = f'v{major}.{minor}.{patch}'
                 
-
                 #Crea versione e copia documenti
                 v = VersionProject.create_version(status  = evaluated_status , project_id = project.id, version = new_version)
                 for file in latest_version_project.document_project:
@@ -41,7 +39,7 @@ def evaluate_current_window_projects():
                 #TODO vedere bene il comportamento(dovrebber fungere ma puzza qualcosa)
                 project.latest_version = new_version
                 project.status = evaluated_status
-                db.session.commit()
+                commit()
              
 
                 

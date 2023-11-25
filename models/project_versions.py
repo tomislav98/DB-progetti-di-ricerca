@@ -1,4 +1,5 @@
 from config import db
+from utils.db_utils import add_instance, add_instance_no_commit, commit
 from utils.enums import ProjectStatus
 from utils.exceptions import CustomError
 import re
@@ -37,14 +38,13 @@ class VersionProject(db.Model):
 
         project_version.document_project = document_project
         
-        db.session.add(project_version)
-        db.session.commit()
+        add_instance_no_commit(project_version)
 
         return project_version
 
     @staticmethod
     def get_versions_by_project_id(proj_id):
-        versions = VersionProject.query.filter_by(project_id=proj_id).order_by(VersionProject.version.desc()).all()
+        versions = VersionProject.query.filter_by(project_id=proj_id).all()
         sorted_projects = sorted(versions, key=lambda x: package_version.parse(x.version[1:]), reverse=True)
 
         if versions:
@@ -60,13 +60,13 @@ class VersionProject(db.Model):
 
     def update_status(self,status):
         self.status = status
-        db.session.commit()
+        commit()
         return self
     
     def delete(self):
         try:
             db.session.delete(self)
-            db.session.commit()
+            commit()
             return self
         except Exception as e:
             raise CustomError(f"Errore: {type(e).__name__} - {e}", 500)

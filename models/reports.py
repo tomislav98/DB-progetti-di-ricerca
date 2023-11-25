@@ -1,6 +1,8 @@
 from datetime import datetime
 from config import db
 from sqlalchemy import DateTime, CheckConstraint, UniqueConstraint
+
+from utils.db_utils import add_instance
 from .project_versions import VersionProject
 
 class Report(db.Model):
@@ -23,7 +25,6 @@ class Report(db.Model):
             files.append(value)
             print(files)
         report = cls(version_project_id = latest_version.id, evaluator_id = evaluator_id, pdf_data = files[0].read(), vote = vote)
-        db.session.add(report)
-        db.session.commit()
+        add_instance(report)
         return report
         

@@ -111,7 +111,7 @@ def getAllEndpoints():
     return jsonify({'/': 'Route that returns a list of every endpoint ',
                     '/register': 'Route that registers a user'})
 
-#scheduler.add_job(lambda : evaluate_current_window_projects(), 'interval', seconds = 3)
+#scheduler.add_job(lambda : evaluate_current_window_projects(), 'interval', seconds = 10)
 
 scheduler.add_job(lambda : EvaluationWindow.evaluate_current_window_projects(), 'cron', hour = 0, minute = 0 )
 scheduler.start() 

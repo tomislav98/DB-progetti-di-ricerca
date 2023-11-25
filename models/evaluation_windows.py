@@ -1,5 +1,6 @@
 from config import db
 from sqlalchemy import CheckConstraint, event
+from utils.db_utils import add_instance, commit
 from utils.exceptions import CustomError
 from utils.dates import str2date
 from datetime import datetime
@@ -39,8 +40,7 @@ class EvaluationWindow(db.Model):
         if overlapping_windows:
             raise CustomError("The new evaluation window overlaps with an existing window.", 400)
         window = EvaluationWindow(data_start=parsed_start, data_end=parsed_end)
-        db.session.add(window)
-        db.session.commit()
+        add_instance(window);
 
     @staticmethod
     def get_current_window():
@@ -60,11 +60,13 @@ class EvaluationWindow(db.Model):
         if projects:
             return projects
         return None
+    
     @classmethod
     def delete_first_window(cls):
         evaluation_window = cls.get_current_window()
         db.session.delete(evaluation_window)
-        db.session.commit()
+        commit()
+
 
 
 

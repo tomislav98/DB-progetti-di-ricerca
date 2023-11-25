@@ -43,7 +43,6 @@ def add_researcher_project(current_user, user_id):
         body = request.form
         files = request.files.getlist('files')
         
-        
         project = Project.add_project(body["name"], body["description"], datetime.now(), researcher.id, files)
         
         return Response(json.dumps({    
@@ -67,7 +66,7 @@ def submit_project(current_user,user_id,project_id):
             raise CustomError("Unauthorized, you can't submit another researcher's project", 401)
 
         if proj.status != ProjectStatus.TO_BE_SUBMITTED:
-            return Response(json.dumps({"message": "Project cannot be submitted"}),409)
+            raise CustomError("Project cannot be submitted", 409)
         
         if proj:
             response = proj.submit()
@@ -145,17 +144,9 @@ def update_project_version(current_user, user_id, project_id):
                 raise CustomError("You can't update the project",403)
             
             files = request.files.getlist('files')
-
-            new_files_metadata = json.loads(request.form.get('new_files_metadata'))
-            
-            print(new_files_metadata)
-
-            print(files)
-            
+            new_files_metadata = json.loads(request.form.get('new_files_metadata'))            
             file_associated = []
-            
             latest_version_files = VersionProject.get_latest_version(project_id).document_project
-
             for file in files:
                 file_metadata = find_json_by_value(new_files_metadata, 'filename' ,file.filename)
                 _validate_file_form(file_metadata)
@@ -164,12 +155,10 @@ def update_project_version(current_user, user_id, project_id):
                 new_files_metadata.remove(file_metadata)
             
             for file in latest_version_files:
-                print(file.id)
                 file_metadata = find_json_by_value(new_files_metadata, 'id', file.id)
                 _validate_file_form(file_metadata)
                 file_metadata['pdf_data'] = file.pdf_data
                 file_associated.append(file_metadata)
-                # print(file_metadata) 
             updated = project.update_project_version(file_associated,version)
                             
             response_json = {

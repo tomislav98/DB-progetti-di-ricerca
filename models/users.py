@@ -1,6 +1,7 @@
 from enum import Enum
 from sqlalchemy import DateTime
 from config import db, bcrypt
+from utils.db_utils import add_instance, add_instance_no_commit, commit
 from utils.exceptions import CustomError
 
 class UserType(Enum):
@@ -55,8 +56,7 @@ class User(db.Model):
             if type_user == UserType.EVALUATOR.value:
                 type_user_enum = UserType.EVALUATOR
             user = cls(name=name, surname=surname, email=email, password=hashed_password, type_user=type_user_enum)
-            db.session.add(user)
-            db.session.commit()
+            add_instance(user)
 
         if type_user_enum == UserType.RESEARCHER:
             Researcher.add_researcher(user_id=user.id)
@@ -87,12 +87,14 @@ class User(db.Model):
     def update_user(cls, user_object, attribute_name, new_value):
         # Python function that accept object, attribute for change and new_value
         setattr(user_object, attribute_name, new_value)
-        db.session.commit()
+        commit()
+
 
     @classmethod
     def delete_user(cls, user_object):
         db.session.delete(user_object)
-        db.session.commit()
+        commit()
+
 
 class Researcher(db.Model):
     __tablename__ = 'researchers'
@@ -101,18 +103,16 @@ class Researcher(db.Model):
                         nullable=False)  # sistemare ondelete='CASCADE',
 
     projects = db.relationship('Project', backref='researcher')
-    message = db.relationship('Message', backref='researcher')
 
     def delete_researcher(self):
         db.session.delete(self)
-        db.session.commit()
+        commit()
         return self
         
     @classmethod
     def add_researcher(cls, user_id):
         researcher = Researcher(user_id=user_id)
-        db.session.add(researcher)
-        db.session.commit()
+        add_instance(researcher)
     
     @staticmethod
     def get_researcher_from_id(id):
@@ -155,14 +155,12 @@ class Evaluator(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), unique=True,
                         nullable=False)  # sistemare ondelete='CASCADE',
-    message = db.relationship('Message', backref='evaluator')
     report = db.relationship('Report', backref='evaluator')
 
     @classmethod
     def add_evaluator(cls, user_id):
         evaluator = Evaluator(user_id=user_id)
-        db.session.add(evaluator)
-        db.session.commit()
+        add_instance(evaluator)
 
     @staticmethod
     def is_valid_evaluator(data):
