@@ -14,6 +14,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS check_project_status_trigger ON projects;
 CREATE TRIGGER check_project_status_trigger
 BEFORE UPDATE ON projects
 FOR EACH ROW
@@ -30,7 +31,7 @@ BEGIN
 		JOIN evaluation_windows w ON p.evaluation_window_id = w.id
 		WHERE NEW.version_project_id = v.id
 			AND (v.status = 'SUBMITTED') 
-			AND NOW() BETWEEN w.data_start AND w.data_end;
+			AND NOW() BETWEEN w.data_start AND w.data_end
 	)  THEN
 		RETURN NEW;
 	END IF;
@@ -38,7 +39,29 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER check_report_creation
-BEFORE CREATE ON reports
+
+DROP TRIGGER IF EXISTS check_report_creation_trigger ON reports;
+CREATE TRIGGER check_report_creation_trigger
+BEFORE INSERT ON reports
 FOR EACH ROW
 EXECUTE FUNCTION check_report_creation();
+
+/*Controllo overlap creazione evaluation window*/
+CREATE OR REPLACE FUNCTION check_overlapping_window()
+RETURNS TRIGGER AS $$
+BEGIN 
+	IF EXISTS(
+		SELECT 1
+		FROM evaluation_windows w
+		WHERE NEW.data_end >= w.data_start AND NEW.data_start <= w.data_end
+	) THEN 
+	RETURN NULL;
+	END IF;
+	RETURN NEW;
+END;
+
+DROP TRIGGER IF EXISTS check_overlapping_window_trigger ON evaluation_windows;
+CREATE TRIGGER check_overlapping_window_trigger
+BEFORE INSERT ON evaluation_windows
+FOR EACH ROW
+EXECUTE FUNCTION check_overlapping_window();

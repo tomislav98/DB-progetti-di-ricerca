@@ -32,15 +32,18 @@ class EvaluationWindow(db.Model):
         parsed_end = str2date(date_end)
         if parsed_start < datetime.now().date():
                 raise CustomError("Invalid input, start date cannot be in the past", 400)
+        # overlapping_windows = EvaluationWindow.query.filter(
+        #     ((parsed_start >= EvaluationWindow.data_start) & (parsed_start <= EvaluationWindow.data_end)) |
+        #     ((parsed_end >= EvaluationWindow.data_start) & (parsed_end <= EvaluationWindow.data_end)) |
+        #     ((parsed_start <= EvaluationWindow.data_start) & (parsed_end >= EvaluationWindow.data_end))
+        # ).all()
         overlapping_windows = EvaluationWindow.query.filter(
-            ((parsed_start >= EvaluationWindow.data_start) & (parsed_start <= EvaluationWindow.data_end)) |
-            ((parsed_end >= EvaluationWindow.data_start) & (parsed_end <= EvaluationWindow.data_end)) |
-            ((parsed_start <= EvaluationWindow.data_start) & (parsed_end >= EvaluationWindow.data_end))
+            (parsed_end >= EvaluationWindow.data_start) & (parsed_start <= EvaluationWindow.data_end)
         ).all()
         if overlapping_windows:
             raise CustomError("The new evaluation window overlaps with an existing window.", 400)
         window = EvaluationWindow(data_start=parsed_start, data_end=parsed_end)
-        add_instance(window);
+        add_instance(window)
 
     @staticmethod
     def get_current_window():
