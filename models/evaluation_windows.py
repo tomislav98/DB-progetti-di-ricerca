@@ -72,4 +72,3 @@ class EvaluationWindow(db.Model):
 
 
 
-

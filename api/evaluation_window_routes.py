@@ -44,4 +44,18 @@ def delete_window(current_user):
     if request.method == "DELETE":
         EvaluationWindow.delete_first_window()
         return jsonify({"message": "Evaluation Window deleted"}),200
+    
+
+@window_blueprint.route("/<int:evaluation_window_id>/projects", methods=["GET"])
+@admin_required
+@error_handler
+def get_window_projects(current_user, evaluation_window_id):
+    if request.method == 'GET':
+        window = EvaluationWindow.get_by_id(evaluation_window_id)
+        if window is None: 
+             raise CustomError("Invalid Id", 400)
+        projects = window.project
+        projects_list = [{"id": proj.id, "name": proj.name, "description": proj.description  } for proj in projects]
+        return Response(json.dumps(projects_list),200)
+
 
