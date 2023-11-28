@@ -71,7 +71,6 @@ function RegisterSuccess() {
     )
 }
 
-
 function Register() {
     const [name, setName] = useState("");
     const [scndName, setScndName] = useState("");

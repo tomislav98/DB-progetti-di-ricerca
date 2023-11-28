@@ -1,10 +1,52 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import { Calendar, momentLocalizer } from 'react-big-calendar'
-import { getAllEvaluationWindows, getToken } from '../../../Utils/requests';
+import { Calendar, momentLocalizer } from 'react-big-calendar';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faAdd } from '@fortawesome/free-solid-svg-icons';
+import { getAllEvaluationWindows, getProjectsByWindowId, getToken } from '../../../Utils/requests';
+import { Snackbar, Alert } from '@mui/material';
+import Slide from "@mui/material/Slide";
+import Fab from '@mui/material/Fab';
 import moment from 'moment'
 import './AdminPanel.scss'
 const localizer = momentLocalizer(moment);
+
+const add = <FontAwesomeIcon icon={faAdd} />
+
+function AdminProjects({ windowId }) {
+    const [projects, setProjects] = useState([]);
+
+    const fetchProjectsByWindowId = async () => {
+        const token = getToken();
+        const res = await getProjectsByWindowId(token, windowId);
+        setProjects([...res.data])
+    }
+
+    useEffect(() => {
+        fetchProjectsByWindowId()
+    }, [])
+
+    return (
+        <div>
+            {
+                projects.length !== 0 ?
+                    <div>
+                        {
+                            projects.map((item, index) => {
+                                return <div> Item: {item.description} Index: {item.id} </div>
+                            })
+
+                        }
+                    </div>
+                    :
+                    <p>
+                        This window has no projects...
+                    </p>
+            }
+        </div>
+    )
+}
 
 export function MyCalendar({ events, onSelectEvent }) {
 
@@ -21,7 +63,11 @@ export function MyCalendar({ events, onSelectEvent }) {
 }
 
 export default function AdminCalendar() {
-    const [myEventsList, setMyEventsList] = useState([])
+    const [visibleWindowIndex, setVisibleWindowIndex] = useState(null);
+    const [myEventsList, setMyEventsList] = useState([]);
+    const [snackbarOpen, setSnackbarOpen] = useState();
+
+    const navigate = useNavigate();
 
     async function fetchAndSetEventWindows() {
         try {
@@ -36,23 +82,46 @@ export default function AdminCalendar() {
             setMyEventsList((prevEvents) => [...eventWindows]);
 
         } catch (err) {
-            console.log(err)
+            if (err.response.status === 401) {
+                setSnackbarOpen(true);
+                navigate("/login")
+            }
+
         }
     }
 
     const onSelectEvent = useCallback(async (event) => {
-        alert(event)
+        setVisibleWindowIndex(event.id);
     }, [])
 
     // TODO vedere come mandare la richiesta
     useEffect(() => {
-
         fetchAndSetEventWindows()
-
     }, [])
 
-    return <div className='calendar-content'>
-        <h2> Crea una nuova finestra di valutazione</h2>
-        <MyCalendar events={myEventsList} onSelectEvent={onSelectEvent} />
-    </div>
+    function TransitionLeft(props) {
+        return <Slide {...props} direction="left" />
+    }
+
+    return (
+        <div className='calendar-content'>
+            <h2> Finestre di valutazione </h2>
+            <MyCalendar events={myEventsList} onSelectEvent={onSelectEvent} />
+            {
+                visibleWindowIndex ?
+
+                    <AdminProjects windowId={visibleWindowIndex} />
+                    :
+                    null
+            }
+            <Fab color={'primary'} className='my-fab'>
+                {add}
+            </Fab>
+            <Snackbar open={snackbarOpen} autoHideDuration={6000} anchorOrigin={{ vertical: "top", horizontal: "center" }} TransitionComponent={TransitionLeft}>
+                <Alert  severity="error" sx={{ width: '100%' }}>
+                    Wrong request!
+                </Alert>
+            </Snackbar>
+        </div>
+    )
 }

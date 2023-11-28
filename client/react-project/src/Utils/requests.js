@@ -2,7 +2,6 @@ import axios from 'axios';
 import jwtDecode from 'jwt-decode';
 
 // TODO: pls modificare ste funzioni in modo che usino getToken e getDecodedToken internamente, invece che obbligare queste operazioni all'esterno e passarle come params
-
 export async function updateProject(userId, projId, token, updateData) {
   const url = `http://localhost:5000/researchers/${userId}/projects/${projId}`;
 
@@ -159,3 +158,21 @@ export async function getAllEvaluationWindows(token) {
   }
 }
 
+
+export async function getProjectsByWindowId(token, windowId){
+  const url = `http://localhost:5000/evaluation-window/${windowId}/projects`;
+
+  try {
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response;
+  } catch (error) {
+    throw error;
+  }
+
+
+}

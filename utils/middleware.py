@@ -41,7 +41,7 @@ def role_required(role):
                     "message": "Something went wrong",
                     "data": None,
                     "error": str(e),
-                }, 500
+                }, 401
 
             return f(current_user, *args, **kwargs)
 
