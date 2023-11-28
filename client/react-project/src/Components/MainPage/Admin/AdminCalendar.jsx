@@ -5,9 +5,13 @@ import { Calendar, momentLocalizer } from 'react-big-calendar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAdd } from '@fortawesome/free-solid-svg-icons';
 import { getAllEvaluationWindows, getProjectsByWindowId, getToken } from '../../../Utils/requests';
-import { Snackbar, Alert } from '@mui/material';
+import { Snackbar, Alert, Modal } from '@mui/material';
+import Box from '@mui/material/Box';
 import Slide from "@mui/material/Slide";
 import Fab from '@mui/material/Fab';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { StaticDateRangePicker } from '@mui/x-date-pickers-pro/StaticDateRangePicker';
 import moment from 'moment'
 import './AdminPanel.scss'
 const localizer = momentLocalizer(moment);
@@ -62,10 +66,36 @@ export function MyCalendar({ events, onSelectEvent }) {
     </div>
 }
 
+export function DateInput() {
+    const [value, setValue] = useState([]);
+    const shortcutsItems = []
+    // {
+    //     label: 'This Week',
+    //     getValue: () => {
+    //         const today = Date.now();
+    //         return [today., today.endOf('week')];
+    //     },
+    // }]
+    return (
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <StaticDateRangePicker
+                slotProps={{
+                    shortcuts: {
+                        items: shortcutsItems,
+                    },
+                    actionBar: { actions: [] },
+                }}
+                calendars={2}
+            />
+        </LocalizationProvider>
+    );
+}
+
 export default function AdminCalendar() {
     const [visibleWindowIndex, setVisibleWindowIndex] = useState(null);
     const [myEventsList, setMyEventsList] = useState([]);
     const [snackbarOpen, setSnackbarOpen] = useState();
+    const [modalOpen, setModalOpen] = useState(false);
 
     const navigate = useNavigate();
 
@@ -89,6 +119,29 @@ export default function AdminCalendar() {
 
         }
     }
+
+    const handleOpen = async () => {
+        setModalOpen(true)
+    }
+
+    const handleClose = async () => {
+        setModalOpen(false)
+    }
+
+    const boxStyle = {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: 400,
+        bgcolor: 'background.paper',
+        border: '2px solid #000',
+        boxShadow: 24,
+        pt: 2,
+        px: 4,
+        pb: 3,
+    };
+
 
     const onSelectEvent = useCallback(async (event) => {
         setVisibleWindowIndex(event.id);
@@ -114,11 +167,21 @@ export default function AdminCalendar() {
                     :
                     null
             }
-            <Fab color={'primary'} className='my-fab'>
+            <Fab color={'primary'} className='my-fab' onClick={handleOpen}>
                 {add}
             </Fab>
+            <Modal
+                open={modalOpen}
+                onClose={handleClose}
+                aria-labelledby="child-modal-title"
+                aria-describedby="child-modal-description"
+            >
+                <Box sx={boxStyle}>
+                    <DateInput />
+                </Box>
+            </Modal>
             <Snackbar open={snackbarOpen} autoHideDuration={6000} anchorOrigin={{ vertical: "top", horizontal: "center" }} TransitionComponent={TransitionLeft}>
-                <Alert  severity="error" sx={{ width: '100%' }}>
+                <Alert severity="error" sx={{ width: '100%' }}>
                     Wrong request!
                 </Alert>
             </Snackbar>
