@@ -57,11 +57,11 @@ class EvaluationWindow(db.Model):
         windows = EvaluationWindow.query.filter(EvaluationWindow.data_start > now).order_by(EvaluationWindow.data_end.desc()).first()
         return windows
     
-    @classmethod
-    def get_evaluation_windows_projects(cls, evaluation_window_id):
-        projects = db.session.query(EvaluationWindow).get(evaluation_window_id).projects
-        if projects:
-            return projects
+    @staticmethod
+    def get_all_windows():
+        evaluation_windows = EvaluationWindow.query.all()
+        if evaluation_windows:
+            return evaluation_windows
         return None
     
     @classmethod

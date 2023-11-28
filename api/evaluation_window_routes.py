@@ -28,11 +28,11 @@ def add_window(current_user):
 
 
 @window_blueprint.route("/", methods=["GET"])
-@token_required
+@admin_required
 @error_handler
 def get_windows(current_user):
     if request.method == 'GET':
-        windows = EvaluationWindow.query.all()
+        windows = EvaluationWindow.get_all_windows()
         windows_list = [{"id": win.id, "data_start": win.data_start, "data_end": win.data_end } for win in windows]
 
         return Response(json.dumps(windows_list),200)

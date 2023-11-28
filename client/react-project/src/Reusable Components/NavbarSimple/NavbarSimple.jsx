@@ -36,6 +36,9 @@ export function NavbarSimple({ mockData = data, isLogoutShown = false }) {
       onClick={(event) => {
         event.preventDefault();
         setActive(item.label);
+        if (item.onClick) {
+          item.onClick();
+        }
       }}
     >
       <item.icon className={classes.linkIcon} stroke={1.5} />
