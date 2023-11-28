@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Calendar, momentLocalizer } from 'react-big-calendar'
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import moment from 'moment'
@@ -11,37 +11,48 @@ import {
 	IconCalendarEvent,
 	IconFile
 } from '@tabler/icons-react';
-import { getAllEvaluationWindows, getDecodedToken } from '../../../Utils/requests';
+import { getAllEvaluationWindows, getDecodedToken, getToken } from '../../../Utils/requests';
 const localizer = momentLocalizer(moment);
 
 export default function AdminPanel() {
 	const [index, setIndex] = useState(0)
-	const events = getAllEvaluationWindows();
+	const [myEventsList, setMyEventsList] = useState([])
+
+	const data = [{ link: '', label: 'Evaluation Window', icon: IconCalendarEvent, onClick: () => handleItemClick(0) },
+	{ link: '', label: 'Projects', icon: IconFile, onClick: () => handleItemClick(1) }];
 
 
-	const myEventsList = [
-		{
-			start: new Date(2023, 11, 1),
-			end: new Date(2023, 11, 5),
-			title: 'Evento 1',
-		},
+	async function fetchAndSetEventWindows() {
+		try {
+			const token = getToken();
+			const windows = await getAllEvaluationWindows(token);
+			const eventWindows = windows.map((w) => ({
+				start: new Date(w.data_start),
+				end: new Date(w.data_end),
+				title: `Finestra di Valutazione Id ${w.id}`,
+				id: w.id
+			}))
+			setMyEventsList((prevEvents) => [...eventWindows]);
 
-	];
+		} catch (err) {
+			console.log(err)
+		}
+	}
+
+	const onSelectEvent = useCallback(async (event) => {
+		alert(event)
+	}, [])
+
+	// TODO vedere come mandare la richiesta
 	useEffect(() => {
-		const token = getDecodedToken();
-		getAllEvaluationWindows(token).then((evaluationWindows) => {
-			myEventsList.append({ start: new Date(evaluationWindows.data_start), end: new Date(evaluationWindows.data_end), title: "Finestra di Valutazione" })
-			console.log("MIMMO")
-		}).catch((error) => {
-			console.error('Error fetching evaluation windows:', error);
-		});
-	})
+
+		fetchAndSetEventWindows()
+
+	}, [])
 	const handleItemClick = (i) => {
 		setIndex(i);
 		console.log(i);
 	};
-	const data = [{ link: '', label: 'Evaluation Window', icon: IconCalendarEvent, onClick: () => handleItemClick(0) },
-	{ link: '', label: 'Projects', icon: IconFile, onClick: () => handleItemClick(1) }];
 	// TODO devi aggiungere un onclick che quando viene cliccato setta lo stato (setIndex(i))
 
 	return <div className='admin-panel-container'>
@@ -57,7 +68,7 @@ export default function AdminPanel() {
 				{index === 0 && (
 					<div className='calendar-content'>
 						<h2> Crea una nuova finestra di valutazione</h2>
-						<MyCalendar localizer={localizer} myEventsList={myEventsList} />
+						<MyCalendar localizer={localizer} myEventsList={myEventsList} onSelectEvent={onSelectEvent} />
 					</div>
 				)}
 				{index === 1 && <p>TODO</p>}
@@ -66,11 +77,12 @@ export default function AdminPanel() {
 	</div>
 }
 
-function MyCalendar({ localizer, myEventsList }) {
+function MyCalendar({ localizer, myEventsList, onSelectEvent }) {
 	return <div className="myCustomHeight">
 		<Calendar
 			localizer={localizer}
 			events={myEventsList}
+			onSelectEvent={onSelectEvent}
 			startAccessor="start"
 			endAccessor="end"
 			style={{ height: 500 }}

@@ -145,7 +145,7 @@ export async function getLatestVersionByProjectId(projId, token) {
 }
 
 export async function getAllEvaluationWindows(token) {
-  const url = `http://localhost:5000/evaluation-window`;
+  const url = `http://localhost:5000/evaluation-window/`;
   try {
     const response = await axios.get(url, {
       headers: {
