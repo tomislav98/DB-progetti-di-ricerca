@@ -11,9 +11,10 @@ import Slide from "@mui/material/Slide";
 import Fab from '@mui/material/Fab';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { StaticDateRangePicker } from '@mui/x-date-pickers-pro/StaticDateRangePicker';
 import moment from 'moment'
 import './AdminPanel.scss'
+import CreateWindowStepper from './CreateWindowStepper';
+
 const localizer = momentLocalizer(moment);
 
 const add = <FontAwesomeIcon icon={faAdd} />
@@ -78,15 +79,7 @@ export function DateInput() {
     // }]
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <StaticDateRangePicker
-                slotProps={{
-                    shortcuts: {
-                        items: shortcutsItems,
-                    },
-                    actionBar: { actions: [] },
-                }}
-                calendars={2}
-            />
+            <CreateWindowStepper/>
         </LocalizationProvider>
     );
 }
