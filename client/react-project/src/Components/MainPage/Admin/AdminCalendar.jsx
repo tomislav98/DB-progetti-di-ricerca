@@ -14,6 +14,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import moment from 'moment'
 import './AdminPanel.scss'
 import CreateWindowStepper from './CreateWindowStepper';
+import { ProjectCardPublic } from '../../../Reusable Components/ProjectCardPublic/ProjectCardPublic';
 
 const localizer = momentLocalizer(moment);
 
@@ -36,10 +37,10 @@ function AdminProjects({ windowId }) {
         <div>
             {
                 projects.length !== 0 ?
-                    <div>
+                    <div className='row'>
                         {
                             projects.map((item, index) => {
-                                return <div> Item: {item.description} Index: {item.id} </div>
+                                return <div className='col-4'><ProjectCardPublic name={item.name} description={item.description} id={item.id} status={item.status} version={item.version} username={'pippo'} /></div>
                             })
 
                         }
@@ -79,7 +80,7 @@ export function DateInput() {
     // }]
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <CreateWindowStepper/>
+            <CreateWindowStepper />
         </LocalizationProvider>
     );
 }

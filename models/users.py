@@ -117,7 +117,7 @@ class Researcher(db.Model):
     @staticmethod
     def get_researcher_from_id(id):
         researcher = Researcher.query.filter_by(id=id).first()
-        if researcher :
+        if researcher:
             return researcher
         else:
             raise CustomError("User is not a researcher therefore it cannot create a new project (if you are an admin and want to create a project for a researcher you can user /researchers/project endpoint)",404)

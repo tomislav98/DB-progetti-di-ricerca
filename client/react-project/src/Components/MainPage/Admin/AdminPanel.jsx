@@ -20,14 +20,13 @@ export default function AdminPanel() {
 	const handleItemClick = (i) => {
 		setIndex(i);
 	};
-	// TODO devi aggiungere un onclick che quando viene cliccato setta lo stato (setIndex(i))
 
 	return <div className='admin-panel-container'>
 		<div className='row navbar-row'>
 			<div className='col-2 sidebar'>
 				<ScrollArea>
 					<div>
-						<NavbarSimple mockData={data} />
+						<NavbarSimple mockData={data}/>
 					</div>
 				</ScrollArea>
 			</div>

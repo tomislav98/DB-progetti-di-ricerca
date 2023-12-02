@@ -24,8 +24,8 @@ const data = [
   { link: '', label: 'Other Settings', icon: IconSettings },
 ];
 
-export function NavbarSimple({ mockData = data, isLogoutShown = false }) {
-  const [active, setActive] = useState('Billing');
+export function NavbarSimple({ mockData = data, isLogoutShown = false, initialValue='Evaluation Window' }) {
+  const [active, setActive] = useState(initialValue);
 
   const links = mockData.map((item) => (
     <a
