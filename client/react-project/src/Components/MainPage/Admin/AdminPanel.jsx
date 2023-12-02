@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import './AdminPanel.scss'
 import { ScrollArea } from '@mantine/core';
-import { faGauge, faNoteSticky, faCalendar } from '@fortawesome/free-solid-svg-icons';
-import { LinksGroup } from '../Project/SingleProject/LinksGroup';
 import { NavbarSimple } from '../../../Reusable Components/NavbarSimple/NavbarSimple';
 import {
 	IconCalendarEvent,

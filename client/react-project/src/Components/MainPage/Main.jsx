@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useMediaQuery } from '@mui/material';
 import AdminPanel from './Admin/AdminPanel';
+import EvaluatorPanel from './Evaluator/EvaluatorPanel';
 
 const element = <FontAwesomeIcon icon={faCoffee} />
 const home = <FontAwesomeIcon icon={faHome} />
@@ -63,6 +64,7 @@ function Main() {
                 <Route path="/" element={<Home />} />
                 <Route path="/projects/*" element={<Project />} />
                 <Route path="/admin/*" element={<AdminPanel/>} />
+                <Route path="/evaluate/*" element={<EvaluatorPanel/>} />
             </Routes>
         </main>
     )
