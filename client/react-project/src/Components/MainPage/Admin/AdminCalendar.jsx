@@ -37,7 +37,8 @@ function AdminProjects({ windowId }) {
         <div>
             {
                 projects.length !== 0 ?
-                    <div className='row'>
+                    <div className='row pt-4'>
+                        <h3 className='mb-4'>Submitted projects</h3>
                         {
                             projects.map((item, index) => {
                                 return <div className='col-4'><ProjectCardPublic name={item.name} description={item.description} id={item.id} status={item.status} version={item.version} username={'pippo'} /></div>

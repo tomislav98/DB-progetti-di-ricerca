@@ -176,3 +176,21 @@ export async function getProjectsByWindowId(token, windowId){
 
 
 }
+
+export async function getReportsByProjectId(token, projectId){
+  const url = `http://localhost:5000/projects/${projectId}/report`;
+
+  try {
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response;
+  } catch (error) {
+    throw error;
+  }
+
+
+}

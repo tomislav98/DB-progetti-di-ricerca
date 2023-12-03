@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, Avatar, Group, Text, ActionIcon } from "@mantine/core";
-import { IconDownload } from '@tabler/icons-react';
+import { IconDownload, IconEye, IconReceipt } from '@tabler/icons-react';
 import { StatusBadge } from "../../Components/MainPage/Project/Projects";
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 import { styled } from '@mui/material/styles';
-import { CircularProgress, useMediaQuery } from '@mui/material';
+import { CircularProgress, useMediaQuery, Modal, Box } from '@mui/material';
+import { getToken, getReportsByProjectId } from "../../Utils/requests";
+import { ReportsModal } from "./ProjectsReportModal";
 
 const avatars = [
     'https://avatars.githubusercontent.com/u/10353856?s=460&u=88394dfd67727327c1f7670a1764dc38a8a24831&v=4',
@@ -24,26 +26,65 @@ const BootstrapTooltip = styled(({ className, ...props }) => (
     },
 }));
 
-export function ProjectCardPublic({ name, description, id, status, version = 'v0.0.0', username }) {
+const boxStyle = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    pt: 2,
+    px: 4,
+    pb: 3,
+};
+
+export function ProjectCardPublic({ name, description, id, status, version = 'v0.0.0', username, evaluable = false }) {
     const [loading, setLoading] = useState();
+    const [reports, setReports] = useState();
+    const [modalOpen, setModalOpen] = useState(false);
+
+    const fetchReports = async () => {
+        const token = getToken();
+        const res = await getReportsByProjectId(token, id);
+        setReports(res.data);
+    }
+
+    useEffect(() => {
+        fetchReports();
+    }, [])
 
     function handleCardClick(id) {
         // navigate('/mainpage/projects/' + id);
         alert('todo')
     }
 
-    function handleDownload(){
+    function handleDownload() {
         alert('todo')
     }
 
-    return (
-        <Card className='justify-content-around my-card' padding="lg" radius="md" style={{ height: '300px' }} >
-            <div onClick={() => { handleCardClick(id) }}>
+    const handleClose = async () => {
+        setModalOpen(false)
+    }
 
+    const handleOpen = async () => {
+        setModalOpen(true)
+    }
+
+    return (
+        <Card className='justify-content-around' padding="lg" radius="md" style={{ height: '300px' }} >
+            <div onClick={() => { handleCardClick(id) }}>
                 <Group justify="space-between">
-                    <div className='d-flex'>
-                        <Avatar src={avatars[0]} />
-                        <p className='text-dark' style={{ marginLeft: '10px' }}>{username} </p>
+                    <div className='d-flex w-100'>
+                        <div className="col-6">
+                            <h5>Total reports: </h5>
+                        </div>
+                        <div className="col-3">
+                        </div>
+                        <div className="col-3">
+                            <p> {reports ? reports.length : 0} </p>
+                        </div>
                     </div>
                     <StatusBadge status={status} />
                 </Group>
@@ -69,12 +110,38 @@ export function ProjectCardPublic({ name, description, id, status, version = 'v0
                     <Avatar src={avatars[2]} radius="xl" />
                     <Avatar radius="xl">+5</Avatar>
                 </Avatar.Group>
-                <BootstrapTooltip title="Withdraw submission">
-                    <ActionIcon variant="filled" color="red" size="lg" radius="md" onClick={handleDownload}>
-                        {loading ? <CircularProgress color='inherit' /> : <IconDownload size="1.1rem" />}
-                    </ActionIcon>
-                </BootstrapTooltip>
+                <div className="d-flex">
+                    <BootstrapTooltip  title="Download project's documents">
+                        <ActionIcon variant="light" color="grey" size="lg" radius="md" onClick={handleDownload}>
+                            {loading ? <CircularProgress color='inherit' /> : <IconDownload size="1.1rem" />}
+                        </ActionIcon>
+                    </BootstrapTooltip>
+                    <BootstrapTooltip title="View reports">
+                        <ActionIcon variant="filled" color="grey" size="lg" radius="md" onClick={handleOpen}>
+                            {loading ? <CircularProgress color='inherit' /> : <IconEye size="1.1rem" />}
+                        </ActionIcon>
+                    </BootstrapTooltip>
+                    {evaluable ?
+                        <BootstrapTooltip title="View reports">
+                            <ActionIcon variant="filled" color="blue" size="lg" radius="md" onClick={handleDownload}>
+                                {loading ? <CircularProgress color='inherit' /> : <IconReceipt size="1.1rem" />}
+                            </ActionIcon>
+                        </BootstrapTooltip>
+                        :
+                        null
+                    }
+                </div>
             </Group>
+            <Modal
+                open={modalOpen}
+                onClose={handleClose}
+                aria-labelledby="child-modal-title"
+                aria-describedby="child-modal-description"
+            >
+                <Box sx={boxStyle}>
+                    <ReportsModal reports={reports}/>
+                </Box>
+            </Modal>
         </Card>
     );
 }
