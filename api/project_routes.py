@@ -3,12 +3,14 @@ from config import bcrypt
 from flask import request, jsonify, Response, json
 from models.users import User, Evaluator, Researcher, UserType
 from models.projects import Project, ProjectStatus
+from models.project_versions import VersionProject
 from models.reports import Report
 from utils.exceptions import CustomError, error_handler
 from datetime import datetime, timedelta
 import jwt
 import os
 from utils.middleware import token_required, evaluator_required
+import base64
 
 proj_blueprint = Blueprint("proj", __name__)
 
@@ -69,6 +71,8 @@ def get_project_versions_by_id(current_user, project_id):
 
         return Response(json.dumps(response_data), 200)
 
+
+# Create a report of the project's latest version
 @proj_blueprint.route("/<int:project_id>/report", methods=["POST"])
 @evaluator_required
 @error_handler
@@ -80,22 +84,45 @@ def create_report(current_user, project_id):
         if not vote or not file:
             raise CustomError("Vote and file are required", 400)
         project = Project.get_project_by_id(project_id)
-        
-        if(project.status != ProjectStatus.SUBMITTED):
+
+        if project.status != ProjectStatus.SUBMITTED:
             raise CustomError("Cannot evaluate this project", 400)
-        
-        report = Report.create_new_report(project_id, current_user.id, file ,vote)
-        response_data = {
-            "message": "Report Created Succesfully",
-            "id" : report.id
-        }
+
+        report = Report.create_new_report(project_id, current_user.id, file, vote)
+        response_data = {"message": "Report Created Succesfully", "id": report.id}
         return Response(json.dumps(response_data), 201)
 
 
-# @proj_blueprint.route("/<int:project_id>/document", methods=["GET"])
-# @token_required
-# @error_handler
-# # @proj_blueprint.route("/<int:project_id>/latest")
-# # def get_latest_versions_by_id():
-# #     if request.method == "GET":
-# #         print(get_project_versions_by_id())
+# Get all reports of a project's latest version
+# Users allowed: Admin, Evaluators and the Researcher owner of the project
+@proj_blueprint.route("/<int:project_id>/report", methods=["GET"])
+@token_required
+@error_handler
+def get_reports_by_project_id(current_user, project_id):
+    if request.method == "GET":
+        latest = VersionProject.get_latest_version(project_id)
+        reports = Report.get_reports_by_version_id(latest.id)
+        project = Project.get_project_by_id(project_id)
+        owner = Researcher.get_researcher_from_user_id(project.researcher_id)
+        if (
+            current_user.id == owner
+            or current_user.type_user == UserType.ADMIN
+            or current_user.type_user == UserType.EVALUATOR
+        ):
+            return Response(
+                json.dumps(
+                    [
+                        {
+                            "id": x.id,
+                            "created": x.date_created,
+                            "pdf_data": base64.b64encode(x.pdf_data).decode("utf-8"),
+                            "vote": x.vote,
+                            "evaluator_id": x.evaluator_id,
+                            "version_project_id": x.version_project_id,
+                        }
+                        for x in reports
+                    ]
+                )
+            )
+        raise CustomError("You are not allowed to retrieve this information", 401)
+

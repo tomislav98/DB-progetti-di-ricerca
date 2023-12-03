@@ -28,3 +28,9 @@ class Report(db.Model):
         add_instance(report)
         return report
         
+    @staticmethod
+    def get_reports_by_version_id(version_id):
+        reports = Report.query.filter_by(version_project_id = version_id).all()
+        return reports
+    
+        
