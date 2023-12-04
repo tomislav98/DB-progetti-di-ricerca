@@ -103,7 +103,7 @@ def get_reports_by_project_id(current_user, project_id):
         latest = VersionProject.get_latest_version(project_id)
         reports = Report.get_reports_by_version_id(latest.id)
         project = Project.get_project_by_id(project_id)
-        owner = Researcher.get_researcher_from_user_id(project.researcher_id)
+        owner = Researcher.get_researcher_from_id(project.researcher_id)
         if (
             current_user.id == owner
             or current_user.type_user == UserType.ADMIN
