@@ -24,9 +24,9 @@ const BootstrapTooltip = styled(({ className, ...props }) => (
     [`& .${tooltipClasses.tooltip}`]: {
         backgroundColor: theme.palette.common.black,
     },
-}));    
+}));
 
-export function ProjectCardPublic({ name, description, id, status, version = 'v0.0.0', username, evaluable = false, clickable=false }) {
+export function ProjectCardPublic({ name, description, id, status, version = 'v0.0.0', username, evaluable = false, clickable = false, onCardClick }) {
     const [loading, setLoading] = useState();
     const [reports, setReports] = useState();
     const [modalOpen, setModalOpen] = useState(false);
@@ -37,7 +37,7 @@ export function ProjectCardPublic({ name, description, id, status, version = 'v0
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
-        width: matches? 1000 : 400,
+        width: matches ? 1000 : 400,
         bgcolor: 'background.paper',
         border: '2px solid #000',
         boxShadow: 24,
@@ -58,7 +58,7 @@ export function ProjectCardPublic({ name, description, id, status, version = 'v0
 
     function handleCardClick(id) {
         // navigate('/mainpage/projects/' + id);
-        alert('todo')
+        onCardClick(id)
     }
 
     function handleDownload() {
@@ -74,8 +74,8 @@ export function ProjectCardPublic({ name, description, id, status, version = 'v0
     }
 
     return (
-        <Card className={`justify-content-around ${clickable? 'my-card' : ''}`} padding="lg" radius="md" style={{ height: '300px' }} >
-            <div onClick={() => { if(clickable) handleCardClick(id) }}>
+        <Card className={`justify-content-around ${clickable ? 'my-card' : ''}`} padding="lg" radius="md" style={{ height: '300px' }} >
+            <div onClick={() => { if (clickable) handleCardClick(id) }}>
                 <Group justify="space-between">
                     <div className='d-flex w-100'>
                         <div className="col-6">
@@ -112,13 +112,13 @@ export function ProjectCardPublic({ name, description, id, status, version = 'v0
                     <Avatar radius="xl">+5</Avatar>
                 </Avatar.Group>
                 <div className="d-flex">
-                    <BootstrapTooltip  title="Download project's documents">
+                    <BootstrapTooltip title="Download project's documents">
                         <ActionIcon variant="light" color="grey" size="lg" radius="md" onClick={handleDownload}>
                             {loading ? <CircularProgress color='inherit' /> : <IconDownload size="1.1rem" />}
                         </ActionIcon>
                     </BootstrapTooltip>
                     <BootstrapTooltip title="View reports">
-                        <ActionIcon variant="filled" color="grey" size="lg" radius="md" onClick={handleOpen} disabled={reports? reports.length === 0 : true}>
+                        <ActionIcon variant="filled" color="grey" size="lg" radius="md" onClick={handleOpen} disabled={reports ? reports.length === 0 : true}>
                             {loading ? <CircularProgress color='inherit' /> : <IconEye size="1.1rem" />}
                         </ActionIcon>
                     </BootstrapTooltip>
@@ -140,7 +140,7 @@ export function ProjectCardPublic({ name, description, id, status, version = 'v0
                 aria-describedby="child-modal-description"
             >
                 <Box sx={boxStyle}>
-                    <ReportsModal reports={reports}/>
+                    <ReportsModal reports={reports} />
                 </Box>
             </Modal>
         </Card>

@@ -22,6 +22,10 @@ export default function ProjectsToValue() {
         }
     }, [])
 
+    const onCardClick = (id) => {
+
+    }
+
 
     return (
         <div>
@@ -31,7 +35,9 @@ export default function ProjectsToValue() {
                         <h3 className='mb-4'>Projects to value</h3>
                         {
                             projects.map((item, index) => {
-                                return <div className='col-4'><ProjectCardPublic name={item.name} description={item.description} id={item.id} status={item.status} version={item.version} username={'pippo'} /></div>
+                                return <div className='col-4'>
+                                    <ProjectCardPublic clickable={true} name={item.name} description={item.description} id={item.id} status={item.status} version={item.version} username={'pippo'} onCardClick={onCardClick} />
+                                </div>
                             })
 
                         }
