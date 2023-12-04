@@ -24,26 +24,27 @@ const BootstrapTooltip = styled(({ className, ...props }) => (
     [`& .${tooltipClasses.tooltip}`]: {
         backgroundColor: theme.palette.common.black,
     },
-}));
+}));    
 
-const boxStyle = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 400,
-    bgcolor: 'background.paper',
-    border: '2px solid #000',
-    boxShadow: 24,
-    pt: 2,
-    px: 4,
-    pb: 3,
-};
-
-export function ProjectCardPublic({ name, description, id, status, version = 'v0.0.0', username, evaluable = false }) {
+export function ProjectCardPublic({ name, description, id, status, version = 'v0.0.0', username, evaluable = false, clickable=false }) {
     const [loading, setLoading] = useState();
     const [reports, setReports] = useState();
     const [modalOpen, setModalOpen] = useState(false);
+    const matches = useMediaQuery('(min-width:600px)', { noSsr: true });
+
+    const boxStyle = {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: matches? 1000 : 400,
+        bgcolor: 'background.paper',
+        border: '2px solid #000',
+        boxShadow: 24,
+        pt: 2,
+        px: 4,
+        pb: 3,
+    };
 
     const fetchReports = async () => {
         const token = getToken();
@@ -73,8 +74,8 @@ export function ProjectCardPublic({ name, description, id, status, version = 'v0
     }
 
     return (
-        <Card className='justify-content-around' padding="lg" radius="md" style={{ height: '300px' }} >
-            <div onClick={() => { handleCardClick(id) }}>
+        <Card className={`justify-content-around ${clickable? 'my-card' : ''}`} padding="lg" radius="md" style={{ height: '300px' }} >
+            <div onClick={() => { if(clickable) handleCardClick(id) }}>
                 <Group justify="space-between">
                     <div className='d-flex w-100'>
                         <div className="col-6">

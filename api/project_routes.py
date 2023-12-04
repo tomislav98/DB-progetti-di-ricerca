@@ -105,7 +105,7 @@ def get_reports_by_project_id(current_user, project_id):
         project = Project.get_project_by_id(project_id)
         owner = Researcher.get_researcher_from_id(project.researcher_id)
         if (
-            current_user.id == owner
+            current_user.id == owner.user_id
             or current_user.type_user == UserType.ADMIN
             or current_user.type_user == UserType.EVALUATOR
         ):
@@ -119,6 +119,8 @@ def get_reports_by_project_id(current_user, project_id):
                             "vote": x.vote,
                             "evaluator_id": x.evaluator_id,
                             "version_project_id": x.version_project_id,
+                            "version": latest.version,
+                            "project_name": project.name
                         }
                         for x in reports
                     ]
