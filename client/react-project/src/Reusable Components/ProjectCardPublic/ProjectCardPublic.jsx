@@ -117,7 +117,7 @@ export function ProjectCardPublic({ name, description, id, status, version = 'v0
                         </ActionIcon>
                     </BootstrapTooltip>
                     <BootstrapTooltip title="View reports">
-                        <ActionIcon variant="filled" color="grey" size="lg" radius="md" onClick={handleOpen}>
+                        <ActionIcon variant="filled" color="grey" size="lg" radius="md" onClick={handleOpen} disabled={reports? reports.length === 0 : true}>
                             {loading ? <CircularProgress color='inherit' /> : <IconEye size="1.1rem" />}
                         </ActionIcon>
                     </BootstrapTooltip>
