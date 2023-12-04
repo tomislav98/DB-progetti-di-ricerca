@@ -9,7 +9,7 @@ import {
 } from '@tabler/icons-react';
 
 export default function EvaluatorPanel() {
-    const [index, setIndex] = useState(0)
+	const [index, setIndex] = useState(0)
 
 
 	const data = [{ link: '', label: 'Projects to value', icon: IconCalendarEvent, onClick: () => handleItemClick(0) },

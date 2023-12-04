@@ -159,7 +159,7 @@ export async function getAllEvaluationWindows(token) {
 }
 
 
-export async function getProjectsByWindowId(token, windowId){
+export async function getProjectsByWindowId(token, windowId) {
   const url = `http://localhost:5000/evaluation-window/${windowId}/projects`;
 
   try {
@@ -177,7 +177,7 @@ export async function getProjectsByWindowId(token, windowId){
 
 }
 
-export async function getReportsByProjectId(token, projectId){
+export async function getReportsByProjectId(token, projectId) {
   const url = `http://localhost:5000/projects/${projectId}/report`;
 
   try {
@@ -190,6 +190,24 @@ export async function getReportsByProjectId(token, projectId){
     return response;
   } catch (error) {
     throw error;
+  }
+
+
+}
+
+export async function getProjectsToValue(token) {
+  const url = `http://localhost:5000/evaluators/projects`;
+
+  try {
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response;
+  } catch (error) {
+    throw error
   }
 
 

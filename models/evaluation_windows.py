@@ -54,7 +54,7 @@ class EvaluationWindow(db.Model):
     @staticmethod
     def get_next_window():
         now = datetime.now().date()
-        windows = EvaluationWindow.query.filter(EvaluationWindow.data_start > now).order_by(EvaluationWindow.data_end.desc()).first()
+        windows = EvaluationWindow.query.filter(EvaluationWindow.data_start > now).order_by(EvaluationWindow.data_end.asc()).first()
         return windows
     
     @staticmethod
