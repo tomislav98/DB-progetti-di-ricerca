@@ -7,6 +7,7 @@ import {
 	IconCalendarEvent,
 	IconReport
 } from '@tabler/icons-react';
+import MyOwnReports from "./MyOwnReport/MyOwnReport";
 
 export default function EvaluatorPanel() {
 	const [index, setIndex] = useState(0)
@@ -33,7 +34,7 @@ export default function EvaluatorPanel() {
 				{index === 0 && (
 					<ProjectsToValue />
 				)}
-				{index === 1 && <p>Reports</p>}
+				{index === 1 && <MyOwnReports/>}
 			</div>
 		</div>
 	</div>

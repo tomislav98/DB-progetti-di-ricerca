@@ -192,7 +192,6 @@ export async function getReportsByProjectId(token, projectId) {
     throw error;
   }
 
-
 }
 
 export async function getProjectsToValue(token) {
@@ -210,5 +209,21 @@ export async function getProjectsToValue(token) {
     throw error
   }
 
+}
+
+export async function getEvaluatorReports(token) {
+  const url = `http://localhost:5000/evaluators/reports`;
+
+  try {
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response;
+  } catch (error) {
+    throw error
+  }
 
 }

@@ -165,9 +165,7 @@ class Evaluator(db.Model):
     @staticmethod
     def is_valid_evaluator(data):
         """Function that verify if evaluator that is loging is valid."""
-        # Need to verify that email could exist, and if mail NOT exist then rise an error
         is_email_found = User.query.filter_by(email=data['email']).first()
-        # Need to verify that hash password could exist, and if hash password NOT exist then rise an error
         hash_list = User.get_all_password_hashes_from_db('evaluator')
         is_password_found = False
         for password_hash in hash_list:
@@ -179,3 +177,20 @@ class Evaluator(db.Model):
             return True
         return False
 
+    @staticmethod
+    def get_evaluator_from_user_id(user_id):
+        evaluator = Evaluator.query.filter_by(user_id=user_id).first()
+        if evaluator :
+            return evaluator
+        else:
+            raise CustomError("User is not an Evaluator")
+
+    @staticmethod
+    def get_user_from_evaluator_id(eval_id):
+        evaluator = Evaluator.query.filter_by(id=eval_id).first()
+        user = User.query.filter_by(id=evaluator.user_id).first()
+        
+        if user :
+            return user
+        else:
+            raise CustomError("User is not an Evaluator")
