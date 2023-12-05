@@ -10,6 +10,7 @@ import { useState, useEffect } from 'react';
 import { StaticDatePicker } from '@mui/x-date-pickers/StaticDatePicker';
 import dayjs from 'dayjs';
 import { DateField } from '@mui/x-date-pickers';
+import { Success } from '../../SuccessPage/Success';
 import { createEvalautionWindow, getToken } from '../../../Utils/requests';
 import moment from 'moment';
 
@@ -63,6 +64,9 @@ export default function CreateWindowStepper() {
     const [skipped, setSkipped] = React.useState(new Set());
     const [stepperStatus, setStepperStatus] = useState({ date_start: '', date_end: '' }) // forse togliere ?
     const [canSubmit, setCanSubmit] = useState(false);
+    const [errMessage, setErrorMessage] = useState('');
+    const [responseOk, setResponseOk] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const isStepOptional = (step) => {
         return false; // hard coded a false perche non ci sono steps opzionali
@@ -71,10 +75,21 @@ export default function CreateWindowStepper() {
     const isStepSkipped = (step) => {
         return skipped.has(step);
     };
-    const handleCreateWindow = () => {
+    const handleCreateWindow = async () => {
         const token = getToken();
+        setLoading(true);
         const formattedDate = { date_start: moment(stepperStatus.date_start.$d).format('DD/MM/YY'), date_end: moment(stepperStatus.date_end.$d).format('DD/MM/YY') }
-        createEvalautionWindow(token, formattedDate);
+        await createEvalautionWindow(token, formattedDate).then((response) => {
+            if (response.status === 201) {
+                setResponseOk(true);
+            }
+        }).finally(() => {
+            setLoading(false);
+        })
+            .catch((error) => {
+                console.error(error);
+                setErrorMessage(error.response.data.error)
+            });
     }
 
     const handleNext = (e) => {
@@ -140,6 +155,24 @@ export default function CreateWindowStepper() {
                     <Typography sx={{ mt: 2, mb: 1 }}>
                         All steps completed - you&apos;re finished
                     </Typography>
+                    {loading ?
+                        <div className="spinner-border text-dark my-spinner" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                        </div>
+                        :
+                        null
+                    }
+
+                    {responseOk ?
+                        <Success label='Evaluation Window created successfully' helperText='We have accepted your request, Thank you. ' />
+                        :
+                        null
+                    }
+                    {!responseOk && !loading ?
+                        <Success label='Evaluation Window not created' helperText={`${errMessage}`} />
+                        : null
+                    }
+
                     <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
                         <Box sx={{ flex: '1 1 auto' }} />
                         <Button onClick={handleReset}>Reset</Button>
