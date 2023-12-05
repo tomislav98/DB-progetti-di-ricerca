@@ -10,24 +10,28 @@ import { useState, useEffect } from 'react';
 import { StaticDatePicker } from '@mui/x-date-pickers/StaticDatePicker';
 import dayjs from 'dayjs';
 import { DateField } from '@mui/x-date-pickers';
+import { createEvalautionWindow, getToken } from '../../../Utils/requests';
+import moment from 'moment';
 
 const steps = ['Select start date', 'Select end date', 'Create evaluation window'];
 
 function MySteps(props) {
-    const [stepperStatus, setStepperStatus] = useState(props.stepperStatus ? props.stepperStatus : { title: '', description: '' })
     const [startValue, setStartValue] = useState(null);
     const [endValue, setEndValue] = useState(null);
 
     const handleEndDateChange = (value) => {
         setEndValue(value);
         props.onFinish();
+        props.onDateChange({ "date_start": startValue, "date_end": value })
     }
-
+    const handleSetStartValue = (value) => {
+        setStartValue(value)
+    }
     switch (props.number) {
         case 1:
             return (
                 <div>
-                    <StaticDatePicker defaultValue={dayjs(startValue)} onChange={setStartValue} slotProps={{
+                    <StaticDatePicker defaultValue={dayjs(startValue)} onChange={handleSetStartValue} slotProps={{
                         actionBar: {
                             actions: [''],
                         },
@@ -57,7 +61,7 @@ function MySteps(props) {
 export default function CreateWindowStepper() {
     const [activeStep, setActiveStep] = React.useState(0);
     const [skipped, setSkipped] = React.useState(new Set());
-    const [stepperStatus, setStepperStatus] = useState({ title: '', description: '' }) // forse togliere ?
+    const [stepperStatus, setStepperStatus] = useState({ date_start: '', date_end: '' }) // forse togliere ?
     const [canSubmit, setCanSubmit] = useState(false);
 
     const isStepOptional = (step) => {
@@ -67,12 +71,20 @@ export default function CreateWindowStepper() {
     const isStepSkipped = (step) => {
         return skipped.has(step);
     };
+    const handleCreateWindow = () => {
+        const token = getToken();
+        const formattedDate = { date_start: moment(stepperStatus.date_start.$d).format('DD/MM/YY'), date_end: moment(stepperStatus.date_end.$d).format('DD/MM/YY') }
+        createEvalautionWindow(token, formattedDate);
+    }
 
-    const handleNext = () => {
+    const handleNext = (e) => {
         let newSkipped = skipped;
         if (isStepSkipped(activeStep)) {
             newSkipped = new Set(newSkipped.values());
             newSkipped.delete(activeStep);
+        }
+        if (e.target.innerText === 'FINISH') {
+            handleCreateWindow();
         }
 
         setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -135,7 +147,7 @@ export default function CreateWindowStepper() {
                 </React.Fragment>
             ) : (
                 <React.Fragment>
-                    <MySteps state={stepperStatus} number={activeStep + 1} onFinish={() => { setCanSubmit(true) }} />
+                    <MySteps state={stepperStatus} number={activeStep + 1} onFinish={() => { setCanSubmit(true) }} onDateChange={setStepperStatus} />
                     <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
                         <Button
                             color="inherit"

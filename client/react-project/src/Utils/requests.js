@@ -227,3 +227,21 @@ export async function getEvaluatorReports(token) {
   }
 
 }
+
+
+export async function createEvalautionWindow(token, dateData) {
+  const url = `http://localhost:5000/evaluation-window/`;
+
+  try {
+    const response = await axios.post(url, dateData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response;
+  } catch (error) {
+    throw error
+  }
+
+}
