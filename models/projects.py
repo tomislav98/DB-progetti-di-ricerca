@@ -81,13 +81,7 @@ class Project(db.Model):
 
 
     #   documentsForm = { [{"filename":"mimmo","title": "Mimmo", "type":"DATA_MANAGEMENT_PLAN", pdf_data:"dfkjahdfkjahsdfkjhas"}] }
-    def update_project_version(self, documentsForm, name, description, version = None):
-        
-        # TODO controllare se c'e un metodo piu sound per fare sta cosa, sto cercando la latest version del progetto attraverso get_latest_version(self.id) e fornendo latest_version.document_project
-       
-        # testare
-        latest_version = VersionProject.get_latest_version(self.id)
-            
+    def update_project_version(self, documentsForm, name = None, description = None, version = None):            
 
         v = VersionProject.create_version(self.status, self.id, version)
         flush()

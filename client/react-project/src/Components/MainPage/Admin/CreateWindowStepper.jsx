@@ -18,7 +18,7 @@ function MySteps(props) {
     const [startValue, setStartValue] = useState(null);
     const [endValue, setEndValue] = useState(null);
 
-    const handleEndDateChange = (value)=>{
+    const handleEndDateChange = (value) => {
         setEndValue(value);
         props.onFinish();
     }
@@ -27,19 +27,27 @@ function MySteps(props) {
         case 1:
             return (
                 <div>
-                    <StaticDatePicker defaultValue={dayjs(startValue)} onChange={setStartValue} />
+                    <StaticDatePicker defaultValue={dayjs(startValue)} onChange={setStartValue} slotProps={{
+                        actionBar: {
+                            actions: [''],
+                        },
+                    }} />
                 </div>
             )
         case 2:
             return (
-                <StaticDatePicker defaultValue={dayjs(endValue)} minDate={dayjs(startValue)} onChange={handleEndDateChange} disabled={startValue ? false : true} />
+                <StaticDatePicker defaultValue={dayjs(endValue)} minDate={dayjs(startValue)} onChange={handleEndDateChange} disabled={startValue ? false : true} slotProps={{
+                    actionBar: {
+                        actions: [''],
+                    },
+                }} />
             )
         default:
             return (
                 <div>
                     <h3> Create a new evaluation window </h3>
                     <DateField defaultValue={dayjs(startValue)} readOnly />
-                    <DateField defaultValue={dayjs(endValue)} readOnly/>
+                    <DateField defaultValue={dayjs(endValue)} readOnly />
                 </div>
 
             )
@@ -127,8 +135,7 @@ export default function CreateWindowStepper() {
                 </React.Fragment>
             ) : (
                 <React.Fragment>
-                    <MySteps state={stepperStatus} number={activeStep + 1} onFinish={()=>{setCanSubmit(true)}}/>
-                    <Typography sx={{ mt: 2, mb: 1 }}>Step {activeStep + 1}</Typography>
+                    <MySteps state={stepperStatus} number={activeStep + 1} onFinish={() => { setCanSubmit(true) }} />
                     <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
                         <Button
                             color="inherit"

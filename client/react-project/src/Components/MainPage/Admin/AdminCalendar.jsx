@@ -31,7 +31,7 @@ function AdminProjects({ windowId }) {
 
     useEffect(() => {
         fetchProjectsByWindowId()
-    }, [])
+    }, [windowId])
 
     return (
         <div>
@@ -138,11 +138,12 @@ export default function AdminCalendar() {
     };
 
 
-    const onSelectEvent = useCallback(async (event) => {
+    const onSelectEvent = (event) => {
         setVisibleWindowIndex(event.id);
-    }, [])
+    }
 
     // TODO vedere come mandare la richiesta
+
     useEffect(() => {
         fetchAndSetEventWindows()
     }, [])
