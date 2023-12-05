@@ -43,5 +43,5 @@ class Report(db.Model):
 
     @staticmethod
     def get_reports_by_evaluator_id(eval_id):
-        reports = Report.query.filter_by(version_project_id=eval_id).all()
+        reports = Report.query.filter_by(evaluator_id=eval_id).all()
         return reports

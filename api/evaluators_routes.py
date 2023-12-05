@@ -9,21 +9,29 @@ from datetime import datetime, timedelta
 import jwt
 import os
 from utils.middleware import evaluator_required
+import base64
 
 evaluators_blueprint = Blueprint("evaluators", __name__)
+
 
 # retrieves project to value, the only accessible by evaluators
 @evaluators_blueprint.route("/projects", methods=["GET"])
 @evaluator_required
 @error_handler
 def get_projects_to_value(current_user):
-    evaluation_window =  EvaluationWindow.get_next_window()
+    evaluation_window = EvaluationWindow.get_next_window()
     if not evaluation_window or not evaluation_window.project:
         raise CustomError("There are no projects submitted yet", 404)
 
     project_data = [
-        {"id": project.id, "name": project.name, "description": project.description, "status": str(project.status)}
-        for project in evaluation_window.project]
+        {
+            "id": project.id,
+            "name": project.name,
+            "description": project.description,
+            "status": str(project.status),
+        }
+        for project in evaluation_window.project
+    ]
     return Response(json.dumps(project_data), 200)
 
 
@@ -32,11 +40,19 @@ def get_projects_to_value(current_user):
 @evaluator_required
 @error_handler
 def get_evaluator_reports(current_user):
-    reports = Report.get_reports_by_evaluator_id(current_user.id)
-    
+    user = User.query.filter_by(id=current_user.id).first()
+    reports = Report.get_reports_by_evaluator_id(user.evaluator.id)
+
+    print(reports)
+
     reports_data = [
-        {"id": project.id, "name": project.name, "description": project.description, "status": str(project.status)}
-        for project in reports]
+        {
+            "id": report.id,
+            "vote": report.vote,
+            "pdf_data": base64.b64encode(report.pdf_data).decode("utf-8"),
+            "created": str(report.date_created),
+        }
+        for report in reports
+    ]
 
     return Response(json.dumps(reports_data), 200)
-

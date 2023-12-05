@@ -4,11 +4,14 @@ import { getProjectsToValue } from "../../../../Utils/requests";
 import { getToken } from "../../../../Utils/requests";
 import { Modal, Box } from "@mui/material";
 import CreateReportStepper from "./CreateReportStepper";
-import {useMediaQuery} from "@mui/material";
+import { useMediaQuery } from "@mui/material";
+import { NothingFound } from "../../../../Reusable Components/NothingFound/NothingFound";
 
 export default function ProjectsToValue() {
     const [projects, setProjects] = useState([]);
     const [modalOpen, setModalOpen] = useState(false);
+    const [selectedProjectIndex, setSelectedProjectIndex] = useState(null);
+
     const matches = useMediaQuery('(min-width:600px)', { noSsr: true });
 
     const fetchProjectToValue = async () => {
@@ -17,6 +20,7 @@ export default function ProjectsToValue() {
         console.log(res)
         setProjects([...res.data])
     }
+
     useEffect(() => {
         try {
             fetchProjectToValue();
@@ -30,6 +34,7 @@ export default function ProjectsToValue() {
 
 
     const onCardClick = (id) => {
+        setSelectedProjectIndex(id);
         setModalOpen(true)
     }
 
@@ -42,7 +47,7 @@ export default function ProjectsToValue() {
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
-        width: matches? 1000 : 400,
+        width: matches ? 1000 : 400,
         bgcolor: 'background.paper',
         border: '1px solid #000',
         boxShadow: 24,
@@ -56,22 +61,21 @@ export default function ProjectsToValue() {
         <div>
             {
                 projects.length !== 0 ?
-                    <div className='row pt-4' style={{rowGap: '10px'}}>
+                    <div className='row pt-4' style={{ rowGap: '10px' }}>
                         <h3 className='mb-4'>Projects to value</h3>
                         {
                             projects.map((item, index) => {
                                 return <div className='col-12 col-lg-4'>
-                                    <ProjectCardPublic clickable={true} name={item.name} description={item.description} id={item.id} status={item.status} version={item.version} username={'pippo'} onCardClick={onCardClick} />
+                                    <ProjectCardPublic clickable={true} name={item.name} description={item.description} id={item.id} status={item.status} version={item.version} username={'pippo'} onCardClick={() => onCardClick(item.id)} />
                                 </div>
                             })
 
                         }
                     </div>
-
                     :
-                    <p>
-                        404 mimmo
-                    </p>
+                    <div className="pt-4">
+                        <NothingFound title="No projects submitted" text="There are still no projects submitted to this evaluation windows" />
+                    </div>
             }
             <Modal
                 open={modalOpen}
@@ -80,7 +84,7 @@ export default function ProjectsToValue() {
                 aria-describedby="child-modal-description"
             >
                 <Box sx={boxStyle}>
-                    <CreateReportStepper />
+                    <CreateReportStepper id={selectedProjectIndex}/>
                 </Box>
             </Modal>
         </div>

@@ -8,6 +8,7 @@ import { Rating } from '@mantine/core';
 import { IconCloudUpload, IconX, IconDownload, IconSatellite, Icon12Hours, IconClover } from '@tabler/icons-react';
 import DropzoneButton from '../../../../Reusable Components/Dropzone/DropzoneButton';
 import './ProjectsToValue.scss'
+import { createReport, getToken } from '../../../../Utils/requests';
 
 const StyledRating = styled(Rating)(({ theme }) => ({
     '& .MuiRating-iconEmpty .MuiSvgIcon-root': {
@@ -110,7 +111,7 @@ const voteLabels = [
 
 function MySteps(props) {
     const [stepperStatus, setStepperStatus] = useState(props.stepperStatus ? props.stepperStatus : { title: '', description: '' })
-    const [uploadedFiles, setUploadedFiles] = useState([]);
+    const [uploadedFiles, setUploadedFiles] = useState(props.uploadedFiles? props.uploadedFiles : []);
     const [votes, setVotes] = useState([null, null, null, null, null, null, null, null, null, null]);
     const [endValue, setEndValue] = useState(null);
 
@@ -123,6 +124,7 @@ function MySteps(props) {
         const newUploadedFiles = [...uploadedFiles];
         newUploadedFiles.splice(index, 1);
         setUploadedFiles(newUploadedFiles);
+        props.onFilesDeleted(newUploadedFiles)
     };
 
     const handleVoteChange = (val, i) => {
@@ -138,13 +140,12 @@ function MySteps(props) {
         props.onVotesChanged(percentage, avg);
     }
     
-
     switch (props.number) {
         case 1:
             return (
                 <div className='add-report-section'>
                     <h3 className='titles'>Aggiungi il report</h3>
-                    <DropzoneButton onFilesUploaded={handleFilesUploaded} onFilesDeleted={handleFileDelete} />
+                    <DropzoneButton onFilesUploaded={handleFilesUploaded} onFilesDeleted={handleFileDelete} maxFiles={1} uploadedFilesprops={uploadedFiles}/>
                 </div>
             )
         case 2:
@@ -211,13 +212,19 @@ function VoteVerdict({value}){
     }
 }
 
-export default function CreateReportStepper() {
+export default function CreateReportStepper(id) {
     const [activeStep, setActiveStep] = React.useState(0);
     const [skipped, setSkipped] = React.useState(new Set());
     const [stepperStatus, setStepperStatus] = useState({ title: '', description: '' }) // forse togliere ?
     const [canSubmit, setCanSubmit] = useState(false);
     const [votesCompletion, setVotesCompletion] = useState(0);
     const [votesAvg, setVotesAvg] = useState(0);
+    const [loading, setLoading] = useState(false);
+    const [uploadedFiles, setUploadedFiles] = useState([]);
+
+    React.useEffect(()=>{
+        console.log(uploadedFiles)
+    }, [uploadedFiles])
 
     const isStepOptional = (step) => {
         return false; // hard coded a false perche non ci sono steps opzionali
@@ -227,7 +234,25 @@ export default function CreateReportStepper() {
         return skipped.has(step);
     };
 
-    const handleNext = () => {
+    const sendReport = async () => {
+        const token = getToken();
+        setLoading(true);
+        const res = await createReport(token,id.id,votesAvg,uploadedFiles[0]);
+        setLoading(false)
+        
+        if(res.status === 200){
+            alert('fatto')
+        }
+        alert(res.status)
+
+    }
+
+    const handleNext = (event) => {
+        if(event.target.innerText === 'FINISH'){
+            sendReport();
+            console.log('first')
+        }
+
         let newSkipped = skipped;
         if (isStepSkipped(activeStep)) {
             newSkipped = new Set(newSkipped.values());
@@ -266,6 +291,10 @@ export default function CreateReportStepper() {
         setVotesCompletion(progress * 100)
     }
 
+    const deleteFiles = (newfiles) =>{
+        setUploadedFiles([...newfiles])
+    }
+
     return (
         <Box sx={{ width: '100%' }}>
             <Stepper activeStep={activeStep}>
@@ -299,7 +328,7 @@ export default function CreateReportStepper() {
                 </React.Fragment>
             ) : (
                 <React.Fragment>
-                    <MySteps state={stepperStatus} number={activeStep + 1} onFinish={() => { setCanSubmit(true) }} onVotesChanged={onVotesChanged} />
+                    <MySteps state={stepperStatus} number={activeStep + 1} onFinish={() => { setCanSubmit(true) }} onVotesChanged={onVotesChanged} onFilesUploaded={setUploadedFiles} onFilesDeleted={deleteFiles} uploadedFiles={uploadedFiles}/>
                     <Typography sx={{ mt: 2, mb: 1 }}> {
                         activeStep === 1 ?
                             <LinearProgress variant="determinate" value={votesCompletion} />

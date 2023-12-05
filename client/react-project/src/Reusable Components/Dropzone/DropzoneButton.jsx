@@ -5,7 +5,7 @@ import { Dropzone, MIME_TYPES } from '@mantine/dropzone';
 import { IconCloudUpload, IconX, IconDownload } from '@tabler/icons-react';
 import classes from './dropzone.scss';
 
-function DropzoneButton({ onFilesUploaded, onFilesDeleted, uploadedFilesprops = [] }) {
+function DropzoneButton({ onFilesUploaded, onFilesDeleted, uploadedFilesprops = [], maxFiles=null }) {
   const openRef = useRef(null);
   const [uploadedFiles, setUploadedFiles] = useState(uploadedFilesprops);
 
@@ -33,6 +33,7 @@ function DropzoneButton({ onFilesUploaded, onFilesDeleted, uploadedFilesprops = 
           radius="md"
           accept={[MIME_TYPES.pdf]}
           maxSize={30 * 1024 ** 2}
+          maxFiles={maxFiles}
         >
           <div className='youngest-flexer' style={{ pointerEvents: 'none' }}>
             <Group justify="center">

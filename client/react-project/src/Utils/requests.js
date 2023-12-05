@@ -227,8 +227,6 @@ export async function getEvaluatorReports(token) {
   }
 
 }
-
-
 export async function createEvalautionWindow(token, dateData) {
   const url = `http://localhost:5000/evaluation-window/`;
 
@@ -236,6 +234,27 @@ export async function createEvalautionWindow(token, dateData) {
     const response = await axios.post(url, dateData, {
       headers: {
         Authorization: `Bearer ${token}`,
+      },
+    });
+        return response;
+  } catch (error) {
+    throw error
+  }
+
+}
+
+export async function createReport(token, projectId, vote, file){
+  const url = `http://localhost:5000/projects/${projectId}/report`;
+  const body = {
+    vote: Math.floor(vote),
+    file: file
+  }
+
+  try {
+    const response = await axios.post(url,body, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
       },
     });
 

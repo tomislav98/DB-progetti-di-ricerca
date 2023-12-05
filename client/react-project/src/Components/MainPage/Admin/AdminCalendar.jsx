@@ -72,13 +72,6 @@ export function MyCalendar({ events, onSelectEvent }) {
 export function DateInput() {
     const [value, setValue] = useState([]);
     const shortcutsItems = []
-    // {
-    //     label: 'This Week',
-    //     getValue: () => {
-    //         const today = Date.now();
-    //         return [today., today.endOf('week')];
-    //     },
-    // }]
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs}>
             <CreateWindowStepper />

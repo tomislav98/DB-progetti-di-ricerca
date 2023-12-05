@@ -1,0 +1,51 @@
+.mantineroot {
+    padding-top: rem(80px);
+    padding-bottom: rem(80px);
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+.mantineinner {
+    position: relative;
+    width: 100%;
+}
+
+.mantineimage {
+    position: absolute;
+    inset: 0;
+    opacity: 0.75;
+    color: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-6));
+}
+
+.mantinecontent {
+    padding-top: rem(220px);
+    position: relative;
+    z-index: 1;
+
+    @media (max-width: 600px) {
+        padding-top: rem(120px);
+    }
+}
+
+.mantinetitle {
+    font-family: Greycliff CF, var(--mantine-font-family);
+    text-align: center;
+    font-weight: 100;
+    font-size: rem(38px);
+    margin-top: 25px;
+    margin-bottom: 25px;
+    @media (max-width: 600px) {
+        font-size: rem(32px);
+    }
+}
+
+.mantinedescription {
+    max-width: rem(540px);
+    /* margin: auto; */
+    margin-top: var(--mantine-spacing-xl);
+    margin-bottom: calc(var(--mantine-spacing-xl) * 1.5);
+    margin-top: 10px;
+    margin-bottom:10px;
+}
