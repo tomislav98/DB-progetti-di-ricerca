@@ -81,7 +81,7 @@ class Project(db.Model):
 
 
     #   documentsForm = { [{"filename":"mimmo","title": "Mimmo", "type":"DATA_MANAGEMENT_PLAN", pdf_data:"dfkjahdfkjahsdfkjhas"}] }
-    def update_project_version(self, documentsForm,  version = None):
+    def update_project_version(self, documentsForm, name, description, version = None):
         
         # TODO controllare se c'e un metodo piu sound per fare sta cosa, sto cercando la latest version del progetto attraverso get_latest_version(self.id) e fornendo latest_version.document_project
        
@@ -97,6 +97,8 @@ class Project(db.Model):
         # fine test
 
         self.latest_version = v.version
+        self.name = name if name is not None else self.name
+        self.description = description if description is not None else self.description
         commit()
         return v
 

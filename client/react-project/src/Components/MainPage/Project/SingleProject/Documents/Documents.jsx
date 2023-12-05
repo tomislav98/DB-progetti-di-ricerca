@@ -66,6 +66,8 @@ function ProjectDocuments({ documents = [], projectId, nameProp, descriptionProp
 
             const formData = new FormData();
             formData.append('version', version);
+            formData.append('description', description);
+            formData.append('name', name);
             addedFiles.forEach((file) => {
                 formData.append('files', file);
             });
@@ -75,10 +77,10 @@ function ProjectDocuments({ documents = [], projectId, nameProp, descriptionProp
 
             console.log(res)
 
-            if (res.status === 200) 
+            if (res.status === 200)
                 onSuccess();
 
-        } catch (error ) {
+        } catch (error) {
             onFailure(error.response.status, error.response.data.error);
         } finally {
             setLoading(false);
@@ -244,7 +246,7 @@ export default function DocumentsModal({ projectData, isOpen, onCloseModal }) {
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
-        width: updateFailed?'50vw':'90vw',
+        width: updateFailed ? '50vw' : '90vw',
         height: '90vh',
         bgcolor: 'background.paper',
         borderRadius: '15px',
@@ -269,7 +271,7 @@ export default function DocumentsModal({ projectData, isOpen, onCloseModal }) {
             >
                 {updateFailed ?
                     <Box sx={style}>
-                        <UpdateFailed status={failedStatusCode} message={failureMessage} onCloseModal={onCloseModal}/>
+                        <UpdateFailed status={failedStatusCode} message={failureMessage} onCloseModal={onCloseModal} />
                     </Box>
                     :
                     <Box sx={style}>
@@ -278,7 +280,7 @@ export default function DocumentsModal({ projectData, isOpen, onCloseModal }) {
                             nameProp={projectData.name}
                             descriptionProp={projectData.description}
                             versionProp={projectData.version}
-                            onSuccess={()=> onCloseModal()}
+                            onSuccess={() => onCloseModal()}
                             onFailure={handleFailedUpdate}
                         />
 
@@ -290,10 +292,10 @@ export default function DocumentsModal({ projectData, isOpen, onCloseModal }) {
     );
 }
 
-function UpdateFailed({status, message, onCloseModal}) {
+function UpdateFailed({ status, message, onCloseModal }) {
 
-    useEffect(()=>{
-        setTimeout(()=>{
+    useEffect(() => {
+        setTimeout(() => {
             onCloseModal()
         }, 6000)
     })
@@ -309,10 +311,10 @@ function UpdateFailed({status, message, onCloseModal}) {
                 </svg>
                 <h1 className="text-body-emphasis">Update non effettuato</h1>
                 <p className="col-lg-6 mx-auto mb-4 text-muted">
-                    Ci dispiace ma c'è stato un errore, questo modale verrà automaticamente chiuso fra qualche secondo. 
-                    Codice errore {status}. 
+                    Ci dispiace ma c'è stato un errore, questo modale verrà automaticamente chiuso fra qualche secondo.
+                    Codice errore {status}.
                     <br />
-                    <p className="text-danger">{message}</p> 
+                    <p className="text-danger">{message}</p>
                 </p>
                 <div className="spinner-grow spinner-grow-sm" role="status">
                     <span className="visually-hidden">Loading...</span>

@@ -139,6 +139,8 @@ def update_project_version(current_user, user_id, project_id):
                 raise CustomError("There are no projects with such parameters", 404)
             
             version = request.form.get('version')
+            name = request.form.get('name')
+            description = request.form.get('description')
 
             if project.status in [ProjectStatus.APPROVED,ProjectStatus.NOT_APPROVED,ProjectStatus.SUBMITTED]:
                 raise CustomError("You can't update the project",403)
@@ -159,7 +161,9 @@ def update_project_version(current_user, user_id, project_id):
                 _validate_file_form(file_metadata)
                 file_metadata['pdf_data'] = file.pdf_data
                 file_associated.append(file_metadata)
-            updated = project.update_project_version(file_associated,version)
+            print(description)
+            print(name)
+            updated = project.update_project_version(file_associated,name, description, version)
                             
             response_json = {
                 "message": "Project updated correctly to version "+ updated.version
