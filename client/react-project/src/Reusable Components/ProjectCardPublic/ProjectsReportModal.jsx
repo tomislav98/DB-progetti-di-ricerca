@@ -28,7 +28,7 @@ export function ReportsModal({ reports }) {
                         <th scope="col">#</th>
                         <th scope="col">ID</th>
                         <th scope="col">Project title</th>
-                        <th scope="col">Evaluator ID</th>
+                        <th scope="col">Evaluator email</th>
                         <th scope="col">Report creation date</th>
                         <th scope="col">Vote</th>
                         <th scope="col">Version</th>
@@ -43,7 +43,7 @@ export function ReportsModal({ reports }) {
                                 <td>{index + 1}</td>
                                 <td>{report.id}</td>
                                 <td>{report.project_name}</td>
-                                <td>{report.evaluator_id}</td>
+                                <td>{report.evaluator_name}</td>
                                 <td>{report.created}</td>
                                 <td>
                                     <button type="button" className="btn btn-sm btn-outline-secondary">
