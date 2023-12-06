@@ -37,11 +37,11 @@ function AdminProjects({ windowId }) {
         <div>
             {
                 projects.length !== 0 ?
-                    <div className='row pt-4'>
+                    <div className='row pt-4' style={{rowGap: '10px'}}>
                         <h3 className='mb-4'>Submitted projects</h3>
                         {
                             projects.map((item, index) => {
-                                return <div className='col-4'><ProjectCardPublic name={item.name} description={item.description} id={item.id} status={item.status} version={item.version} username={'pippo'} /></div>
+                                return <div className='col-12 col-lg-4'><ProjectCardPublic name={item.name} description={item.description} id={item.id} status={item.status} version={item.version} username={'pippo'} /></div>
                             })
 
                         }
@@ -122,6 +122,7 @@ export default function AdminCalendar() {
         left: '50%',
         transform: 'translate(-50%, -50%)',
         width: 400,
+        height: 600,
         bgcolor: 'background.paper',
         border: '1px solid #000',
         boxShadow: 24,
