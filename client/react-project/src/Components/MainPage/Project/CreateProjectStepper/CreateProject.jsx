@@ -243,12 +243,12 @@ export default function HorizontalLinearStepper({ closeEvent, updateProjects }) 
                         null
                     }
                     {responseOk ?
-                        <Success label='Project created successfully' helperText='We have accepted your request, Thank you. ' />
+                        <Success label='Project created successfully' helperText='We have accepted your request, Thank you. ' successfull={true} />
                         :
                         null
                     }
                     {!responseOk && !loading ?
-                        <Success label='Project not created' helperText='Something went wrong... ' />
+                        <Success label='Project not created' helperText='Something went wrong... ' successfull={false} />
                         : null
                     }
 

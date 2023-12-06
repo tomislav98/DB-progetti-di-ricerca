@@ -164,7 +164,7 @@ export default function CreateWindowStepper() {
                     }
 
                     {responseOk ?
-                        <Success label='Evaluation Window created successfully' helperText='We have accepted your request, Thank you. ' />
+                        <Success label='Evaluation Window created successfully' helperText='We have accepted your request, Thank you. ' successfull={true} />
                         :
                         null
                     }
