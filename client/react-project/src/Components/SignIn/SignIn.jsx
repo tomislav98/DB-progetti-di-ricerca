@@ -4,6 +4,7 @@ import unive from '../../assets/frog-face-svgrepo-com.svg';
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
 import { SnackbarProvider, enqueueSnackbar } from 'notistack';
+import { getDecodedToken } from '../../Utils/requests';
 
 function Sign() {
   const navigate = useNavigate();
@@ -12,7 +13,20 @@ function Sign() {
   const [loading, setLoading] = useState(false);
 
   function goMainpage() {
-    navigate('/mainpage')
+    const decodedToken = getDecodedToken()
+    switch (decodedToken.role) {
+      case "UserType.ADMIN":
+        navigate('/mainpage/admin');
+        break;
+      case "UserType.RESEARCHER":
+        navigate('/mainpage/projects');
+        break;
+      case "UserType.EVALUATOR":
+        navigate('/mainpage/evaluate');
+        break;
+      default:
+
+    }
   }
 
   const handleSignIn = async (e) => {
@@ -77,7 +91,7 @@ function Sign() {
                   <input type="checkbox" value="remember-me" /> Remember me
                 </label>
               </div>
-              <button className="w-100 btn btn-lg btn-primary" style={{position:'relative'}} type="submit">
+              <button className="w-100 btn btn-lg btn-primary" style={{ position: 'relative' }} type="submit">
                 Sign in
 
                 {loading ?
