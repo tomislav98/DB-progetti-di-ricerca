@@ -169,14 +169,17 @@ export default function CreateWindowStepper() {
                         null
                     }
                     {!responseOk && !loading ?
-                        <Success label='Evaluation Window not created' helperText={`${errMessage}`} />
+                        <div>
+                            <Success label='Evaluation Window not created' helperText={`${errMessage}`} successfull={false} />
+                            <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
+                                <Box sx={{ flex: '1 1 auto' }} />
+                                <Button onClick={handleReset}>Reset</Button>
+                            </Box>
+                        </div>
                         : null
                     }
 
-                    <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
-                        <Box sx={{ flex: '1 1 auto' }} />
-                        <Button onClick={handleReset}>Reset</Button>
-                    </Box>
+
                 </React.Fragment>
             ) : (
                 <React.Fragment>
