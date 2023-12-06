@@ -28,7 +28,7 @@ def get_researcher_projects(current_user, user_id):
         projects_list = [{"id": project.id, "name": project.name, "description": project.description, "status": str(project.status), "version": project.latest_version} for project in
                             projects]
 
-        return Response(json.dumps(projects_list), status=201, mimetype="application/json")
+        return Response(json.dumps(projects_list), status=200, mimetype="application/json")
     
 
 @researcher_blueprint.route("/<int:user_id>/projects", methods=["POST"])
