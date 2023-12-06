@@ -11,7 +11,10 @@ import {
     IconSwitchHorizontal,
     IconLogout,
 } from '@tabler/icons-react';
+import { useNavigate } from "react-router-dom";
+import { getDecodedToken } from '../../../Utils/requests';
 import { NavbarSearch } from '../../../Reusable Components/NavbarHome/NavbarHome';
+import { useEffect } from 'react';
 
 const data = [
     { link: '', label: 'Notifications', icon: IconBellRinging },
@@ -24,8 +27,31 @@ const data = [
 ];
 
 
-function Home() {
 
+function Home() {
+    const navigate = useNavigate()
+    useEffect(() => {
+        redirectByRole()
+    }, [])
+
+    function redirectByRole() {
+        const decodedToken = getDecodedToken()
+        switch (decodedToken.role) {
+            case "UserType.ADMIN":
+                navigate('/mainpage/admin');
+                break;
+            case "UserType.RESEARCHER":
+                navigate('/mainpage/projects');
+                break;
+            case "UserType.EVALUATOR":
+                navigate('/mainpage/evaluate');
+                break;
+            default:
+                navigate('/login');
+
+
+        }
+    }
     return (
         <div className='home-container'>
             <div className='row row-home'>

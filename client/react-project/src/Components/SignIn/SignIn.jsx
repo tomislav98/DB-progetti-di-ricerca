@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './sign-in.scss';
 import unive from '../../assets/frog-face-svgrepo-com.svg';
 import axios from 'axios';
@@ -13,20 +13,7 @@ function Sign() {
   const [loading, setLoading] = useState(false);
 
   function goMainpage() {
-    const decodedToken = getDecodedToken()
-    switch (decodedToken.role) {
-      case "UserType.ADMIN":
-        navigate('/mainpage/admin');
-        break;
-      case "UserType.RESEARCHER":
-        navigate('/mainpage/projects');
-        break;
-      case "UserType.EVALUATOR":
-        navigate('/mainpage/evaluate');
-        break;
-      default:
-
-    }
+    navigate('/mainpage')
   }
 
   const handleSignIn = async (e) => {
