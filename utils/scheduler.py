@@ -10,7 +10,8 @@ from utils.versions import get_incremented_version
 @error_handler
 def evaluate_current_window_projects():
     with app.app_context():
-        window = EvaluationWindow.get_next_window()
+        window = EvaluationWindow.get_next_window() #TODO current
+        #TODO controllare se date end e' domani
         if window: 
             for project in window.project:
                 latest_version_project = VersionProject.get_latest_version(project.id) #get latest version project, da fare meglio

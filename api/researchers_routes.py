@@ -6,7 +6,6 @@ from models.users import User, Evaluator, Researcher, UserType
 from models.projects import Project, ProjectStatus
 from models.evaluation_windows import EvaluationWindow
 from utils.exceptions import CustomError, error_handler
-from utils.enums import DocumentType
 from utils.json_utils import find_json_by_value
 from datetime import datetime, date, timedelta
 import jwt
@@ -161,8 +160,6 @@ def update_project_version(current_user, user_id, project_id):
                 _validate_file_form(file_metadata)
                 file_metadata['pdf_data'] = file.pdf_data
                 file_associated.append(file_metadata)
-            print(description)
-            print(name)
             updated = project.update_project_version(file_associated,name, description, version)
                             
             response_json = {

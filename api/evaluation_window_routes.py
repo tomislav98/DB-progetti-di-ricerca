@@ -55,7 +55,7 @@ def get_window_projects(current_user, evaluation_window_id):
         if window is None: 
              raise CustomError("Invalid Id", 400)
         projects = window.project
-        projects_list = [{"id": proj.id, "name": proj.name, "description": proj.description, "version": proj.latest_version  } for proj in projects]
+        projects_list = [{"id": proj.id, "name": proj.name, "description": proj.description, "version": proj.latest_version, "status": str(proj.status) } for proj in projects]
         return Response(json.dumps(projects_list),200)
 
 
