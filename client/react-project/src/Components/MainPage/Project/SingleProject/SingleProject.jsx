@@ -29,7 +29,7 @@ import { Routes, Route } from "react-router-dom";
 import { Reports } from "./Reports";
 import UpdateProjectModal from "./UpdateProject";
 import DocumentsModal from "./Documents/Documents";
-
+import { NothingFound } from "../../../../Reusable Components/NothingFound/NothingFound";
 // Can be used to fake an input in the graph until the true data arrives  
 const skeletonInput = [
 
@@ -544,6 +544,7 @@ export default function SingleProject({ projects }) {
     const [projectList, setProjectList] = useState([]);
     const [currentProject, setCurrentProject] = useState(null);
     const [rightValue, setRightValue] = useState(100);
+    const [errorHappened, setErrorHappened] = useState(false);
 
     const navigate = useNavigate();
 
@@ -563,6 +564,11 @@ export default function SingleProject({ projects }) {
         const segments = currentPath.split('/');
         const projectId = parseInt(segments[segments.length - 1]);
         const current = projects.find((proj) => { return proj.id === projectId })
+        if (!current)
+            setErrorHappened(true)
+        else 
+            setErrorHappened(false)
+        
         setCurrentProject(current);
     }
 
@@ -654,38 +660,47 @@ export default function SingleProject({ projects }) {
     }, [rightValue]);
 
     return (
-        <div className="project-slider" style={{ right: `${rightValue}vw` }}>
-            <nav className="navbar navbar-light justify-content-start" style={{ height: '10%', paddingLeft: '25px', paddingRight: '25px' }}>
-                <FontAwesomeIcon icon={faAngleLeft} style={{ cursor: "pointer" }} onClick={handleGoBack} />
-                <Breadcrumbs aria-label="breadcrumb" style={{ marginLeft: '25px' }}>
-                    <Link underline="hover" color="inherit" href="/">
-                        Mainpage
-                    </Link>
-                    <Link
-                        underline="hover"
-                        color="inherit"
-                        href="/material-ui/getting-started/installation/"
-                    >
-                        Projects
-                    </Link>
-                    <Typography color="text.primary">Project {currentProject ? currentProject.id : null} </Typography>
-                </Breadcrumbs>
-            </nav>
+        <div className="h-100 w-100">
+            {
+                !errorHappened ?
+                    <div className="project-slider" style={{ right: `${rightValue}vw` }}>
+                        <nav className="navbar navbar-light justify-content-start" style={{ height: '10%', paddingLeft: '25px', paddingRight: '25px' }}>
+                            <FontAwesomeIcon icon={faAngleLeft} style={{ cursor: "pointer" }} onClick={handleGoBack} />
+                            <Breadcrumbs aria-label="breadcrumb" style={{ marginLeft: '25px' }}>
+                                <Link underline="hover" color="inherit" href="/">
+                                    Mainpage
+                                </Link>
+                                <Link
+                                    underline="hover"
+                                    color="inherit"
+                                    href="/material-ui/getting-started/installation/"
+                                >
+                                    Projects
+                                </Link>
+                                <Typography color="text.primary">Project {currentProject ? currentProject.id : null} </Typography>
+                            </Breadcrumbs>
+                        </nav>
 
-            <div className="container-fluid single-project-content"  >
-                <div className="row" style={{ height: '100%' }}>
-                    {
-                        currentProject ?
-                            <MyDashboard title={currentProject.name ? currentProject.name : ''} projectVersions={projectVersions} />
-                            :
-                            <MyDashboard title={''} projectVersions={projectVersions} />
-                    }
-                    <div className="col-12 col-md-4 col-lg-3 col-xxl-2 p-md-4" style={{ height: '90vh' }}>
-                        <ProjectActions version={currentProject ? currentProject : null} onSubmit={() => fetchVersions()}/>
-                        <ProjectStatus projectData={currentProject ? currentProject : null} onCloseModal={()=>fetchVersions()} />
+                        <div className="container-fluid single-project-content"  >
+                            <div className="row" style={{ height: '100%' }}>
+                                {
+                                    currentProject ?
+                                        <MyDashboard title={currentProject.name ? currentProject.name : ''} projectVersions={projectVersions} />
+                                        :
+                                        <MyDashboard title={''} projectVersions={projectVersions} />
+                                }
+                                <div className="col-12 col-md-4 col-lg-3 col-xxl-2 p-md-4" style={{ height: '90vh' }}>
+                                    <ProjectActions version={currentProject ? currentProject : null} onSubmit={() => fetchVersions()} />
+                                    <ProjectStatus projectData={currentProject ? currentProject : null} onCloseModal={() => fetchVersions()} />
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
+                    :
+                    <div className="h-100 w-100">
+                        <NothingFound text="There are no projects with the id specified in the url"/>
+                    </div>
+            }
         </div>
     )
 }
