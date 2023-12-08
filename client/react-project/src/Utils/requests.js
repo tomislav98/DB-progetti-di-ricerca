@@ -2,24 +2,6 @@ import axios from 'axios';
 import jwtDecode from 'jwt-decode';
 
 // TODO: pls modificare ste funzioni in modo che usino getToken e getDecodedToken internamente, invece che obbligare queste operazioni all'esterno e passarle come params
-
-
-export async function getProjectById(token, userId) {
-  const url = `http://localhost:5000/researchers/${userId}/projects/`;
-  try {
-    const response = await axios.get(url, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-}
-
-
 export async function updateProject(userId, projId, token, updateData) {
   const url = `http://localhost:5000/researchers/${userId}/projects/${projId}`;
 
@@ -254,14 +236,14 @@ export async function createEvalautionWindow(token, dateData) {
         Authorization: `Bearer ${token}`,
       },
     });
-    return response;
+        return response;
   } catch (error) {
     throw error
   }
 
 }
 
-export async function createReport(token, projectId, vote, file) {
+export async function createReport(token, projectId, vote, file){
   const url = `http://localhost:5000/projects/${projectId}/report`;
   const body = {
     vote: Math.floor(vote),
@@ -269,7 +251,7 @@ export async function createReport(token, projectId, vote, file) {
   }
 
   try {
-    const response = await axios.post(url, body, {
+    const response = await axios.post(url,body, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'multipart/form-data',

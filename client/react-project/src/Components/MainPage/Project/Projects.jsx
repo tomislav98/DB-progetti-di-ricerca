@@ -98,7 +98,7 @@ export function StatusBadge(status = 'ProjectStatus.TO_BE_SUBMITTED') {
         case 'ProjectStatus.REQUIRES_CHANGES':
             return <Badge className='common-badge badge-changes' > REQUIRES CHANGES </Badge>
         default:
-            break;
+            return <Badge className='common-badge badge-default' > UNDEFINED </Badge>
     }
 }
 
@@ -122,7 +122,7 @@ function ProjectCard({ name, description, id, status, version = 'v0.0.0', userna
         navigate('/mainpage/projects/' + id);
     }
 
-    function handleUpdate(){
+    function handleUpdate() {
         onUpdate()
     }
 
@@ -132,7 +132,7 @@ function ProjectCard({ name, description, id, status, version = 'v0.0.0', userna
 
         try {
             setLoading(true)
-            await withdrawProject(decodedToken.user_id, id, token).then((e)=>{
+            await withdrawProject(decodedToken.user_id, id, token).then((e) => {
                 setLoading(false)
                 handleUpdate()
             });
@@ -141,7 +141,7 @@ function ProjectCard({ name, description, id, status, version = 'v0.0.0', userna
             setLoading(false)
         }
 
-        
+
     }
 
     async function handleSubmit() {
@@ -198,15 +198,18 @@ function ProjectCard({ name, description, id, status, version = 'v0.0.0', userna
                 {status === 'ProjectStatus.SUBMITTED' ?
                     <BootstrapTooltip title="Withdraw submission">
                         <ActionIcon variant="filled" color="red" size="lg" radius="md" onClick={handleWithdraw}>
-                            {loading ? <CircularProgress color='inherit'/> : <IconX size="1.1rem" />}
+                            {loading ? <CircularProgress color='inherit' /> : <IconX size="1.1rem" />}
                         </ActionIcon>
                     </BootstrapTooltip>
                     :
-                    <BootstrapTooltip title="Submit project">
-                        <ActionIcon variant="default" size="lg" radius="md" onClick={handleSubmit}>
-                            {loading ? <CircularProgress /> : <IconUpload size="1.1rem" />}
-                        </ActionIcon>
-                    </BootstrapTooltip>
+                    status === 'ProjectStatus.DRAFT' || status === 'ProjectStatus.REQUIRES_CHANGES' ?
+                        <BootstrapTooltip title="Submit project">
+                            <ActionIcon variant="default" size="lg" radius="md" onClick={handleSubmit}>
+                                {loading ? <CircularProgress /> : <IconUpload size="1.1rem" />}
+                            </ActionIcon>
+                        </BootstrapTooltip>
+                        :
+                        null
                 }
             </Group>
         </Card>
@@ -352,7 +355,7 @@ function ProjectContainer({ onProjectChange }) {
         setModalOpen(false);
     }
 
-    function handleSubmit(){
+    function handleSubmit() {
         fetchProjects()
     }
 
@@ -404,7 +407,7 @@ function ProjectContainer({ onProjectChange }) {
                                 projects.map((proj, i) => {
                                     return (
                                         <div className='col-12 col-md-6 col-lg-4' key={i} pid={proj.id} >
-                                            <ProjectCard name={proj.name} description={proj.description} id={proj.id} status={proj.status} username={username} version={proj.version} key={i} onUpdate={handleSubmit}/>
+                                            <ProjectCard name={proj.name} description={proj.description} id={proj.id} status={proj.status} username={username} version={proj.version} key={i} onUpdate={handleSubmit} />
                                         </div>
                                     );
                                 })

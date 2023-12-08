@@ -11,13 +11,13 @@ export default function ProjectsToValue() {
     const [projects, setProjects] = useState([]);
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedProjectIndex, setSelectedProjectIndex] = useState(null);
+    const [selectedProject, setSelectedProject] = useState(null);
 
     const matches = useMediaQuery('(min-width:600px)', { noSsr: true });
 
     const fetchProjectToValue = async () => {
         const token = getToken();
         const res = await getProjectsToValue(token);
-        console.log(res)
         setProjects([...res.data])
     }
 
@@ -33,9 +33,10 @@ export default function ProjectsToValue() {
     }, [])
 
 
-    const onCardClick = (id) => {
-        setSelectedProjectIndex(id);
-        setModalOpen(true)
+    const onCardClick = (item) => {
+        setSelectedProjectIndex(item.id);
+        setSelectedProject(item);
+        setModalOpen(true);
     }
 
     const handleClose = () => {
@@ -66,7 +67,7 @@ export default function ProjectsToValue() {
                         {
                             projects.map((item, index) => {
                                 return <div className='col-12 col-lg-4'>
-                                    <ProjectCardPublic clickable={true} name={item.name} description={item.description} id={item.id} status={item.status} version={item.version} username={'pippo'} onCardClick={() => onCardClick(item.id)} />
+                                    <ProjectCardPublic clickable={true} name={item.name} description={item.description} id={item.id} status={item.status} version={item.version} username={'pippo'} onCardClick={() => onCardClick(item)} />
                                 </div>
                             })
 
@@ -84,7 +85,7 @@ export default function ProjectsToValue() {
                 aria-describedby="child-modal-description"
             >
                 <Box sx={boxStyle}>
-                    <CreateReportStepper id={selectedProjectIndex}/>
+                    <CreateReportStepper id={selectedProjectIndex} project={selectedProject}/>
                 </Box>
             </Modal>
         </div>

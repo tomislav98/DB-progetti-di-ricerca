@@ -1,33 +1,19 @@
 import { useNavigate } from "react-router-dom";
 import { getProjectById, getToken } from "../../Utils/requests"
 import { useEffect, useState } from "react";
+import { StatusBadge } from "../../Components/MainPage/Project/Projects";
 
-export function ProjectPublic({id}){
-    const [projectInfo, setProjectInfo] = useState();
-
-    const navigate = useNavigate();
-
-    const fetchProject = async () => {
-        const token = getToken()
-
-        const res = await getProjectById(token, id);
-
-        if(res.status === 401){
-            navigate('/login')
-        }
-        else if(res.status === 200){
-            setProjectInfo(res.data)
-        }
-    }
+export function ProjectPublic({project}){
 
     useEffect(()=>{
-        fetchProject();
-    })
+        console.log(project)
+    },[project])
 
     return (
         <div>
-            <h1>{projectInfo.name}</h1>
-            <p>{projectInfo.description}</p>
+            <h1>{project.name}</h1>
+            <p>{project.description}</p>
+            <StatusBadge status={project.status}/>
         </div>
     )
 }

@@ -5,7 +5,7 @@ from models.project_versions import VersionProject
 from models.projects import ProjectStatus
 from utils.db_utils import commit
 from utils.exceptions import error_handler 
-
+from utils.versions import get_incremented_version
 
 @error_handler
 def evaluate_current_window_projects():
@@ -15,9 +15,7 @@ def evaluate_current_window_projects():
             for project in window.project:
                 latest_version_project = VersionProject.get_latest_version(project.id) #get latest version project, da fare meglio
                 reports = latest_version_project.reports_project
-                print(project.id)
-                print(project.latest_version)
-
+            
                 evaluated_status = ProjectStatus.REQUIRES_CHANGES
                 if reports: 
                     total = sum(report.vote for report in reports)
@@ -26,10 +24,8 @@ def evaluate_current_window_projects():
                         evaluated_status = ProjectStatus.APPROVED
                     if avg_vote <= 3: 
                         evaluated_status = ProjectStatus.NOT_APPROVED
-                #Autoincrement version TODO metterlo in uno utils ed utilizzarlo dove lo usiamo
-                major, minor, patch = map(int, project.latest_version[1:].split('.'))
-                patch += 1
-                new_version = f'v{major}.{minor}.{patch}'
+                        
+                new_version = get_incremented_version(project.latest_version)
                 
                 #Crea versione e copia documenti
                 v = VersionProject.create_version(status  = evaluated_status , project_id = project.id, version = new_version)

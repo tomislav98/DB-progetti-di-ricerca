@@ -6,12 +6,11 @@ from models.users import Researcher, User
 from utils.db_utils import add_instance, add_instance_no_commit, commit, flush
 from utils.exceptions import CustomError
 from utils.enums import ProjectStatus
+from utils.versions import get_incremented_version
 from packaging import version as package_version
 
-# aggiungere anche un attributo latest_version che ad ogni aggiornamento viene aggiornato
 class Project(db.Model):
     __tablename__ = 'projects'
-    # name='status_enum'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
@@ -22,34 +21,47 @@ class Project(db.Model):
     evaluation_window_id = db.Column(db.Integer, db.ForeignKey('evaluation_windows.id'))
     version_project = db.relationship('VersionProject', backref='project')
 
-    # TODO: per adesso si submitta nella prossima finestra di valutazione(quella che ci sta subito dopo) 
+    @classmethod
+    def add_project(cls, name, description, data_creation, creator_user_id, files):
+        project = cls(name=name, description=description, data_creation=data_creation,
+                        researcher_id=creator_user_id, latest_version="v0.0.0")
+        project.status = ProjectStatus.TO_BE_SUBMITTED
+        add_instance(project)
+        version = VersionProject.create_version(project.status,project.id,"v0.0.0")
+        flush()
+        if files:
+            for file in files:
+               DocumentProject.create_document(name = file.filename, type_document='UNDEFINED',version_project_id=version.id, pdf_data=file.read() )
+        commit()
+        return project
+
+    @staticmethod
+    def get_project_by_id(project_id):
+        project = Project.query.filter_by(id=project_id).first()
+        if project:
+            return project
+        return None
+
     # TODO: latest come relationship invece che come testo?
     def submit(self):
+        # cerca la prossima finestra di valutazione se esiste
         window = EvaluationWindow.get_next_window()
         if window is None:
             raise CustomError("There are no evaluation windows at the moment, try again later",500) 
         
+        # setta lo stato a SUBMITTED
         self.status = ProjectStatus.SUBMITTED
         self.evaluation_window_id = window.id
         
-        current_version_parts = self.latest_version.split('.')
-        last_number = int(current_version_parts[-1])
+        # se non specificata una nuova versione incrementa il campo "patch" della versione
+        new_version_string = get_incremented_version(self.latest_version)
 
-        new_last_number = last_number + 1
-
-        new_version_parts = current_version_parts[:-1]  # Mantieni tutte le parti tranne l'ultima
-        new_version_parts.append(str(new_last_number))  # Aggiungi il nuovo numero
-        new_version_string = '.'.join(new_version_parts)
-
-        # testare se la submit crea una copia dei docs associati alla nuova versione
-
+        # fa una copia della versione che si voleva sottoporre a valutazione e la crea 
         latest_version = VersionProject.get_latest_version(self.id)
         v = VersionProject.create_version(ProjectStatus.SUBMITTED,self.id,new_version_string)
 
         for proj in latest_version.document_project:
             DocumentProject.create_document(proj.name, proj.type_document, v.id, proj.pdf_data, proj.created )
-
-        # fine test qui 
 
         self.latest_version = new_version_string
         commit()
@@ -96,27 +108,7 @@ class Project(db.Model):
         commit()
         return v
 
-    @classmethod
-    def add_project(cls, name, description, data_creation, creator_user_id, files):
-        project = cls(name=name, description=description, data_creation=data_creation,
-                        researcher_id=creator_user_id, latest_version="v0.0.0")
-        project.status = ProjectStatus.TO_BE_SUBMITTED
-        add_instance(project)
-        version = VersionProject.create_version(project.status,project.id,"v0.0.0")
-        flush()
-        if files:
-            for file in files: #TODO qui handliamo piu file, dobbiamo cambiare il typedocument e il nome, il nome potremmo metterlo anche come key maybe 
-               DocumentProject.create_document(name = file.filename, type_document='UNDEFINED',version_project_id=version.id, pdf_data=file.read() )
-        commit()
-        return project
-
-    @staticmethod
-    def get_project_by_id(project_id):
-        project = Project.query.filter_by(id=project_id).first()
-        if project:
-            return project
-        return None
-
+    
     def delete_project(self, project_id):
         project = Project.query.filter_by(id=project_id).first()
         if project:
@@ -162,5 +154,8 @@ class Project(db.Model):
         commit()
         return user
     
+    def get_latest_version(self):
+        latest = VersionProject.get_latest_version(self.id)
+        return latest
       
 

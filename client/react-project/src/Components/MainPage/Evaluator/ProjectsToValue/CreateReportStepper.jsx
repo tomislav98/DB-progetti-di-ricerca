@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { styled } from '@mui/material/styles';
 import { Box, Stepper, Step, StepLabel, Button, Typography, Stack, LinearProgress } from '@mui/material';
@@ -9,6 +9,7 @@ import { IconCloudUpload, IconX, IconDownload, IconSatellite, Icon12Hours, IconC
 import DropzoneButton from '../../../../Reusable Components/Dropzone/DropzoneButton';
 import './ProjectsToValue.scss'
 import { createReport, getToken } from '../../../../Utils/requests';
+import { ProjectPublic } from '../../../../Reusable Components/ProjectPublic/ProjectPublic';
 
 const StyledRating = styled(Rating)(({ theme }) => ({
     '& .MuiRating-iconEmpty .MuiSvgIcon-root': {
@@ -54,7 +55,7 @@ IconContainer.propTypes = {
 };
 
 
-const steps = ['Upload Report', 'Vote', 'Create Report'];
+const steps = ['Project info','Upload Report', 'Vote', 'Create Report'];
 
 const voteLabels = [
     {
@@ -143,12 +144,18 @@ function MySteps(props) {
     switch (props.number) {
         case 1:
             return (
+                <div>
+                    <ProjectPublic project={props.project}/>
+                </div>
+            )
+        case 2:
+            return (
                 <div className='add-report-section'>
                     <h3 className='titles'>Aggiungi il report</h3>
                     <DropzoneButton onFilesUploaded={handleFilesUploaded} onFilesDeleted={handleFileDelete} maxFiles={1} uploadedFilesprops={uploadedFiles}/>
                 </div>
             )
-        case 2:
+        case 3:
             return (
                 <div className='vote-section'>
                     <h3 className='titles'> Votazione </h3>
@@ -212,7 +219,7 @@ function VoteVerdict({value}){
     }
 }
 
-export default function CreateReportStepper(id) {
+export default function CreateReportStepper({id, project}) {
     const [activeStep, setActiveStep] = React.useState(0);
     const [skipped, setSkipped] = React.useState(new Set());
     const [stepperStatus, setStepperStatus] = useState({ title: '', description: '' }) // forse togliere ?
@@ -221,10 +228,6 @@ export default function CreateReportStepper(id) {
     const [votesAvg, setVotesAvg] = useState(0);
     const [loading, setLoading] = useState(false);
     const [uploadedFiles, setUploadedFiles] = useState([]);
-
-    React.useEffect(()=>{
-        console.log(uploadedFiles)
-    }, [uploadedFiles])
 
     const isStepOptional = (step) => {
         return false; // hard coded a false perche non ci sono steps opzionali
@@ -328,12 +331,12 @@ export default function CreateReportStepper(id) {
                 </React.Fragment>
             ) : (
                 <React.Fragment>
-                    <MySteps state={stepperStatus} number={activeStep + 1} onFinish={() => { setCanSubmit(true) }} onVotesChanged={onVotesChanged} onFilesUploaded={setUploadedFiles} onFilesDeleted={deleteFiles} uploadedFiles={uploadedFiles}/>
+                    <MySteps project={project} state={stepperStatus} number={activeStep + 1} onFinish={() => { setCanSubmit(true) }} onVotesChanged={onVotesChanged} onFilesUploaded={setUploadedFiles} onFilesDeleted={deleteFiles} uploadedFiles={uploadedFiles}/>
                     <Typography sx={{ mt: 2, mb: 1 }}> {
-                        activeStep === 1 ?
+                        activeStep === 2 ?
                             <LinearProgress variant="determinate" value={votesCompletion} />
                             :
-                        activeStep === 2 ?
+                        activeStep === 3 ?
                             <p>Average vote: {votesAvg*2}/10 <VoteVerdict value={votesAvg*2}/></p>
                             :
                             null
