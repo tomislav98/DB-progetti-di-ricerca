@@ -162,6 +162,10 @@ function ProjectCard({ name, description, id, status, version = 'v0.0.0', userna
 
     }
 
+    useEffect(()=>{
+        console.log(status)
+    }, [status])
+
     return (
         <Card className='justify-content-around my-card' padding="lg" radius="md" style={{ height: '300px' }} >
             <div onClick={() => { handleCardClick(id) }}>
@@ -202,7 +206,7 @@ function ProjectCard({ name, description, id, status, version = 'v0.0.0', userna
                         </ActionIcon>
                     </BootstrapTooltip>
                     :
-                    status === 'ProjectStatus.DRAFT' || status === 'ProjectStatus.REQUIRES_CHANGES' ?
+                    (status === 'ProjectStatus.TO_BE_SUBMITTED' || status === 'ProjectStatus.REQUIRES_CHANGES') ?
                         <BootstrapTooltip title="Submit project">
                             <ActionIcon variant="default" size="lg" radius="md" onClick={handleSubmit}>
                                 {loading ? <CircularProgress /> : <IconUpload size="1.1rem" />}
