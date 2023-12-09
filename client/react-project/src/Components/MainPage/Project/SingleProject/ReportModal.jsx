@@ -68,7 +68,7 @@ export default function ReportModal({projectData, updateProjects, isOpen, onClos
                 <h2 className="mb-3">Project's reports</h2>
                 {
                     reports.map((e,index)=>{
-                        return <ReportPublic created={e.created} evaluator_name={e.evaluator_name} project_name={e.project_name} vote={e.vote} key={index}/>
+                        return <ReportPublic created={e.created} evaluator_name={e.evaluator_email} project_name={e.project_name} vote={e.vote} key={index}/>
                     })
                 }
                 </Box>

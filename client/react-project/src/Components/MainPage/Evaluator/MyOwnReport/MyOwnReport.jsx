@@ -1,6 +1,7 @@
 import { getToken, getEvaluatorReports } from "../../../../Utils/requests";
 import { useEffect, useState } from "react"
 import { ProjectCardPublic } from "../../../../Reusable Components/ProjectCardPublic/ProjectCardPublic";
+import ReportPublic from "../../../../Reusable Components/ReportPublic/ReportPublic";
 import { NothingFound } from "../../../../Reusable Components/NothingFound/NothingFound";
 
 export default function MyOwnReports() {
@@ -28,10 +29,10 @@ export default function MyOwnReports() {
         {
             reports.length !== 0 ?
                 <div className='row pt-4'>
-                    <h3 className='mb-4'>Projects to value</h3>
+                    <h3 className='mb-4'>My own reports</h3>
                     {
                         reports.map((item, index) => {
-                            return <div className='col-4'> report </div>
+                            return <div className='col-4'> <ReportPublic created={item.created} evaluator_name={item.evaluator_email} vote={item.vote}/> </div>
                         })
 
                     }

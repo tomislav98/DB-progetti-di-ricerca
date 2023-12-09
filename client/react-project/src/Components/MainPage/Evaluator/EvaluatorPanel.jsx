@@ -26,7 +26,7 @@ export default function EvaluatorPanel() {
 			<div className='col-2 sidebar'>
 				<ScrollArea>
 					<div>
-						<NavbarSimple mockData={data} />
+						<NavbarSimple mockData={data} initialValue="Projects to value"/>
 					</div>
 				</ScrollArea>
 			</div>

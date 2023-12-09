@@ -144,7 +144,8 @@ function MySteps(props) {
     switch (props.number) {
         case 1:
             return (
-                <div>
+                <div className='p-4'>
+                    <h2> You are about to evaluate the following project</h2>
                     <ProjectPublic project={props.project}/>
                 </div>
             )

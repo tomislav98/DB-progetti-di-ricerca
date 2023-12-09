@@ -13,7 +13,7 @@ export default function ReportPublic({ created, evaluator_name, report_id, pdf_d
   
   
   return (
-    <div className="report-card my-card p-3" style={{ maxWidth: "300px", border: '1px solid gainsboro' }}>
+    <div className="report-card my-card p-3" style={{ maxWidth: "300px", border: '1px solid gainsboro', backgroundColor:'white' }}>
       <div className="row">
         <div className="col-6">
           <h3>Vote: {vote}/5 </h3>

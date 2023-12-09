@@ -13,7 +13,8 @@ export default function AdminPanel() {
 
 
 	const data = [{ link: '', label: 'Evaluation Window', icon: IconCalendarEvent, onClick: () => handleItemClick(0) },
-	{ link: '', label: 'Projects', icon: IconFile, onClick: () => handleItemClick(1) }];
+		// { link: '', label: 'Projects', icon: IconFile, onClick: () => handleItemClick(1) }
+	];
 
 	const handleItemClick = (i) => {
 		setIndex(i);
@@ -24,7 +25,7 @@ export default function AdminPanel() {
 			<div className='col-2 sidebar'>
 				<ScrollArea>
 					<div>
-						<NavbarSimple mockData={data}/>
+						<NavbarSimple mockData={data} />
 					</div>
 				</ScrollArea>
 			</div>

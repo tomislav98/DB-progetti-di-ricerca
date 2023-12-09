@@ -113,7 +113,7 @@ def get_reports_by_project_id(current_user, project_id):
                             "created": x.date_created,
                             "pdf_data": base64.b64encode(x.pdf_data).decode("utf-8"),
                             "vote": x.vote,
-                            "evaluator_name": User.get_user_by_id(x.evaluator_id).name,
+                            "evaluator_email": User.get_user_by_id(x.evaluator_id).email,
                             "version_project_id": x.version_project_id,
                             "version": latest.version,
                             "project_name": project.name

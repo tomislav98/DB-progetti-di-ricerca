@@ -43,7 +43,7 @@ export function ReportsModal({ reports }) {
                                 <td>{index + 1}</td>
                                 <td>{report.id}</td>
                                 <td>{report.project_name}</td>
-                                <td>{report.evaluator_name}</td>
+                                <td>{report.evaluator_email}</td>
                                 <td>{report.created}</td>
                                 <td>
                                     <button type="button" className="btn btn-sm btn-outline-secondary">
