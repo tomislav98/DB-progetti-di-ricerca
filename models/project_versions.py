@@ -52,6 +52,11 @@ class VersionProject(db.Model):
         return None
     
     @staticmethod
+    def get_version_by_id(id):
+        version = VersionProject.query.filter_by(id=id).first()
+        return version
+    
+    @staticmethod
     def get_latest_version(proj_id):
         versions = VersionProject.get_versions_by_project_id(proj_id)
         if versions:

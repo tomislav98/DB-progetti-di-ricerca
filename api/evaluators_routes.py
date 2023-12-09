@@ -1,5 +1,6 @@
 from flask import Blueprint
 from flask import Response, json
+from models.project_versions import VersionProject
 from models.reports import Report
 from models.evaluation_windows import EvaluationWindow
 from utils.exceptions import CustomError, error_handler
@@ -59,6 +60,7 @@ def get_evaluator_reports(current_user):
             "vote": report.vote,
             "pdf_data": base64.b64encode(report.pdf_data).decode("utf-8"),
             "created": str(report.date_created),
+            "project_id": VersionProject.get_version_by_id(report.version_project_id).project_id
         }
         for report in reports
     ]
