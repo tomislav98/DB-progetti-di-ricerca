@@ -1,8 +1,6 @@
 from enum import Enum
-from sqlalchemy import DateTime
 from config import db, bcrypt
-from utils.db_utils import add_instance, add_instance_no_commit, commit
-from utils.exceptions import CustomError
+from utils.db_utils import add_instance, commit
 
 class UserType(Enum):
     RESEARCHER = 0
@@ -19,7 +17,6 @@ class UserType(Enum):
             case _:
                 print("Errore")
 
-# Aggiungere numero di telefono
 class User(db.Model):
     __tablename__ = 'users'
 
@@ -29,9 +26,6 @@ class User(db.Model):
     email = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
     type_user = db.Column(db.Enum(UserType))  # discriminator attribute
-
-    researcher = db.relationship('Researcher', backref='user', uselist=False, cascade='all, delete-orphan')
-    evaluator = db.relationship('Evaluator', backref='user', uselist=False, cascade='all, delete-orphan')
 
     @classmethod
     def check_user_role(cls, type_user):
@@ -57,18 +51,20 @@ class User(db.Model):
                 type_user_enum = UserType.EVALUATOR
             user = cls(name=name, surname=surname, email=email, password=hashed_password, type_user=type_user_enum)
             add_instance(user)
-
-        if type_user_enum == UserType.RESEARCHER:
-            Researcher.add_researcher(user_id=user.id)
-
-        elif type_user_enum == UserType.EVALUATOR:
-            Evaluator.add_evaluator(user_id=user.id)
-            
-        elif type_user_enum == UserType.ADMIN:
-            print("Admin added")
         else:
-            # Gestione del tipo di utente sconosciuto o non valido
             raise ValueError("Unknown or invalid user type")
+
+
+    @staticmethod
+    def get_user_by_id(user_id):
+        user = User.query.filter_by(id=user_id).first()
+        
+        if user :
+            return user
+        else:
+            return None
+
+
 
        
 
@@ -94,103 +90,3 @@ class User(db.Model):
     def delete_user(cls, user_object):
         db.session.delete(user_object)
         commit()
-
-
-class Researcher(db.Model):
-    __tablename__ = 'researchers'
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), unique=True,
-                        nullable=False)  # sistemare ondelete='CASCADE',
-
-    projects = db.relationship('Project', backref='researcher')
-
-    def delete_researcher(self):
-        db.session.delete(self)
-        commit()
-        return self
-        
-    @classmethod
-    def add_researcher(cls, user_id):
-        researcher = Researcher(user_id=user_id)
-        add_instance(researcher)
-    
-    @staticmethod
-    def get_researcher_from_id(id):
-        researcher = Researcher.query.filter_by(id=id).first()
-        if researcher:
-            return researcher
-        else:
-            raise CustomError("User is not a researcher therefore it cannot create a new project (if you are an admin and want to create a project for a researcher you can user /researchers/project endpoint)",404)
-    
-
-    @staticmethod
-    def get_researcher_from_user_id(user_id):
-        researcher = Researcher.query.filter_by(user_id=user_id).first()
-        if researcher :
-            return researcher
-        else:
-            raise CustomError("User is not a researcher therefore it cannot create a new project (if you are an admin and want to create a project for a researcher you can user /researchers/project endpoint)",404)
-    
-    @staticmethod
-    def is_valid_researcher(data):
-        """Function that verify if researcher that is loging is valid."""
-        # Need to verify that email could exist, and if mail NOT exist then rise an error
-        is_email_found = User.query.filter_by(email=data['email']).first()
-        # Need to verify that hash password could exist, and if hash password NOT exist then rise an error
-        hash_list = User.get_all_password_hashes_from_db('researcher')
-        is_password_found = False
-        for password_hash in hash_list:
-            if User.check_password(password_hash, data['password']):
-                is_password_found = True
-                break
-    
-        if is_email_found and is_password_found:
-            return True
-        return False
-
-
-class Evaluator(db.Model):
-    __tablename__ = 'evaluators'
-
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), unique=True,
-                        nullable=False)  # sistemare ondelete='CASCADE',
-    report = db.relationship('Report', backref='evaluator')
-
-    @classmethod
-    def add_evaluator(cls, user_id):
-        evaluator = Evaluator(user_id=user_id)
-        add_instance(evaluator)
-
-    @staticmethod
-    def is_valid_evaluator(data):
-        """Function that verify if evaluator that is loging is valid."""
-        is_email_found = User.query.filter_by(email=data['email']).first()
-        hash_list = User.get_all_password_hashes_from_db('evaluator')
-        is_password_found = False
-        for password_hash in hash_list:
-            if User.check_password(password_hash, data['password']):
-                is_password_found = True
-                break
-
-        if is_email_found and is_password_found:
-            return True
-        return False
-
-    @staticmethod
-    def get_evaluator_from_user_id(user_id):
-        evaluator = Evaluator.query.filter_by(user_id=user_id).first()
-        if evaluator :
-            return evaluator
-        else:
-            raise CustomError("User is not an Evaluator")
-
-    @staticmethod
-    def get_user_from_evaluator_id(eval_id):
-        evaluator = Evaluator.query.filter_by(id=eval_id).first()
-        user = User.query.filter_by(id=evaluator.user_id).first()
-        
-        if user :
-            return user
-        else:
-            raise CustomError("User is not an Evaluator")

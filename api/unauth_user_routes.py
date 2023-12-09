@@ -1,12 +1,7 @@
 from flask import Blueprint
-from config import bcrypt
-from flask import request, jsonify, Response, json
-from models.users import User, Evaluator, Researcher, UserType
-from utils.exceptions import CustomError, error_handler
-from datetime import datetime, timedelta
-import jwt
-import os
-from utils.middleware import token_required
+from flask import request, Response, json
+from models.users import User
+from utils.exceptions import  error_handler
 
 unauth_user_blueprint = Blueprint("unauth-user", __name__)
 

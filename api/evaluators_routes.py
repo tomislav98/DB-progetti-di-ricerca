@@ -1,13 +1,8 @@
 from flask import Blueprint
-from config import bcrypt
-from flask import request, jsonify, Response, json
-from models.users import User, Evaluator, Researcher, UserType
+from flask import Response, json
 from models.reports import Report
 from models.evaluation_windows import EvaluationWindow
 from utils.exceptions import CustomError, error_handler
-from datetime import datetime, timedelta
-import jwt
-import os
 from utils.middleware import evaluator_required
 import base64
 
@@ -54,8 +49,7 @@ def get_projects_to_value(current_user):
 @evaluator_required
 @error_handler
 def get_evaluator_reports(current_user):
-    user = User.query.filter_by(id=current_user.id).first()
-    reports = Report.get_reports_by_evaluator_id(user.evaluator.id)
+    reports = Report.get_reports_by_evaluator_id(current_user.id)
 
     print(reports)
 

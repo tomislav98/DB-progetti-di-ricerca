@@ -1,14 +1,7 @@
 from flask import Blueprint
-from config import bcrypt
-from flask import request, jsonify, Response, json
+from flask import request, jsonify, Response
 from models.project_documents import DocumentProject
-from models.reports import Report
-from utils.exceptions import CustomError
-from datetime import datetime, timedelta
-import jwt
-import os
 from utils.middleware import token_required
-from models.project_versions import VersionProject
 
 project_version_blueprint = Blueprint("project_version", __name__)
 

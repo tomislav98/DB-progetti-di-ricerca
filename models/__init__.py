@@ -1,5 +1,5 @@
 from config import db, app
-from .users import User, UserType,Researcher, Evaluator
+from .users import User, UserType
 from .reports import Report
 from .evaluation_windows import EvaluationWindow
 from .project_versions import VersionProject

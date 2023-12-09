@@ -1,5 +1,5 @@
 from config import db
-from sqlalchemy import CheckConstraint, event
+from sqlalchemy import CheckConstraint
 from utils.db_utils import add_instance, commit
 from utils.exceptions import CustomError
 from utils.dates import str2date
@@ -32,11 +32,7 @@ class EvaluationWindow(db.Model):
         parsed_end = str2date(date_end)
         if parsed_start < datetime.now().date():
                 raise CustomError("Invalid input, start date cannot be in the past", 400)
-        # overlapping_windows = EvaluationWindow.query.filter(
-        #     ((parsed_start >= EvaluationWindow.data_start) & (parsed_start <= EvaluationWindow.data_end)) |
-        #     ((parsed_end >= EvaluationWindow.data_start) & (parsed_end <= EvaluationWindow.data_end)) |
-        #     ((parsed_start <= EvaluationWindow.data_start) & (parsed_end >= EvaluationWindow.data_end))
-        # ).all()
+        
         overlapping_windows = EvaluationWindow.query.filter(
             (parsed_end >= EvaluationWindow.data_start) & (parsed_start <= EvaluationWindow.data_end)
         ).all()

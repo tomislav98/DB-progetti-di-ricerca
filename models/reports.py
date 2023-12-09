@@ -15,7 +15,7 @@ class Report(db.Model):
     vote = db.Column(
         db.Integer, CheckConstraint("vote >= 0 AND vote <= 10"), nullable=False
     )
-    evaluator_id = db.Column(db.Integer, db.ForeignKey("evaluators.id"))
+    evaluator_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     version_project_id = db.Column(db.Integer, db.ForeignKey("version_projects.id"))
 
     __table_args__ = (UniqueConstraint("evaluator_id", "version_project_id"),)

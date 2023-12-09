@@ -1,14 +1,10 @@
 from flask import Blueprint
-from config import bcrypt
-from flask import request, jsonify, Response, json
-from models.users import User, Evaluator, Researcher, UserType
+from flask import request, Response, json
+from models.users import User, UserType
 from models.projects import Project, ProjectStatus
 from models.project_versions import VersionProject
 from models.reports import Report
 from utils.exceptions import CustomError, error_handler
-from datetime import datetime, timedelta
-import jwt
-import os
 from utils.middleware import token_required, evaluator_required
 import base64
 
@@ -103,10 +99,9 @@ def get_reports_by_project_id(current_user, project_id):
         latest = VersionProject.get_latest_version(project_id)
         reports = Report.get_reports_by_version_id(latest.id)
         project = Project.get_project_by_id(project_id)
-        owner = Researcher.get_researcher_from_id(project.researcher_id)
 
         if (
-            current_user.id == owner.user_id
+            current_user.id == project.researcher_id
             or current_user.type_user == UserType.ADMIN
             or current_user.type_user == UserType.EVALUATOR
         ):
@@ -118,7 +113,7 @@ def get_reports_by_project_id(current_user, project_id):
                             "created": x.date_created,
                             "pdf_data": base64.b64encode(x.pdf_data).decode("utf-8"),
                             "vote": x.vote,
-                            "evaluator_name": Evaluator.get_user_from_evaluator_id(x.evaluator_id).email,
+                            "evaluator_name": User.get_user_by_id(x.evaluator_id).name,
                             "version_project_id": x.version_project_id,
                             "version": latest.version,
                             "project_name": project.name

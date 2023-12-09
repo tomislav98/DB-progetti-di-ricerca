@@ -1,5 +1,5 @@
 from config import db
-from utils.db_utils import add_instance, add_instance_no_commit, commit
+from utils.db_utils import add_instance_no_commit, commit
 from utils.enums import ProjectStatus
 from utils.exceptions import CustomError
 import re

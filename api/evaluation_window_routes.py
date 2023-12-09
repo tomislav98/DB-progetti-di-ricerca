@@ -1,13 +1,7 @@
 from flask import Blueprint
-from config import bcrypt
 from flask import request, jsonify, Response, json
-from models.users import User, Evaluator, Researcher, UserType
-from models.projects import Project
 from models.evaluation_windows import EvaluationWindow
 from utils.exceptions import CustomError, error_handler
-from datetime import datetime, timedelta
-import jwt
-import os
 from utils.middleware import admin_required, token_required
 
 window_blueprint = Blueprint("evaluation-window", __name__)
@@ -28,7 +22,7 @@ def add_window(current_user):
 
 
 @window_blueprint.route("/", methods=["GET"])
-@admin_required
+@token_required
 @error_handler
 def get_windows(current_user):
     if request.method == 'GET':
@@ -37,6 +31,7 @@ def get_windows(current_user):
 
         return Response(json.dumps(windows_list),200)
 
+#da cancellare
 @window_blueprint.route("/", methods = ["DELETE"])
 @admin_required
 @error_handler
