@@ -3,13 +3,31 @@ import { useMediaQuery, Fab, Box } from "@mui/material";
 import Modal from '@mui/material/Modal';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAdd } from '@fortawesome/free-solid-svg-icons';
+import ReportPublic from "../../../../Reusable Components/ReportPublic/ReportPublic";
+import { getDocumentsbyId, getLatestVersionByProjectId, getReportsByProjectId, getToken } from "../../../../Utils/requests";
 
 const add = <FontAwesomeIcon icon={faAdd}/>
 
-export default function UpdateProjectModal({updateProjects, isOpen, onCloseModal, onOpenModal}) {
+export default function ReportModal({projectData, updateProjects, isOpen, onCloseModal, onOpenModal}) {
     const [open, setOpen] = useState(isOpen);
-    // const handleProjectsUpdate = () => updateProjects();
     const matches = useMediaQuery('(min-width:600px)', { noSsr: true });
+
+    const fetchReports = async () => {
+
+        if( projectData){
+            const token = getToken()
+            const latestVersion = await getLatestVersionByProjectId(projectData.id, token);
+        
+            const reports = await getReportsByProjectId(token, projectData.id);
+
+            console.log(reports);
+        }
+
+    }
+
+    useEffect(()=>{
+        fetchReports()
+    },[projectData])
 
     const handleClose = () => {
         onCloseModal();
@@ -47,7 +65,7 @@ export default function UpdateProjectModal({updateProjects, isOpen, onCloseModal
                 aria-describedby="modal-modal-description"
             >
                 <Box sx={style}>
-                    Update your project
+                    <ReportPublic/>
                 </Box>
             </Modal>
         </div>
