@@ -1,16 +1,13 @@
 from flask import Blueprint
-from config import bcrypt
-from flask import request, jsonify, Response, json
-from models.project_documents import DocumentProject
-from models.users import User, Evaluator, Researcher, UserType
+from flask import request, Response, json
+from models.users import UserType
 from models.projects import Project, ProjectStatus
 from models.evaluation_windows import EvaluationWindow
 from utils.exceptions import CustomError, error_handler
 from utils.json_utils import find_json_by_value
-from datetime import datetime, date, timedelta
-import jwt
-import os
-from utils.middleware import token_required, researcher_required
+from datetime import datetime
+
+from utils.middleware import researcher_required
 from models.project_versions import VersionProject
 
 researcher_blueprint = Blueprint("researcher", __name__)
@@ -20,10 +17,9 @@ researcher_blueprint = Blueprint("researcher", __name__)
 @error_handler
 def get_researcher_projects(current_user, user_id):
     if request.method == 'GET':
-        researcher = Researcher.get_researcher_from_user_id(user_id)
         if current_user.id != user_id and current_user.type_user != UserType.ADMIN:
             raise CustomError("Unauthorized, you can't retrieve another researcher's projects", 401)
-        projects = Project.query.filter_by(researcher_id=researcher.id).all()
+        projects = Project.query.filter_by(researcher_id=user_id).all()
         projects_list = [{"id": project.id, "name": project.name, "description": project.description, "status": str(project.status), "version": project.latest_version} for project in
                             projects]
 
@@ -38,11 +34,10 @@ def add_researcher_project(current_user, user_id):
         if current_user.id != user_id:
             raise CustomError("Unauthorized, you can't create a project for another researcher", 401)
 
-        researcher = Researcher.get_researcher_from_user_id(current_user.id)
         body = request.form
         files = request.files.getlist('files')
         
-        project = Project.add_project(body["name"], body["description"], datetime.now(), researcher.id, files)
+        project = Project.add_project(body["name"], body["description"], datetime.now(), current_user.id, files)
         
         return Response(json.dumps({    
             "message": "Project created successfully",
@@ -60,8 +55,7 @@ def add_researcher_project(current_user, user_id):
 def submit_project(current_user,user_id,project_id):
     if request.method == 'PUT':
         proj = Project.get_project_by_id(project_id)
-        researcher = Researcher.get_researcher_from_user_id(user_id)
-        if current_user.id != researcher.user_id and proj.researcher_id != researcher.id and current_user.type_user != UserType.ADMIN:
+        if current_user.id != user_id and proj.researcher_id != user_id and current_user.type_user != UserType.ADMIN:
             raise CustomError("Unauthorized, you can't submit another researcher's project", 401)
 
         if proj.status != ProjectStatus.TO_BE_SUBMITTED:
@@ -88,10 +82,9 @@ def submit_project(current_user,user_id,project_id):
 def withdraw_project(current_user,user_id,project_id):
     if request.method == 'PUT':
         proj = Project.get_project_by_id(project_id)
-        researcher = Researcher.get_researcher_from_user_id(user_id)
 
 
-        if current_user.id != researcher.user_id and proj.researcher_id != researcher.id and current_user.type_user != UserType.ADMIN:
+        if current_user.id != user_id and proj.researcher_id != user_id and current_user.type_user != UserType.ADMIN:
             raise CustomError("Unauthorized, you can't submit another researcher's project", 401)
 
         if proj.status != ProjectStatus.SUBMITTED:

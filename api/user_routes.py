@@ -1,7 +1,6 @@
 from flask import Blueprint
-from config import bcrypt
 from flask import request, jsonify, Response, json
-from models.users import User, Evaluator, Researcher, UserType
+from models.users import User, UserType
 from utils.exceptions import CustomError, error_handler
 from datetime import datetime, timedelta
 import jwt

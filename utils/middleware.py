@@ -1,6 +1,6 @@
 from functools import wraps
 import os
-from flask import abort, request
+from flask import request
 import jwt
 from models.users import User, UserType
 

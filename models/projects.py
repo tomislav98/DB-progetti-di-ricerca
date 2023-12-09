@@ -2,8 +2,8 @@ from config import db
 from models import EvaluationWindow
 from models.project_documents import DocumentProject
 from models.project_versions import VersionProject
-from models.users import Researcher, User
-from utils.db_utils import add_instance, add_instance_no_commit, commit, flush
+from models.users import User
+from utils.db_utils import add_instance, commit, flush
 from utils.exceptions import CustomError
 from utils.enums import ProjectStatus
 from utils.versions import get_incremented_version
@@ -17,7 +17,7 @@ class Project(db.Model):
     latest_version = db.Column(db.Text, nullable=False)
     data_creation = db.Column(db.Date, nullable=False)
     status = db.Column(db.Enum(ProjectStatus), nullable=False)
-    researcher_id = db.Column(db.Integer, db.ForeignKey('researchers.id'), nullable=False)
+    researcher_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     evaluation_window_id = db.Column(db.Integer, db.ForeignKey('evaluation_windows.id'))
     version_project = db.relationship('VersionProject', backref='project')
 
@@ -138,11 +138,9 @@ class Project(db.Model):
     @staticmethod
     def get_user_project_by_id(user_id, project_id):
         project =   ( 
-                        db.session.query(Project)
-                        .join(Researcher, Researcher.id == Project.researcher_id)
-                        .join(User, User.id == Researcher.user_id)
-                        .filter(User.id == user_id, Project.id == project_id)
-                        .first()
+            db.session.query(Project)
+            .filter(Project.researcher_id == user_id, Project.id == project_id)
+            .first()
                     )
         if project:
             return project
@@ -152,12 +150,10 @@ class Project(db.Model):
     def get_user_from_project(project_id):
         user =   ( 
                         db.session.query(User)
-                        .join(Researcher, Researcher.user_id == User.id)
-                        .join(Project, Project.researcher_id == Researcher.id)
+                        .join(Project, Project.researcher_id == User.id)
                         .filter(Project.id == project_id)
                         .one()
                     )
-        commit()
         return user
     
     def get_latest_version(self):

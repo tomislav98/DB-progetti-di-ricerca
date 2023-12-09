@@ -1,14 +1,7 @@
 from flask import Blueprint, send_file
-from config import bcrypt
-from flask import request, jsonify, Response, json, make_response
-from models.users import User, Evaluator, Researcher, UserType
-from models.projects import Project
-from models.evaluation_windows import EvaluationWindow
+from flask import  jsonify, make_response
 from models.project_documents import DocumentProject
-from utils.exceptions import CustomError, error_handler
-from datetime import datetime, timedelta
-import jwt
-import os
+from utils.exceptions import error_handler
 from utils.middleware import token_required
 import io
 import fitz
