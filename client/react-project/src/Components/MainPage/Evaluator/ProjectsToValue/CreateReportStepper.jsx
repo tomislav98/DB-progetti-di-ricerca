@@ -240,10 +240,10 @@ export default function CreateReportStepper({id, project}) {
     const sendReport = async () => {
         const token = getToken();
         setLoading(true);
-        const res = await createReport(token,id.id,votesAvg,uploadedFiles[0]);
+        const res = await createReport(token,id,votesAvg,uploadedFiles[0]);
         setLoading(false)
         
-        if(res.status === 200){
+        if(res.status === 201){
             alert('fatto')
         }
         alert(res.status)

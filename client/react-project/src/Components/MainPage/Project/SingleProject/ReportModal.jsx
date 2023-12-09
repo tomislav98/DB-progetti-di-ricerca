@@ -10,17 +10,17 @@ const add = <FontAwesomeIcon icon={faAdd}/>
 
 export default function ReportModal({projectData, updateProjects, isOpen, onCloseModal, onOpenModal}) {
     const [open, setOpen] = useState(isOpen);
+    const [reports, setReports] = useState([]);
     const matches = useMediaQuery('(min-width:600px)', { noSsr: true });
 
     const fetchReports = async () => {
 
         if( projectData){
             const token = getToken()
-            const latestVersion = await getLatestVersionByProjectId(projectData.id, token);
-        
-            const reports = await getReportsByProjectId(token, projectData.id);
+            const response = await getReportsByProjectId(token, projectData.id);
+            
+            setReports([...response.data])
 
-            console.log(reports);
         }
 
     }
@@ -65,7 +65,12 @@ export default function ReportModal({projectData, updateProjects, isOpen, onClos
                 aria-describedby="modal-modal-description"
             >
                 <Box sx={style}>
-                    <ReportPublic/>
+                <h2 className="mb-3">Project's reports</h2>
+                {
+                    reports.map((e,index)=>{
+                        return <ReportPublic created={e.created} evaluator_name={e.evaluator_name} project_name={e.project_name} vote={e.vote} key={index}/>
+                    })
+                }
                 </Box>
             </Modal>
         </div>
