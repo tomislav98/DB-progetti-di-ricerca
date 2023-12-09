@@ -43,7 +43,8 @@ def get_document(current_user, document_id):
         response_data = {
             "metadata": metadata,
             "image_preview": image_base64,
-            "pdf_data": base64.b64encode(doc.pdf_data).decode("utf-8")
+            "pdf_data": base64.b64encode(doc.pdf_data).decode("utf-8"),
+            "id": document_id
         }
 
         # Return the response
