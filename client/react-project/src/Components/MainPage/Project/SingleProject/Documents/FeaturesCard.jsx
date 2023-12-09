@@ -5,6 +5,7 @@ import classes from './FeaturesCard.module.css';
 import { useEffect, useState } from 'react';
 import { downloadDocumentsbyId, getToken } from '../../../../../Utils/requests';
 import { DocumentType } from '../../../../../Utils/enums';
+import { saveAs } from 'file-saver';
 
 const getCurrentTime = () => {
   const currentDate = new Date();
@@ -20,7 +21,7 @@ const mockdata = [
   { label: 'Electric', icon: IconGasStation },
 ];
 
-export function FeaturesCard({ document, isNewlyAdded = false, onChange }) {
+export function FeaturesCard({ document, isNewlyAdded = false, onChange, isEditable = true }) {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [docType, setDocType] = useState(DocumentType[document.metadata ? document.metadata.type_document : 'UNDEFINED']);
   const [initialType, setInitialType] = useState(DocumentType[document.metadata ? document.metadata.type_document : 'UNDEFINED'])
@@ -38,18 +39,22 @@ export function FeaturesCard({ document, isNewlyAdded = false, onChange }) {
     console.log('handleDelete');
   }
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     const token = getToken();
-    downloadDocumentsbyId(document.id, token);
+    const response = await downloadDocumentsbyId(document.id, token);
 
-    //.then((res)=>{})
+    const blob = new Blob([response], { type: 'application/pdf' });
+    // attualmente settato il nome al titolo del progetto + la versione
+    const filename = `[${document.metadata.type_document}] ${document.metadata.name}`;
+    saveAs(blob, filename)
+
   }
 
   const handleChange = (event) => {
     setDocType(event.target.value);
     setHasChanged(true);
 
-    if(document.metadata)
+    if (document.metadata)
       onChange(event.target.value, document.metadata.name, document.id);
 
     else
@@ -73,9 +78,9 @@ export function FeaturesCard({ document, isNewlyAdded = false, onChange }) {
   ];
 
   return (
-    <Card withBorder radius="md" className={!hasChanged ? classes.card : classes.cardActive} style={{borderColor: initialType !== docType ? 'cornflowerblue' : null, height: '500px'}}>
+    <Card withBorder radius="md" className={!hasChanged ? classes.card : classes.cardActive} style={{ borderColor: initialType !== docType ? 'cornflowerblue' : null, height: '500px' }}>
       <Card.Section className={classes.imageSection}>
-        <Image style={{height: '300px'}} src={document.image_preview ? `data:image/png;base64,${document.image_preview}` : "https://img.freepik.com/premium-vector/pdf-file-icon-flat-design-graphic-illustration-vector-pdf-icon_676691-2007.jpg?w=826"} alt="Tesla Model S" />
+        <Image style={{ height: '300px' }} src={document.image_preview ? `data:image/png;base64,${document.image_preview}` : "https://img.freepik.com/premium-vector/pdf-file-icon-flat-design-graphic-illustration-vector-pdf-icon_676691-2007.jpg?w=826"} alt="Tesla Model S" />
       </Card.Section>
 
       <Group justify="space-between" mt="md">
@@ -91,13 +96,13 @@ export function FeaturesCard({ document, isNewlyAdded = false, onChange }) {
             <FormControl fullWidth size='small'>
               <InputLabel id="demo-simple-select-label">Type</InputLabel>
               <Select
-                disabled={initialType === 11 ? false : true}
+                disabled={initialType === 11 && isEditable ? false : true}
                 labelId="demo-simple-select-label"
                 id="demo-select-small"
                 value={docType}
                 label="Type"
                 onChange={handleChange}
-                // style={{ opacity: isBeingEdited ? 1 : 0.5 }}
+              // style={{ opacity: isBeingEdited ? 1 : 0.5 }}
               >
                 {documentTypes.map((documentType) => (
                   <MenuItem key={documentType.value} value={documentType.value}>
@@ -107,14 +112,18 @@ export function FeaturesCard({ document, isNewlyAdded = false, onChange }) {
               </Select>
             </FormControl>
           </div>
-          {!isNewlyAdded ?
+          {(!isNewlyAdded || !isEditable) ?
             <div className='col-4 d-flex' style={{ columnGap: '10px' }}>
               <ActionIcon variant="default" color="grey" size="lg" radius="md" onClick={handleDownload}>
                 <IconDownload size="1.1rem" />
               </ActionIcon>
-              <ActionIcon variant="filled" color="red" size="lg" radius="md" onClick={handleDelete}>
-                {deleteLoading ? <CircularProgress color='inherit' /> : <IconTrashX size="1.1rem" />}
-              </ActionIcon>
+              {isEditable ?
+                <ActionIcon variant="filled" color="red" size="lg" radius="md" onClick={handleDelete}>
+                  {deleteLoading ? <CircularProgress color='inherit' /> : <IconTrashX size="1.1rem" />}
+                </ActionIcon>
+                :
+                null
+              }
             </div>
             :
             null

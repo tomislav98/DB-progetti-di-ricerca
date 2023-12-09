@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Breadcrumbs, Link, Typography, Fab, styled, Modal, useMediaQuery } from "@mui/material";
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAdjust, faAngleLeft, faCalendar, faFile, faLock, faNoteSticky, faGauge, faUpload, faSubscript, faChevronUp, faCheck, faClose, faDownload } from "@fortawesome/free-solid-svg-icons";
+import { faAdjust, faAngleLeft, faCalendar, faFlag, faPen, faGauge, faChevronUp, faCheck, faClose, faDownload, faFile } from "@fortawesome/free-solid-svg-icons";
 import feather from 'feather-icons';
 import 'chartjs-adapter-date-fns';
 import Chart from 'chart.js/auto';
@@ -27,9 +27,11 @@ import { downloadDocumentsbyId, getToken } from "../../../../Utils/requests";
 import { saveAs } from 'file-saver';
 import { Routes, Route } from "react-router-dom";
 import { Reports } from "./Reports";
-import UpdateProjectModal from "./UpdateProject";
 import DocumentsModal from "./Documents/Documents";
 import { NothingFound } from "../../../../Reusable Components/NothingFound/NothingFound";
+import ReportModal from "./ReportModal";
+import { DocsModal } from "./DocsModal";
+
 // Can be used to fake an input in the graph until the true data arrives  
 const skeletonInput = [
 
@@ -128,25 +130,24 @@ function MyChart({ projectVersions }) {
 
 function MyDashboard({ title = '', projectVersions }) {
 
-
-    async function downloadDocument() {
+    async function downloadDocument(id) {
         const token = getToken();
         // TODO: e veramente da scorrere per tutte le versioni? secondo me no solo per ogni documento di una versione specifica,
-        for (const v of projectVersions.all_versions) {
-            for (const doc of v.documents) {
-                await downloadDocumentsbyId(doc.doc_id, token).then(async (response) => {
-                    if (response) {
-                        const blob = new Blob([response], { type: 'application/pdf' });
-                        // attualmente settato il nome al titolo del progetto + la versione
-                        const filename = title + ' ' + v.version + '.pdf';
-                        saveAs(blob, filename)
+        const v = projectVersions.all_versions[id];
 
-                    }
-                    else {
-                        console.error('Download failed: ', response.status, response.statusText)
-                    }
-                });
-            }
+        for (const doc of v.documents) {
+            await downloadDocumentsbyId(doc.doc_id, token).then(async (response) => {
+                if (response) {
+                    const blob = new Blob([response], { type: 'application/pdf' });
+                    // attualmente settato il nome al titolo del progetto + la versione
+                    const filename = title + ' ' + v.version + '.pdf';
+                    saveAs(blob, filename)
+
+                }
+                else {
+                    console.error('Download failed: ', response.status, response.statusText)
+                }
+            });
         }
     }
 
@@ -192,7 +193,7 @@ function MyDashboard({ title = '', projectVersions }) {
                                     <td>{version.created}</td>
                                     <td ><StatusBadge status={version.status} /></td>
                                     <td >
-                                        <button type="button" className="btn btn-sm btn-outline-secondary mx-4" onClick={async () => { await downloadDocument() }}>
+                                        <button type="button" className="btn btn-sm btn-outline-secondary mx-4" onClick={async () => { await downloadDocument(index) }}>
                                             <FontAwesomeIcon icon={faDownload} />
                                         </button>
                                     </td>
@@ -231,34 +232,16 @@ function ProjectStatus({ projectData, onOpenModal, onCloseModal }) {
     }, [projectData]);
 
     const mockdata = [
-        { label: 'Reports', icon: faGauge, onClickedLink: () => { setModalIndex(0) } }, // per vedere i report dell ultima versione, senno fare un tasto sulla versione
         {
             label: 'Update',
-            icon: faNoteSticky,
-            initiallyOpened: true,
-            links: [
-                { label: 'Project data', link: '/' },
-                { label: 'Single document', link: '/' },
-            ],
-        },
-        {
-            label: 'Documents',
-            icon: faCalendar,
+            icon: faPen,
             onClickedLink: () => {
                 setModalIndex(1)
             }
         },
-        { label: 'Contracts', icon: faFile },
-        { label: 'Settings', icon: faAdjust },
-        {
-            label: 'Security',
-            icon: faLock,
-            links: [
-                { label: 'Enable 2FA', link: '/' },
-                { label: 'Change password', link: '/' },
-                { label: 'Recovery codes', link: '/' },
-            ],
-        },
+        { label: 'Reports', icon: faFlag, onClickedLink: () => { setModalIndex(0) } }, // per vedere i report dell ultima versione, senno fare un tasto sulla versione
+        { label: 'Documents', icon: faFile, onClickedLink: () => { setModalIndex(2) } },
+
     ];
 
     const links = mockdata.map((item) => <LinksGroup {...item} key={item.label} />);
@@ -320,9 +303,11 @@ function ProjectStatus({ projectData, onOpenModal, onCloseModal }) {
                     <div className={classes.mantineLinksInner}>{links}</div>
                 </ScrollArea>
             </div>
-            <UpdateProjectModal isOpen={modalIndex === 0} onCloseModal={() => setModalIndex(null)} />
+            <ReportModal isOpen={modalIndex === 0} projectData={project} onCloseModal={() => setModalIndex(null)} />
 
             {project ? <DocumentsModal projectData={project} isOpen={modalIndex === 1} onCloseModal={() => { setModalIndex(null); onCloseModal(); }} /> : null}
+
+            {project ? <DocsModal isOpen={modalIndex === 2} projectData={project} onCloseModal={() => { setModalIndex(null); onCloseModal(); }} /> : null}
 
         </div>
     )
@@ -339,7 +324,6 @@ export function SubmitBanner({ onSubmit, onCancel }) {
         width: matches ? '50vw' : '90vw',
         bgcolor: 'background.paper',
         borderRadius: '15px',
-        // border: '2px solid #000',
         boxShadow: 24,
         p: 4,
     };
@@ -537,7 +521,7 @@ function ProjectActions({ version, onSubmit }) {
     );
 }
 
-// TODO: fare in modo che se il progetto del link non esiste restituisce 404
+// TODO: fare in modo che se il progetto e approvato o non approvato nascondere i tasti per submittare e aggiornare 
 
 export default function SingleProject({ projects }) {
     const [projectVersions, setProjectVersions] = useState([]);
@@ -566,9 +550,9 @@ export default function SingleProject({ projects }) {
         const current = projects.find((proj) => { return proj.id === projectId })
         if (!current)
             setErrorHappened(true)
-        else 
+        else
             setErrorHappened(false)
-        
+
         setCurrentProject(current);
     }
 
@@ -698,7 +682,7 @@ export default function SingleProject({ projects }) {
                     </div>
                     :
                     <div className="h-100 w-100">
-                        <NothingFound text="There are no projects with the id specified in the url"/>
+                        <NothingFound text="There are no projects with the id specified in the url" />
                     </div>
             }
         </div>
