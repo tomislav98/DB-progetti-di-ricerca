@@ -70,10 +70,16 @@ class Project(db.Model):
 
     def withdraw(self):
 
+        window = EvaluationWindow.get_next_window()
+        print(window.project)
+        project_to_remove = next((project for project in window.project if project.id == self.id), None)
+        if project_to_remove:
+            window.project.remove(project_to_remove)
+        print(window.project)
+
         version = VersionProject.get_latest_version(self.id)
         version.delete()
         commit()
-
 
         oldVersion = VersionProject.get_latest_version(self.id)
         self.status = oldVersion.status
