@@ -2,7 +2,7 @@ import './project.scss';
 import BasicModal from './CreateProjectStepper/Modal';
 import { IconSearch, IconArrowRight, IconX } from '@tabler/icons-react';
 import { useState, useEffect } from 'react';
-import { Card, Avatar, Text, Badge, Group, ActionIcon, TextInput, useMantineTheme, rem, UnstyledButton, Menu, RingProgress, Center, Container, Title, Button } from '@mantine/core';
+import { Card, Avatar, Text, Badge, Group, ActionIcon, TextInput, useMantineTheme, rem, UnstyledButton, Menu, RingProgress, Center, Container, Title, Button, Divider } from '@mantine/core';
 import { IconUpload } from '@tabler/icons-react';
 import axios from 'axios';
 import { IconChevronDown } from '@tabler/icons-react';
@@ -18,6 +18,7 @@ import SingleProject from './SingleProject/SingleProject';
 import classes from './NothingFoundBackground.module.css';
 import { Skeleton } from '@mui/material';
 import { submitProject, getDecodedToken, getToken, withdrawProject } from '../../../Utils/requests';
+import WindowsCalendarPublic from '../../../Reusable Components/WindowsCalendarPublic/WindowsCalendarPublic';
 
 const avatars = [
     'https://avatars.githubusercontent.com/u/10353856?s=460&u=88394dfd67727327c1f7670a1764dc38a8a24831&v=4',
@@ -162,7 +163,7 @@ function ProjectCard({ name, description, id, status, version = 'v0.0.0', userna
 
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         console.log(status)
     }, [status])
 
@@ -398,7 +399,6 @@ function ProjectContainer({ onProjectChange }) {
                                     </div>
                                 </div>
                             </div>
-
                         </div>
                         <div className='row cards-row'>
                             {projects.length === 0 ?
@@ -416,6 +416,11 @@ function ProjectContainer({ onProjectChange }) {
                                     );
                                 })
                             }
+                        </div>
+                        <Divider orientation='horizontal' className='mt-4'></Divider>
+                        <div className='row w-100 h-100 pt-4 pb-4' >
+                            <h1 className='mb-5'>Finestre di valutazione</h1>
+                            <WindowsCalendarPublic />
                         </div>
                     </div>
                 </div>
