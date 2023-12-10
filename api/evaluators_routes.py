@@ -17,8 +17,10 @@ evaluators_blueprint = Blueprint("evaluators", __name__)
 @error_handler
 def get_projects_to_value(current_user):
     evaluation_window = EvaluationWindow.get_next_window()
-    if not evaluation_window or not evaluation_window.project:
-        raise CustomError("There are no projects submitted yet", 404)
+    if not evaluation_window:
+        raise CustomError("The evaluation winodow hasn't started yet", 404)
+    if not evaluation_window.project:
+         raise CustomError("There are no projects submitted yet", 404)
 
     project_data = [
         {

@@ -46,8 +46,8 @@ BEFORE INSERT ON reports
 FOR EACH ROW
 EXECUTE FUNCTION check_report_creation();
 
-/*Controllo overlap creazione evaluation window*/
-CREATE OR REPLACE FUNCTION check_overlapping_window()
+/*Controllo se una finestra overlappa oppure se viene creata nel passato*/
+CREATE OR REPLACE FUNCTION check_window_constraint()
 RETURNS TRIGGER AS $$
 BEGIN 
 	IF EXISTS(
@@ -57,11 +57,18 @@ BEGIN
 	) THEN 
 	RETURN NULL;
 	END IF;
+
+	IF NEW.data_start > NOW() THEN
+		RETURN NULL;
+	END IF;
+
 	RETURN NEW;
 END;
 
-DROP TRIGGER IF EXISTS check_overlapping_window_trigger ON evaluation_windows;
-CREATE TRIGGER check_overlapping_window_trigger
+
+DROP TRIGGER IF EXISTS check_window_constraint_trigger ON evaluation_windows;
+CREATE TRIGGER check_window_constraint_trigger
 BEFORE INSERT ON evaluation_windows
 FOR EACH ROW
-EXECUTE FUNCTION check_overlapping_window();
+EXECUTE FUNCTION check_window_constraint();
+

@@ -1,3 +1,4 @@
+import datetime
 from config import app, db
 from models.evaluation_windows import EvaluationWindow
 from models.project_documents import DocumentProject
@@ -10,9 +11,8 @@ from utils.versions import get_incremented_version
 @error_handler
 def evaluate_current_window_projects():
     with app.app_context():
-        window = EvaluationWindow.get_next_window() #TODO current
-        #TODO controllare se date end e' domani
-        if window: 
+        window = EvaluationWindow.get_current_window() 
+        if window and window.end_date.date() == (datetime.now() + datetime.timedelta(days=1)).date(): 
             for project in window.project:
                 latest_version_project = VersionProject.get_latest_version(project.id) #get latest version project, da fare meglio
                 reports = latest_version_project.reports_project
@@ -33,7 +33,7 @@ def evaluate_current_window_projects():
                 for file in latest_version_project.document_project:
                     DocumentProject.create_document(file.name, file.type_document, v.id, file.pdf_data)
                 print(f'Created Evaluation for project_id: {project.id}, version_id: {v.id}, status:{evaluated_status}')
-                #TODO vedere bene il comportamento(dovrebber fungere ma puzza qualcosa)
+               
                 project.latest_version = new_version
                 project.status = evaluated_status
                 commit()

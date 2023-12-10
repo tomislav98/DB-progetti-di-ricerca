@@ -13,10 +13,10 @@ class VersionProject(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     status = db.Column(db.Enum(ProjectStatus), nullable=False)
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
-    reports_project = db.relationship('Report', backref = "version_project")
     version = db.Column(db.String, nullable=False)
-    document_project = db.relationship('DocumentProject', backref = "version_project", cascade="all, delete-orphan")
     created = db.Column(DateTime, default=datetime.utcnow, nullable=False)
+    reports_project = db.relationship('Report', backref = "version_project")
+    document_project = db.relationship('DocumentProject', backref = "version_project", cascade="all, delete-orphan")
 
     # Crea una versione associata ad un progetto, se il progetto non esiste con version = "v0.0.0"
     # controlla se la versione che sto provando ad aggiungere sia maggiore di tutte le altre versioni 
