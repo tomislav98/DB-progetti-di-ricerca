@@ -14,7 +14,6 @@ proj_blueprint = Blueprint("proj", __name__)
 # Se lo user è un ricercatore, restituisce, se il ricercatore e se stesso, tutte le versioni,
 # se uno é un valutatore restituisce le versioni se un progetto é SUBMITTED
 # (quindi è nell ultima finestra di valutazione) (tranne quelle in cui è TO_BE_SUBMITTED)
-# TODO: testare
 @proj_blueprint.route("/<int:project_id>/versions", methods=["GET"])
 @token_required
 @error_handler

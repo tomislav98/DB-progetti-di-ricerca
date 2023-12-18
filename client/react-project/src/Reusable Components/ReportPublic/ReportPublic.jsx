@@ -6,7 +6,6 @@ import { getToken, downloadDocumentsbyId } from "../../Utils/requests";
 export default function ReportPublic({ created, evaluator_name, report_id, pdf_data, project_name, project_version_id, vote }) {
 
   const handleDownload = async () => {
-    //TODO Decoding pdf bas64
     const decodedPdfData = atob(pdf_data);
     // Converte i dati decodificati in un array di byte
     const byteCharacters = Array.from(decodedPdfData, char => char.charCodeAt(0));

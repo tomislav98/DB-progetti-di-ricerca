@@ -115,7 +115,6 @@ def login():
                 "role": valid_user.type_user.__str__(),
                 "user_id": valid_user.id
             }
-            print(payload)
             token = jwt.encode(
                 payload, os.environ.get("JWT_SECRET"), algorithm="HS256"
             )

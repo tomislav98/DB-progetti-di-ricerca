@@ -8,7 +8,6 @@ def commit():
     try:
         db.session.commit()
     except SQLAlchemyError as err: 
-        print(err)         
         db.session.rollback()
         raise CustomError('Internal db error', 500)
 

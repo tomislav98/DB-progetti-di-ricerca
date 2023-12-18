@@ -119,7 +119,6 @@ def delete_project(current_user,user_id,project_id):
             return Response(json.dumps({"message":"Project deleted successfully"}), 200)
 
 # Per adesso, puo modificare la versione di un progetto, aggiungendo una nuova versione con vX.X.X maggiore di quella piu recente,
-# TODO continuare a testare il file da mettere, da finire completamente
 @researcher_blueprint.route("<int:user_id>/projects/<int:project_id>", methods=["PUT"])
 @researcher_required
 @error_handler

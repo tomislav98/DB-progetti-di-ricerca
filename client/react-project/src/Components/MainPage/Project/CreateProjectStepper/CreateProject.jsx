@@ -134,7 +134,6 @@ export default function HorizontalLinearStepper({ closeEvent, updateProjects }) 
     }
 
     const handleSubmit = async () => {
-        console.log(uploadedFiles)
 
         const projectData = new FormData();
         projectData.append('name', stepperStatus.title);

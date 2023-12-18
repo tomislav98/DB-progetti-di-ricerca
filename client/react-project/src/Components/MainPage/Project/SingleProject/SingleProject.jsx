@@ -132,7 +132,6 @@ function MyDashboard({ title = '', projectVersions }) {
 
     async function downloadDocument(id) {
         const token = getToken();
-        // TODO: e veramente da scorrere per tutte le versioni? secondo me no solo per ogni documento di una versione specifica,
         const v = projectVersions.all_versions[id];
 
         for (const doc of v.documents) {
@@ -369,8 +368,6 @@ function ModalSubmit({ isOpen = false, onCloseModal, version }) {
         setOpen(true);
     }
 
-    // TODO: handling della risposta, piu fare in modo che se un progetto e gia dia un errore visivo e mostrare il loading della risposta
-    // TODO: aggiungere funzione a utils per pulire il codice qui
     function handleSubmit() {
         let token;
         let user_id;
@@ -521,8 +518,6 @@ function ProjectActions({ version, onSubmit }) {
     );
 }
 
-// TODO: fare in modo che se il progetto e approvato o non approvato nascondere i tasti per submittare e aggiornare 
-
 export default function SingleProject({ projects }) {
     const [projectVersions, setProjectVersions] = useState([]);
     const [projectList, setProjectList] = useState([]);
@@ -556,10 +551,6 @@ export default function SingleProject({ projects }) {
         setCurrentProject(current);
     }
 
-
-    // TODO : fare un metodo in utils, come negli altri componenti, per non avere tutto sto codice con axios
-    // TODO: fare in modo che se la get projects non restituisce un progetto valido, venga stampata la pagina 404
-
     function fetchProjects() {
         let token = null;
         let user_id = null;
@@ -587,8 +578,6 @@ export default function SingleProject({ projects }) {
             });
     }
 
-
-    // TODO: fare una funzione per la chiamata axios in utils invece che tutto sto codice
     function fetchVersions() {
         let token = null;
 

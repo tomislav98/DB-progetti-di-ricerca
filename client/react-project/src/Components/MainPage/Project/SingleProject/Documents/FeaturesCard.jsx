@@ -36,7 +36,6 @@ export function FeaturesCard({ document, isNewlyAdded = false, onChange, isEdita
   ));
 
   const handleDelete = () => {
-    console.log('handleDelete');
   }
 
   const handleDownload = async () => {

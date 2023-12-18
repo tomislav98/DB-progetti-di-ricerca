@@ -6,10 +6,6 @@ import { FeaturesCard } from "../../Components/MainPage/Project/SingleProject/Do
 
 export function ProjectPublic({ project }) {
 
-    useEffect(() => {
-        console.log(project)
-    }, [project])
-
     return (
         <div>
             <div className="row">

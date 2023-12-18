@@ -87,7 +87,6 @@ export default function CreateWindowStepper() {
             setLoading(false);
         })
             .catch((error) => {
-                console.error(error);
                 setErrorMessage(error.response.data.error)
             });
     }

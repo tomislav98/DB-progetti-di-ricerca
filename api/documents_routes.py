@@ -45,7 +45,6 @@ def get_document(current_user, document_id):
         response.headers["Content-Type"] = "application/json"
         return response
 
-# TODO: aggiungere sicurezza a questo endpoint, per adesso chiunque puo prendere i documenti di chiunque semplicemente selezionando a caso un numero
 
 @documents_blueprint.route("/downloads/<int:document_id>", methods=["GET"])
 @token_required

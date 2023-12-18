@@ -5,7 +5,6 @@ from utils.middleware import token_required
 
 project_version_blueprint = Blueprint("project_version", __name__)
 
-#TODO finish it, need to be tested and refactored
 @project_version_blueprint.route("/<int:project_version_id>", methods=["GET"])
 @token_required
 def get_document_project_version(current_user, project_version_id):

@@ -71,11 +71,9 @@ class Project(db.Model):
     def withdraw(self):
 
         window = EvaluationWindow.get_next_window()
-        print(window.project)
         project_to_remove = next((project for project in window.project if project.id == self.id), None)
         if project_to_remove:
             window.project.remove(project_to_remove)
-        print(window.project)
 
         version = VersionProject.get_latest_version(self.id)
         version.delete()
@@ -104,7 +102,6 @@ class Project(db.Model):
         v = VersionProject.create_version(self.status, self.id, version)
         flush()
         for doc in documentsForm:
-            print(v)
             DocumentProject.create_document(doc['title'], doc['type'], v.id, doc['pdf_data'])
         # fine test
 

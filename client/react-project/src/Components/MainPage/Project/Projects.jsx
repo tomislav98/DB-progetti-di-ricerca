@@ -138,7 +138,6 @@ function ProjectCard({ name, description, id, status, version = 'v0.0.0', userna
                 handleUpdate()
             });
         } catch (error) {
-            console.log(error)
             setLoading(false)
         }
 
@@ -154,18 +153,12 @@ function ProjectCard({ name, description, id, status, version = 'v0.0.0', userna
             await submitProject(decodedToken.user_id, id, token).then((e) => {
                 setLoading(false)
                 handleUpdate()
-                console.log(e)
             });
         } catch (error) {
-            console.log(error)
             setLoading(false)
         }
 
     }
-
-    useEffect(() => {
-        console.log(status)
-    }, [status])
 
     return (
         <Card className='justify-content-around my-card' padding="lg" radius="md" style={{ height: '300px' }} >

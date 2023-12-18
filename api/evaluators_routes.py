@@ -10,7 +10,6 @@ import base64
 evaluators_blueprint = Blueprint("evaluators", __name__)
 
 # retrieves project to value, the only accessible by evaluators
-# TODO: ehehe se ci dovessero essere mai problemi te dico che in questa al posto che fare VersionProject.get_latest_version()
 #  faccio project.version_project[-1] che apparentemente va
 @evaluators_blueprint.route("/projects", methods=["GET"])
 @evaluator_required
@@ -54,7 +53,6 @@ def get_projects_to_value(current_user):
 def get_evaluator_reports(current_user):
     reports = Report.get_reports_by_evaluator_id(current_user.id)
 
-    print(reports)
 
     reports_data = [
         {

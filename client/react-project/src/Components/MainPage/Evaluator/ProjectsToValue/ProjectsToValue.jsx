@@ -30,7 +30,6 @@ export default function ProjectsToValue() {
         
             setProjects([...filteredProjects]);
         } catch (error) {
-            console.error(error)
         }
     };
 

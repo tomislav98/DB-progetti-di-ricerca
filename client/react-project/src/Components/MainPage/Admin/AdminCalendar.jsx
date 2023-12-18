@@ -136,8 +136,6 @@ export default function AdminCalendar() {
         setVisibleWindowIndex(event.id);
     }
 
-    // TODO vedere come mandare la richiesta
-
     useEffect(() => {
         fetchAndSetEventWindows()
     }, [])

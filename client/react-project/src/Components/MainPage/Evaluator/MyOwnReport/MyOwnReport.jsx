@@ -10,7 +10,6 @@ export default function MyOwnReports() {
     const fetchReports = async () => {
         const token = getToken();
         const res = await getEvaluatorReports(token);
-        console.log(res)
         setReports([...res.data])
     }
 
@@ -18,9 +17,7 @@ export default function MyOwnReports() {
         try {
             fetchReports();
         } catch (error) {
-            console.log(error.response.status)
             if (error.response.status === 404) {
-                console.log("MIMMOOO")
             }
         }
     }, [])

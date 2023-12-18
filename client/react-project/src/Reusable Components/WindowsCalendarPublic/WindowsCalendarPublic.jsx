@@ -9,8 +9,6 @@ export default function WindowsCalendarPublic() {
         const token = getToken();
         const response = await getAllEvaluationWindows(token);
 
-        console.log(response);
-
         setWindows([...response])
     }
 

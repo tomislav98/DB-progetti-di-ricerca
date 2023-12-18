@@ -1,7 +1,6 @@
 import axios from 'axios';
 import jwtDecode from 'jwt-decode';
 
-// TODO: pls modificare ste funzioni in modo che usino getToken e getDecodedToken internamente, invece che obbligare queste operazioni all'esterno e passarle come params
 export async function updateProject(userId, projId, token, updateData) {
   const url = `http://localhost:5000/researchers/${userId}/projects/${projId}`;
 

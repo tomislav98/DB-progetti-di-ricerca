@@ -14,12 +14,9 @@ def error_handler(f):
         try:
             return f(*args, **kwargs)
         except CustomError as err:
-            print(err.message)
             raise err
         except SQLAlchemyError as err: 
-            print(err.orig)          
             raise CustomError('Internal db error', 500)
         except Exception as err:
-            print(err)
             raise CustomError("Internal server error", 500)
     return decorated_function

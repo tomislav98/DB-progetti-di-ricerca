@@ -254,7 +254,6 @@ export default function CreateReportStepper({id, project}) {
     const handleNext = (event) => {
         if(event.target.innerText === 'FINISH'){
             sendReport();
-            console.log('first')
         }
 
         let newSkipped = skipped;

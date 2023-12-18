@@ -75,7 +75,6 @@ function ProjectDocuments({ documents = [], projectId, nameProp, descriptionProp
 
             const res = await updateProject(decodedToken.user_id, projectId, token, formData);
 
-            console.log(res)
 
             if (res.status === 200)
                 onSuccess();

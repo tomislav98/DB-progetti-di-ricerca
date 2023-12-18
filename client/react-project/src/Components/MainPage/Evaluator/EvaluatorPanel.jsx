@@ -19,7 +19,6 @@ export default function EvaluatorPanel() {
 	const handleItemClick = (i) => {
 		setIndex(i);
 	};
-	// TODO devi aggiungere un onclick che quando viene cliccato setta lo stato (setIndex(i))
 
 	return <div className='evaluator-panel-container'>
 		<div className='row navbar-row'>

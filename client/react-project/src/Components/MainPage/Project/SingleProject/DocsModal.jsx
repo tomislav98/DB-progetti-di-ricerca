@@ -33,7 +33,6 @@ export function DocsModal({ projectData, isOpen, onCloseModal }) {
                 return await getDocumentsbyId(e.doc_id, token);
             }));
 
-            console.log(docs)
 
             setDocs([...docs])
         }

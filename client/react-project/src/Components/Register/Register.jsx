@@ -200,7 +200,6 @@ function Register() {
             setSnackbarOpen(true);
         } catch (error) {
             if (error.response) {
-                console.log(error.response)
                 setAlert(error.response.status);
                 setSnackbarOpen(true);
             } else {
